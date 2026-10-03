@@ -5,8 +5,13 @@
   text-decoration: none;
 }
 
-.button:hover {
-  text-decoration: none;
+/* pressing a button dips it slightly — feedback for the action, not decoration */
+.button {
+  transition: transform var(--duration-press) var(--ease-out), background-color var(--duration-fast) var(--ease-out);
+}
+
+.button:active:not([aria-disabled='true']) {
+  transform: scale(var(--scale-press));
 }
 
 /* header "اعرضي خدمتك" */
@@ -21,13 +26,16 @@
   font-size: var(--text-control);
 }
 
-.ink:hover {
-  background: var(--color-accent);
-}
-
 .ink:focus {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset-lg);
+}
+
+/* the sticky header's action — the same ink pill, sized for a 56–64px bar */
+.ink.compact {
+  padding: var(--space-6) var(--space-11);
+  font-size: var(--text-body-sm);
+  white-space: nowrap;
 }
 
 /* large hero CTA */
@@ -41,10 +49,6 @@
   font-weight: var(--weight-heavy);
   font-size: var(--text-cta);
   box-shadow: var(--shadow-cta);
-}
-
-.cta:hover {
-  background: var(--color-accent);
 }
 
 .cta:focus {
@@ -62,10 +66,6 @@
   font-family: var(--font-heading), sans-serif;
   font-weight: var(--weight-bold);
   font-size: var(--text-body);
-}
-
-.accent:hover {
-  background: var(--color-accent-hover);
 }
 
 .accent:focus {
@@ -100,10 +100,6 @@
   min-height: var(--size-control);
 }
 
-.contact:hover {
-  background: var(--color-secondary);
-}
-
 .contact:focus {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
@@ -131,10 +127,6 @@
   color: var(--color-ink);
 }
 
-.round:hover {
-  background: var(--color-tint);
-}
-
 .round:focus {
   outline: var(--focus-ring);
 }
@@ -144,6 +136,10 @@
   font-family: var(--font-body), sans-serif;
   font-weight: var(--weight-medium);
   color: var(--color-text-muted);
+  /* a 30-character handle must not push the button past its row */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .contact .value {
@@ -165,18 +161,13 @@
   box-shadow: var(--shadow-cta-accent);
 }
 
-.submit:hover {
-  background: var(--color-accent-hover);
-}
-
 .submit:focus {
   outline: var(--focus-ring-on-accent);
   outline-offset: var(--focus-offset-lg);
 }
 
 /* blocked (a rule not yet met) or busy (publishing): the design's "submitting" look */
-.submit[aria-disabled='true'],
-.submit[aria-disabled='true']:hover {
+.submit[aria-disabled='true'] {
   background: var(--color-tint);
   color: var(--color-ink);
   box-shadow: none;
@@ -194,16 +185,14 @@
   font-size: var(--text-body);
 }
 
-.soft:hover {
-  background: var(--color-tint);
-}
-
 .soft:focus {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset-lg);
 }
 
 .soft.compact {
+  min-width: 0;
+  max-width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -233,10 +222,6 @@
   white-space: nowrap;
 }
 
-.surface:hover {
-  background: var(--color-tint);
-}
-
 .surface:focus {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
@@ -259,4 +244,29 @@
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
   border-radius: var(--radius-focus);
+}
+
+/* Hover — pointer devices only. Each variant stays itself, "awake": the design turned
+   black buttons pink and the contact button teal, which read as different components. */
+@media (hover: hover) {
+  .button:hover {
+    text-decoration: none;
+  }
+
+  .ink:hover,
+  .cta:hover,
+  .contact:hover {
+    background: var(--color-ink-hover);
+  }
+
+  .accent:hover,
+  .submit:not([aria-disabled='true']):hover {
+    background: var(--color-accent-hover);
+  }
+
+  .round:hover,
+  .soft:hover,
+  .surface:hover {
+    background: var(--color-tint);
+  }
 }

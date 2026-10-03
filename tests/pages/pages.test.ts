@@ -48,7 +48,9 @@ async function insert(row: Record<string, unknown>): Promise<string> {
 
 async function get(path: string): Promise<{ status: number; html: string }> {
   const res = await fetch(`${base}${path}`, { redirect: 'manual' });
-  return { status: res.status, html: await res.text() };
+  // React's server renderer separates adjacent text pieces ("في {country} منذ") with empty
+  // <!-- --> comments; remove them so assertions compare the text a visitor actually sees.
+  return { status: res.status, html: (await res.text()).replaceAll('<!-- -->', '') };
 }
 
 before(async () => {
@@ -147,7 +149,7 @@ test('form page: submit starts blocked, with the contact reason on it', async ()
   const btn = html.match(/<button[^>]*type="submit"[^>]*>([\s\S]*?)<\/button>/);
   assert.ok(btn, 'submit button not found');
   assert.match(btn[0], /aria-disabled="true"/);
-  assert.match(btn[1], /أضيفي طريقة تواصل لتنشري الإعلان/);
+  assert.match(btn[1], /أضيفي طريقة تواصل أولًا/);
   assert.ok(html.includes('أضيفي طريقة تواصل واحدة على الأقل'), 'requirement line missing');
   assert.ok(html.includes(`مثال: ٥٠ ${K.currency}`), 'price placeholder for the default country');
 });

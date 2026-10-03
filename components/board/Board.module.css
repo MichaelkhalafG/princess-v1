@@ -1,0 +1,245 @@
+.page {
+  min-height: 100vh;
+}
+
+/* ── header + hero band ───────────────────────────────────────────────────── */
+/* Full width, so the orbs are clipped by the screen edges only. Each orb is placed to
+   bleed off an outer edge (top/right, or left) and to stay whole above the band's
+   bottom, so no orb ever ends on a straight line. */
+.top {
+  position: relative;
+  overflow: clip;
+  /* tuck up behind the sticky (transparent) header so the orbs reach the top edge of
+     the screen instead of stopping flat under the header */
+  margin-top: calc(var(--size-header) * -1);
+  padding-top: var(--size-header);
+}
+
+.top > :not(.blob) {
+  position: relative;
+  z-index: 1;
+}
+
+.blob {
+  position: absolute;
+  border-radius: var(--radius-circle);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.blobTint {
+  right: var(--blob-hero-lg-inset-x);
+  top: var(--blob-hero-lg-inset-y);
+  width: var(--blob-hero-lg);
+  height: var(--blob-hero-lg);
+  background: var(--color-tint);
+}
+
+.blobAmber {
+  left: var(--blob-hero-md-inset-x);
+  bottom: var(--blob-hero-md-inset-bottom);
+  width: var(--blob-hero-md);
+  height: var(--blob-hero-md);
+  background: var(--color-tint-amber);
+}
+
+/* ── hero ─────────────────────────────────────────────────────────────────── */
+.hero {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-hero);
+  padding: var(--space-11) var(--gutter-page) var(--pad-hero-bottom);
+  max-width: var(--width-content);
+  margin: 0 auto;
+}
+
+.copy {
+  flex: 1 1 0;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-13);
+  padding-top: var(--space-8);
+}
+
+.title {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-heavy);
+  font-size: var(--text-h1);
+  line-height: var(--leading-display);
+  margin: 0;
+  letter-spacing: var(--tracking-display);
+  text-wrap: pretty;
+}
+
+.lead {
+  font-size: var(--text-lead);
+  line-height: var(--leading-body);
+  margin: 0;
+  color: var(--color-text-secondary);
+  max-width: var(--width-measure);
+  text-wrap: pretty;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-7);
+  max-width: var(--width-hero-controls);
+}
+
+/* six hero chips in two even rows of three — the design's wrapping row left one chip
+   alone on the second line */
+.chips {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: start;
+  justify-items: start;
+  gap: var(--space-5);
+  max-width: var(--width-hero-chips);
+}
+
+.ctaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-11);
+  margin-top: var(--space-2);
+}
+
+.ctaNote {
+  font-size: var(--text-body-sm);
+  color: var(--color-text-muted);
+}
+
+/* ── grid ─────────────────────────────────────────────────────────────────── */
+.grid {
+  /* when a filter brings the results into view, they stop just under the sticky header */
+  scroll-margin-top: var(--size-header);
+  padding: var(--pad-section-top) var(--gutter-page) var(--pad-section-bottom);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-14);
+  max-width: var(--width-content);
+  margin: 0 auto;
+}
+
+.gridHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-11);
+  flex-wrap: wrap;
+}
+
+.gridTitle {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-heavy);
+  font-size: var(--text-h2);
+  margin: 0;
+  line-height: var(--leading-heading);
+}
+
+.count {
+  font-size: var(--text-body-sm);
+  color: var(--color-text-muted);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--width-card-min)), 1fr));
+  gap: var(--gap-grid);
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+/* filtering: the current results dim while the new ones load … */
+.cardsPending {
+  opacity: var(--opacity-pending);
+}
+
+/* … and the new ones fade in one after another (opacity only — nothing moves) */
+.cardsIn > * {
+  animation: results-in var(--duration-base) var(--ease-out) backwards;
+}
+
+.cardsIn > :nth-child(2) { animation-delay: calc(var(--stagger-step) * 1); }
+.cardsIn > :nth-child(3) { animation-delay: calc(var(--stagger-step) * 2); }
+.cardsIn > :nth-child(4) { animation-delay: calc(var(--stagger-step) * 3); }
+.cardsIn > :nth-child(5) { animation-delay: calc(var(--stagger-step) * 4); }
+.cardsIn > :nth-child(6) { animation-delay: calc(var(--stagger-step) * 5); }
+.cardsIn > :nth-child(7) { animation-delay: calc(var(--stagger-step) * 6); }
+.cardsIn > :nth-child(n + 8) { animation-delay: calc(var(--stagger-step) * 7); }
+
+@keyframes results-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* while results load: a slim line sweeps under the heading */
+.gridHead {
+  position: relative;
+}
+
+.loading {
+  position: absolute;
+  inset-inline: 0;
+  bottom: calc(var(--space-5) * -1);
+  height: var(--size-loading-line);
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, transparent, var(--color-accent), transparent) 0 0 / 40% 100% no-repeat var(--color-tint);
+  animation: loading-sweep var(--duration-loading) linear infinite;
+}
+
+@keyframes loading-sweep {
+  from {
+    background-position: -40% 0;
+  }
+
+  to {
+    background-position: 140% 0;
+  }
+}
+
+@media (max-width: 860px) {
+
+  .hero {
+    flex-direction: column;
+    align-items: stretch;
+    padding-top: var(--space-5);
+  }
+
+  .copy {
+    padding-top: 0;
+  }
+
+  .title {
+    font-size: var(--text-h1-mobile);
+  }
+
+  /* the hero chips become one swipeable row that runs to the screen edges */
+  .chips {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    max-width: none;
+    margin: 0 calc(var(--gutter-page) * -1);
+    padding: var(--space-2) var(--gutter-page) var(--space-7);
+    scrollbar-width: none;
+  }
+
+  .chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ctaRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ctaRow > a {
+    text-align: center;
+  }
+}

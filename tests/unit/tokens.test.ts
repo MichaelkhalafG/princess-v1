@@ -15,8 +15,10 @@ function walk(dir: string): string[] {
 const sources = ['app', 'components'].flatMap((d) => walk(join(root, d)));
 const cssFiles = sources.filter((f) => f.endsWith('.css') && f !== TOKENS);
 const codeFiles = sources.filter((f) => /\.tsx?$/.test(f));
-// next/font sets these two on <html> at runtime (app/fonts.ts)
-const defined = new Set([...definedVars(readFileSync(TOKENS, 'utf8')), '--font-heading', '--font-body']);
+// next/font sets its variables on <html> at runtime; read them from app/fonts.ts so the
+// list cannot drift when a font is added
+const fontVars = [...readFileSync(join(root, 'app/fonts.ts'), 'utf8').matchAll(/variable: '(--[\w-]+)'/g)].map((m) => m[1]);
+const defined = new Set([...definedVars(readFileSync(TOKENS, 'utf8')), ...fontVars]);
 
 test('the guard itself catches what it must (and ignores comments)', () => {
   assert.equal(scanCss('.a {\n  color: #fff;\n}').length, 1);

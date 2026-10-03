@@ -10,7 +10,7 @@ export function ArchMark({
   tone,
   className,
 }: {
-  size: 'logo' | 'banner' | 'status';
+  size: 'logo' | 'footer' | 'banner' | 'status';
   tone: 'accent' | 'secondary' | 'highlight' | 'surface';
   className?: string;
 }) {

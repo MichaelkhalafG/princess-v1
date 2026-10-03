@@ -1,6 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { readBoardContext, withBoardContext } from '@/lib/board-url.ts';
 import { SERVER_MESSAGES, validateListing } from '@/lib/listing.ts';
 import { insertListing } from '@/lib/listings.ts';
 import { PUBLISH_FAILED_MESSAGE, type FormErrors } from '@/lib/listing-form.ts';
@@ -13,7 +14,7 @@ export type CreateListingResult = { errors: FormErrors; message: string | null }
  * enforcement (lib/listing.ts) and the database is the second (CHECKs + grants).
  * On success it redirects to the listing's own page with the "posted" confirmation.
  */
-export async function createListing(input: unknown): Promise<CreateListingResult> {
+export async function createListing(input: unknown, contextQuery: unknown = ''): Promise<CreateListingResult> {
   const v = validateListing(input);
   if (!v.ok) {
     const errors: FormErrors = {};
@@ -31,5 +32,8 @@ export async function createListing(input: unknown): Promise<CreateListingResult
     console.error('createListing: insert refused', 'dbError' in result ? result.dbError : result.errors);
     return { errors: {}, message: PUBLISH_FAILED_MESSAGE };
   }
-  redirect(`/listing/${result.listing.id}?posted=1`);
+  // carry her board context (re-validated here — it came from the client) so the posted
+  // listing's "back to the board" returns her where she started
+  const ctx = readBoardContext(new URLSearchParams(typeof contextQuery === 'string' ? contextQuery : ''));
+  redirect(withBoardContext(`/listing/${result.listing.id}`, { ...ctx, country: ctx.country ?? result.listing.country }, { posted: '1' }));
 }

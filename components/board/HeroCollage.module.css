@@ -1,0 +1,79 @@
+/* Positions are fractions of the collage box, exactly as in the design. */
+.collage {
+  flex: 1 1 0;
+  min-width: 0;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  aspect-ratio: var(--ratio-collage);
+}
+
+.disc {
+  position: absolute;
+  right: 2%;
+  bottom: 8%;
+  width: 24%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-circle);
+  background: var(--color-decor-disc);
+  z-index: 0;
+}
+
+/* No will-change: it put each photo on its own GPU layer, where Chrome on Windows can fail
+   to clip a layer to its rounded overflow — the arch's top corners then render square,
+   and the near-black top of the nails photo showed as a hard black rectangle. The image
+   carries the arch shape itself, so it is clipped even if the box's clip is not. */
+.photo {
+  position: absolute;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+.p1 {
+  right: 10%;
+  top: 0;
+  width: 52%;
+  height: 70%;
+  border-radius: var(--radius-pill) var(--radius-pill) 12% 12%;
+  box-shadow: var(--shadow-photo-accent);
+  z-index: 2;
+}
+
+.p2 {
+  left: 2%;
+  top: 10%;
+  width: 40%;
+  height: 55%;
+  border-radius: var(--radius-pill) var(--radius-pill) 10% 10%;
+  box-shadow: var(--shadow-photo-highlight);
+  z-index: 1;
+}
+
+.p3 {
+  left: 20%;
+  bottom: 0;
+  width: 48%;
+  height: 42%;
+  border-radius: var(--radius-pill) var(--radius-pill) 10% 10%;
+  box-shadow: var(--shadow-photo-secondary);
+  z-index: 3;
+}
+
+.p3 img {
+  object-position: center 30%;
+}
+
+@media (max-width: 860px) {
+  .collage {
+    order: -1;
+    max-width: var(--width-collage-mobile);
+    margin: 0 auto;
+  }
+}

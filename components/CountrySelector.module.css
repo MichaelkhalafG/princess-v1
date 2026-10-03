@@ -16,6 +16,7 @@
   white-space: nowrap;
   background: transparent;
   color: var(--color-text-muted);
+  transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
 }
 
 .option:focus {
@@ -29,7 +30,12 @@
 }
 
 .flag {
-  line-height: var(--leading-none);
+  display: block;
+  flex: 0 0 auto;
+  height: auto;
+  border-radius: var(--radius-flag);
+  /* a hairline edge so white stripes (EG, AE) do not dissolve into the white pill */
+  box-shadow: var(--shadow-flag);
 }
 
 /* header */
@@ -45,7 +51,7 @@
 }
 
 .compact .flag {
-  font-size: var(--size-flag);
+  width: var(--size-flag);
 }
 
 /* hero */
@@ -61,7 +67,7 @@
 }
 
 .large .flag {
-  font-size: var(--size-flag-lg);
+  width: var(--size-flag-lg);
 }
 
 /* inside the form card */
@@ -78,8 +84,9 @@
 }
 
 @media (max-width: 480px) {
-  /* three countries share a narrow card: the form design's small-phone override */
-  .inset .option {
+  /* Three countries in one row on a small phone: the form design's override. Applied to
+     the hero selector too — with the landing's 12×16 padding it is clipped at 380px. */
+  .large .option {
     padding: var(--space-selector-pad-y-sm) var(--space-5);
     font-size: var(--text-body-sm);
   }
@@ -104,5 +111,13 @@
 
   .compact .flag {
     display: none;
+  }
+}
+
+/* Hover — pointer devices only; the selected country never changes */
+@media (hover: hover) {
+  .option:not(.selected):hover {
+    background: var(--color-tint-soft);
+    color: var(--color-ink);
   }
 }

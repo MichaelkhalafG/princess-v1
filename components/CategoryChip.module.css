@@ -12,12 +12,36 @@
   white-space: nowrap;
   background: var(--color-surface);
   color: var(--color-ink);
+  /* selecting a chip eases its colour instead of snapping */
+  transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
 }
 
+/* the icon carries the category's tone, as on the card badge */
+.icon {
+  display: inline-flex;
+  color: var(--color-ink);
+}
+
+.chip[data-tone='accent'] .icon { color: var(--tone-accent-ink); }
+.chip[data-tone='secondary'] .icon { color: var(--tone-secondary-ink); }
+.chip[data-tone='highlight'] .icon { color: var(--tone-highlight-ink); }
+.chip[data-tone='ink'] .icon { color: var(--tone-ink-ink); }
+
+/* the count: a small number pill belonging to the chip */
 .count {
-  font-size: var(--text-micro);
-  font-weight: var(--weight-regular);
-  color: var(--color-text-subtle);
+  display: inline-grid;
+  place-items: center;
+  min-width: var(--size-count);
+  height: var(--size-count);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-tint-soft);
+  color: var(--color-text-muted);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-none);
+  font-variant-numeric: tabular-nums;
 }
 
 .selected {
@@ -25,8 +49,14 @@
   color: var(--color-on-ink);
 }
 
+.selected .icon,
+.chip.selected[data-tone] .icon {
+  color: var(--color-on-ink);
+}
+
 .selected .count {
-  color: var(--color-text-muted-on-ink);
+  background: var(--color-count-on-ink-bg);
+  color: var(--color-on-ink);
 }
 
 /* hero chips */
@@ -54,11 +84,6 @@
   background: var(--color-ink);
 }
 
-/* As in the design, hover applies to the selected chip too (see the session report). */
-.bar:hover {
-  background: var(--color-tint);
-}
-
 .bar:focus {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset-inset);
@@ -75,12 +100,21 @@
   box-shadow: var(--shadow-chip-selected);
 }
 
-/* As in the design, hover applies to the selected chip too. */
-.inset:hover {
-  background: var(--color-tint);
-}
-
 .inset:focus {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
+}
+
+/* Hover — pointer devices only, so nothing sticks after a tap on a phone. A selected
+   chip never changes on hover: the design turned it pale (cream text on peach), so the
+   one thing under her cursor went the wrong way. */
+@media (hover: hover) {
+  .raised:not(.selected):hover {
+    background: var(--color-tint-soft);
+  }
+
+  .bar:not(.selected):hover,
+  .inset:not(.selected):hover {
+    background: var(--color-tint);
+  }
 }

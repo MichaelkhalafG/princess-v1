@@ -10,6 +10,16 @@
   border-radius: var(--radius-banner) var(--radius-banner-shoulder) var(--radius-banner) var(--radius-banner);
   padding: var(--space-11) var(--space-13);
   margin-top: var(--space-5);
+  /* the one load moment on this page: confirming that her listing is live.
+     Opacity and scale only — its space is reserved from the first paint. */
+  animation: posted-in var(--duration-slow) var(--ease-out);
+}
+
+@keyframes posted-in {
+  from {
+    opacity: 0;
+    transform: scale(var(--scale-press));
+  }
 }
 
 .text {

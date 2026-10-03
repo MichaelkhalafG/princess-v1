@@ -16,41 +16,81 @@
 
 :root {
   /* ── Colour ─────────────────────────────────────────────────────────────── */
+  /* Palette: Option A (chosen 2026-10-03) — the design's hues, desaturated and
+     redistributed. Saturated colour is kept for actions and small accents (buttons,
+     selected states, price, focus); large areas (category panels and badges, orbs,
+     collage disc, page ground) carry soft tints of the same hues.
+     The design's originals, for reference: canvas #FFF6F1, accent #FF4D8D / hover
+     #E83D7C, secondary #2BA39B, highlight #FFB038, tint #FFE3D3, tint-soft #FFF0E8,
+     tint-amber #FFE9C2; category panels and badges were solid accent/secondary/
+     highlight/ink. */
   --color-ink: #1C0A14;               /* primary text, dark surfaces, ink buttons */
-  --color-canvas: #FFF6F1;            /* page background, form fields */
-  --color-on-ink: #FFF6F1;            /* text on ink surfaces */
+  --color-ink-hover: #3A2733;         /* ink, "awake": the same button lifted, not a new colour
+                                         (the design turned ink buttons pink and the contact
+                                         button teal on hover) */
+  --color-canvas: #FCF8F6;            /* page background, form fields */
+  --color-on-ink: #FCF8F6;            /* text on ink surfaces */
   --color-surface: #fff;              /* cards, controls, panels */
   --color-on-accent: #fff;            /* text on accent / secondary fills */
   --color-on-contact: #fff;           /* main contact button: the design uses pure white
                                          on ink here, but cream (--color-on-ink) on every
                                          other ink surface */
 
-  --color-accent: #FF4D8D;            /* brand pink: selected country, price, errors */
-  --color-accent-hover: #E83D7C;
-  --color-secondary: #2BA39B;         /* teal: WhatsApp dot and hover, "complete", posted banner */
-  --color-highlight: #FFB038;         /* amber: focus ring, category tone */
+  --color-accent: #D03A73;            /* brand pink, hsl(337 62% 52%): white text on it 4.63:1 (Option A #D65284 was 3.89) */
+  --color-accent-hover: #BE2D64;     /* hsl(337 62% 46%): one step darker */
+  --color-secondary: #3D7F79;         /* teal, hsl(174 35% 37%): white text on it 4.66:1 (was 3.70) — WhatsApp dot, "complete", posted banner */
+  --color-highlight: #E0A752;         /* amber, hsl(36 70% 60%): focus ring */
 
-  --color-tint: #FFE3D3;              /* hover fill, photo placeholder, blobs, busy submit */
-  --color-tint-soft: #FFF0E8;         /* soft buttons, field prefixes */
-  --color-tint-amber: #FFE9C2;        /* decorative blob */
+  --color-tint: #F7E7DE;              /* hover fill, photo placeholder, blobs, busy submit */
+  --color-tint-soft: #FBF1EC;         /* soft buttons, field prefixes */
+  --color-tint-amber: #F5E8D2;        /* decorative blob */
 
   --color-text-secondary: #4A3540;    /* body copy, descriptions */
   --color-text-muted: #6B5460;        /* area, counts, hints, unselected country */
-  --color-text-subtle: #8A7580;       /* dates, chip counts, character counters */
-  --color-text-muted-on-ink: #D9B8C8; /* muted text on a dark surface: chip count on a
-                                         selected chip, the number on the contact button */
+  --color-text-subtle: #7B6872;       /* dates, counts, counters: 5.17 on white, 4.65 on soft tint (was 3.83 at worst) */
+  --color-text-muted-on-ink: #D9B8C8; /* muted text on a dark surface: the number on the
+                                         contact button */
+  --color-count-on-ink-bg: rgb(252 248 246 / .16); /* count pill on a selected (ink) chip */
 
   --color-footer-text: #E9D3DC;
   --color-footer-muted: #B899A8;
   --color-footer-chip: #2E1A26;
+  --color-footer-chip-hover: #46333E; /* design: turned pink */
   --color-footer-divider: #3A2532;
 
-  --color-bar-bg: rgba(255, 246, 241, .94);     /* sticky filter bar */
-  --color-bar-border: rgba(255, 77, 141, .18);
+  --color-bar-bg: rgba(252, 248, 246, .94);     /* sticky filter bar: the canvas at 94% */
+  --color-bar-border: rgb(122 41 72 / .12);    /* the shadow rose-brown, not the old neon */
   --color-divider: rgba(28, 10, 20, .2);        /* short vertical dividers */
-  --color-dropzone-border: rgba(255, 77, 141, .45);
+  --color-dropzone-border: rgb(208 58 115 / .45);   /* accent */
 
   --opacity-placeholder: .5;          /* placeholder text is ink at half opacity */
+
+  /* Category tones (badge + monogram panel) and the collage disc: large areas, so soft
+     tints of each hue with a deep ink of the same hue for the text on them. */
+  --tone-accent-bg: #FAE5ED;
+  --tone-accent-ink: #7A2948;
+  --tone-secondary-bg: #E3F2F0;
+  --tone-secondary-ink: #24605B;
+  --tone-highlight-bg: #F9EBD7;
+  --tone-highlight-ink: #72501D;
+  --tone-ink-bg: #EDE4E8;
+  --tone-ink-ink: #1C0A14;
+  --color-decor-disc: #CFE6E3;
+
+  /* ── Logo: "The built P" (Princess Logo System.dc.html, approved section) ── */
+  --color-logo-ink: #1C0A14;
+  --color-logo-disc: #EE6F9C;         /* the file's coral (its "softer" palette). Not the
+                                         button pink #D03A73: the disc is a mark, not text,
+                                         so the contrast fix does not apply to it. */
+  --color-logo-blush: #FFF6F1;        /* reversed variant; also the icon tile ground */
+  --tracking-logo-word: -.02em;
+  --logo-mark-height: .75em;          /* the P at 0.75 em … */
+  --logo-mark-baseline: .145em;       /* … seated on the baseline */
+  --logo-word-gap: .03em;
+  --text-logo-header: 32px;           /* file: desktop header 1200 × 64 */
+  --text-logo-header-sm: 22px;        /* file: mobile header 380 × 56 */
+  --text-logo-footer: 28px;           /* file: dark footer, reversed */
+  --text-logo-hero: 44px;
 
   /* ── Typography ─────────────────────────────────────────────────────────── */
   /* --font-heading / --font-body are set by next/font on <html> (app/fonts.ts):
@@ -91,14 +131,18 @@
      parent's font size, so it always rendered at 100px. Fixed (decision 8a) to 36% of
      the panel's WIDTH via container query units; the 100/136 bounds are kept. */
   --text-monogram: clamp(100px, 36cqi, 136px);
-  --text-monogram-lg: 42cqi;          /* detail page panel (the design already used cqw) */
+  --text-monogram-lg: min(42cqi, 240px); /* detail page panel; capped so a wide, height-
+                                            capped panel cannot outgrow its letter */
 
-  --leading-none: 1;                  /* price, monogram, flags */
-  --leading-display: 1.08;            /* h1 */
-  --leading-heading: 1.1;             /* h2, detail title */
-  --leading-notfound-title: 1.15;     /* ONE-OFF */
-  --leading-title: 1.2;               /* ONE-OFF: empty-state title */
-  --leading-card-title: 1.22;         /* card titles */
+  /* Arabic headings need more leading than Latin: the design's 1.08–1.22 let two lines
+     of a wrapped heading touch. Every heading is now at least 1.3. */
+  --leading-none: 1;                  /* monogram, flags — single glyphs, never wrapped text */
+  --leading-display: 1.3;             /* h1 (design: 1.08) */
+  --leading-heading: 1.3;             /* h2, detail title (design: 1.1) */
+  --leading-notfound-title: 1.3;      /* (design: 1.15) */
+  --leading-title: 1.3;               /* empty-state and detail titles (design: 1.2) */
+  --leading-card-title: 1.3;          /* card titles (design: 1.22) */
+  --leading-price: 1.3;               /* prices — the design's 1.0 made a wrapped price touch itself */
   --leading-snug: 1.5;                /* errors, hints, banner text */
   --leading-note: 1.6;                /* ONE-OFF: note under the submit button */
   --leading-card-body: 1.65;          /* card description, textarea */
@@ -157,8 +201,9 @@
   --pad-form-card: 30px 28px 28px;              /* breakpoint-scoped below */
   --width-content: 1400px;
   --width-detail: 1200px;
-  --width-form: 720px;
+  --width-form: 880px;                /* design: 720px — too narrow once short fields pair up */
   --width-card-min: 260px;
+  --width-area-min: 72px;             /* the card's "city، district" never shrinks below this */
   --width-card-compact: 280px;
   --width-measure: 520px;             /* empty state, lead paragraphs */
   --width-status: 560px;              /* not-found panel */
@@ -172,7 +217,10 @@
   --size-control: 46px;               /* every control's height (landing value; the form's
                                          48/44/40/38 and the detail's 54 resolve to it) */
   --size-bar: 40px;                   /* sticky filter bar height */
+  --size-header: 64px;                /* sticky header (logo file: 1200 × 64); 56 on phones */
+  --stroke-back: 2;                   /* back arrow */
   --size-icon: 15px;                  /* category line icons */
+  --size-count: 18px;                 /* the count pill on a chip */
   --stroke-icon: 1.75;
   --size-dot: 9px;                    /* contact-button dot */
   --size-dot-sm: 8px;                 /* sticky bar, back link, detail meta */
@@ -185,12 +233,15 @@
   --size-hairline: 1px;
   --border-field: 1.5px;              /* field and dropzone borders, error outlines */
   --size-flag: 15px;                  /* compact selector flag */
-  --size-flag-lg: 16px;               /* large selector flag */
+  --size-flag-lg: 16px;               /* large selector flag (flags are 4:3 images) */
+  --radius-flag: 2px;
+  --shadow-flag: 0 0 0 1px rgba(28, 10, 20, .12);
   --size-thumb: 76px;                 /* uploaded photo preview */
   --size-progress: 6px;               /* upload progress bar */
   --size-textarea-min: 140px;
   --ratio-media: 4 / 3.3;             /* card photo / monogram panel */
   --ratio-media-lg: 4 / 3.6;          /* detail page photo / monogram panel */
+  --height-detail-media-max: 380px;   /* detail photo in one column (tablet, phone) */
   --offset-monogram: 6%;              /* monogram sits slightly below centre */
   --offset-monogram-lg: 8%;
   --blur-bar: 10px;
@@ -207,6 +258,24 @@
   --size-mark-banner-h: 28px;
   --size-mark-status-w: 56px;
   --size-mark-status-h: 68px;
+
+  --size-mark-footer-w: 26px;         /* landing footer logo mark */
+  --size-mark-footer-h: 32px;
+
+  /* Landing hero */
+  --width-hero-controls: 640px;       /* country selector + search row */
+  --width-hero-chips: 600px;
+  --width-collage-mobile: 440px;
+  --width-footer-chips: 440px;
+  --ratio-collage: 1 / 1.08;
+  --blob-hero-lg: 560px;
+  --blob-hero-lg-inset-x: -160px;
+  --blob-hero-lg-inset-y: -200px;
+  /* the design had the amber orb at bottom:-260px inside the hero, so the hero cut it flat;
+     it now bleeds off the left screen edge and stays whole above the band's bottom */
+  --blob-hero-md: 460px;
+  --blob-hero-md-inset-x: -200px;
+  --blob-hero-md-inset-bottom: 24px;
 
   /* Decorative blobs behind the form and detail pages */
   --blob-lg: 460px;
@@ -246,24 +315,55 @@
   --focus-offset-inset: -3px;         /* inside the category bar's scroll area */
 
   /* ── Shadows ────────────────────────────────────────────────────────────── */
-  --shadow-media-lift: 0 30px 56px -26px rgba(255, 77, 141, .42);
-  --shadow-card: var(--shadow-media-lift), 0 2px 10px rgba(255, 77, 141, .08);
+  /* Option A applied to shadows. The design tinted every shadow with the neon accent
+     (rgba(255, 77, 141, .3–.6)), which left the soft palette sitting on hot-pink glows.
+     Shadows under surfaces now use a muted rose-brown (the accent tone's deep ink,
+     #7A2948) at low alpha; only glows that belong to an action (submit, logo) and the
+     three collage photos keep a hue — Option A's softened one. Channels as tokens so a
+     shadow cannot drift out of the palette again. */
+  --rgb-shadow: 122 41 72;            /* #7A2948 */
+  --rgb-ink: 28 10 20;                /* #1C0A14 */
+  --rgb-accent: 208 58 115;           /* #D03A73 */
+  --rgb-highlight: 224 167 82;        /* #E0A752 */
+  --rgb-secondary: 61 127 121;        /* #3D7F79 */
+
+  --shadow-media-lift: 0 30px 56px -26px rgb(var(--rgb-shadow) / .22);
+  --shadow-card: var(--shadow-media-lift), 0 2px 10px rgb(var(--rgb-shadow) / .05);
+  /* hovering a card deepens its shadow — feedback without moving anything */
+  --shadow-card-hover: 0 34px 60px -24px rgb(var(--rgb-shadow) / .32), 0 2px 12px rgb(var(--rgb-shadow) / .08);
   --shadow-badge: 0 0 0 4px var(--color-surface), 0 10px 20px -10px rgba(28, 10, 20, .3);
   --shadow-badge-on-canvas: 0 0 0 4px var(--color-canvas), 0 10px 20px -10px rgba(28, 10, 20, .3);
-  --shadow-monogram: inset -40px -40px 90px -50px rgba(28, 10, 20, .22);
-  --shadow-chip: 0 6px 16px -8px rgba(255, 77, 141, .35);
-  --shadow-chip-selected: 0 10px 20px -10px rgba(28, 10, 20, .6);
-  --shadow-control: 0 18px 40px -16px rgba(255, 77, 141, .35), 0 2px 6px rgba(28, 10, 20, .06);
-  --shadow-control-compact: 0 10px 24px -12px rgba(255, 77, 141, .35), 0 0 0 1px rgba(255, 77, 141, .08);
-  --shadow-catbar: 0 14px 34px -16px rgba(255, 77, 141, .3);
-  --shadow-panel: 0 24px 50px -24px rgba(255, 77, 141, .4);
-  --shadow-cta: 0 20px 40px -18px rgba(28, 10, 20, .6);
-  --shadow-cta-accent: 0 20px 40px -18px rgba(255, 77, 141, .6);   /* submit */
-  --shadow-logo: 0 10px 20px -8px rgba(255, 77, 141, .6);
-  /* hero collage — one each */
-  --shadow-photo-accent: 0 40px 70px -30px rgba(255, 77, 141, .55), 0 8px 20px -8px rgba(28, 10, 20, .15);
-  --shadow-photo-highlight: 0 30px 60px -26px rgba(255, 176, 56, .65), 0 6px 16px -6px rgba(28, 10, 20, .15);
-  --shadow-photo-secondary: 0 34px 60px -24px rgba(43, 163, 155, .55), 0 6px 16px -6px rgba(28, 10, 20, .15);
+  /* the design's 22% suited solid fills; on the soft category tints it reads as a smudge */
+  --shadow-monogram: inset -40px -40px 90px -50px rgba(28, 10, 20, .08);
+  --shadow-chip: 0 6px 16px -8px rgb(var(--rgb-shadow) / .16);
+  --shadow-chip-selected: 0 10px 20px -10px rgb(var(--rgb-ink) / .45);
+  --shadow-control: 0 18px 40px -16px rgb(var(--rgb-shadow) / .16), 0 2px 6px rgb(var(--rgb-ink) / .05);
+  --shadow-control-compact: 0 10px 24px -12px rgb(var(--rgb-shadow) / .16), 0 0 0 1px rgb(var(--rgb-shadow) / .07);
+  --shadow-catbar: 0 14px 34px -16px rgb(var(--rgb-shadow) / .14);
+  --shadow-panel: 0 24px 50px -24px rgb(var(--rgb-shadow) / .2);
+  --shadow-cta: 0 20px 40px -18px rgb(var(--rgb-ink) / .45);
+  --shadow-cta-accent: 0 20px 40px -18px rgb(var(--rgb-accent) / .45);   /* submit: an action keeps its hue */
+  --shadow-logo: 0 10px 20px -8px rgb(var(--rgb-accent) / .4);
+  /* hero collage — one each, in Option A's softened hues */
+  --shadow-photo-accent: 0 40px 70px -30px rgb(var(--rgb-accent) / .32), 0 8px 20px -8px rgb(var(--rgb-ink) / .12);
+  --shadow-photo-highlight: 0 30px 60px -26px rgb(var(--rgb-highlight) / .38), 0 6px 16px -6px rgb(var(--rgb-ink) / .12);
+  --shadow-photo-secondary: 0 34px 60px -24px rgb(var(--rgb-secondary) / .32), 0 6px 16px -6px rgb(var(--rgb-ink) / .12);
+
+  /* ── Motion ─────────────────────────────────────────────────────────────── */
+  /* Motion only answers an action (filter, select, open, confirm, press). All of it is
+     switched off by prefers-reduced-motion at the bottom of this file. */
+  /* First values (100/150/220ms, a 2% press, 55% dim) were too small to notice — a
+     transition the person cannot perceive is a no-op, not restraint. */
+  --duration-press: 120ms;
+  --duration-fast: 200ms;
+  --duration-base: 280ms;
+  --duration-slow: 360ms;
+  --duration-loading: 1100ms;         /* one sweep of the "results loading" line */
+  --stagger-step: 45ms;               /* delay between cards as new results fade in */
+  --ease-out: cubic-bezier(.2, .7, .2, 1);
+  --scale-press: .96;
+  --opacity-pending: .45;
+  --size-loading-line: 3px;
 
   /* ── Layers ─────────────────────────────────────────────────────────────── */
   --z-bar: 20;
@@ -276,6 +376,14 @@
     --text-form-title: clamp(30px, 8vw, 36px);
     --text-detail-title: clamp(28px, 7.5vw, 36px);
     --gap-detail: 28px;
+    --size-header: 56px;              /* logo file: mobile header 380 × 56 */
+    /* hero orbs at phone scale — the design kept the 560/460px desktop sizes, which on a
+       380px screen stop reading as orbs and become a wash over the whole top */
+    --blob-hero-lg: 300px;
+    --blob-hero-lg-inset-x: -110px;
+    --blob-hero-lg-inset-y: -120px;
+    --blob-hero-md: 240px;
+    --blob-hero-md-inset-x: -120px;
   }
 }
 
@@ -304,8 +412,11 @@ a {
   text-decoration: none;
 }
 
-a:hover {
-  text-decoration: underline;
+/* pointer devices only, so a tapped link does not stay underlined on a phone */
+@media (hover: hover) {
+  a:hover {
+    text-decoration: underline;
+  }
 }
 
 img {
@@ -332,8 +443,13 @@ textarea::placeholder {
   white-space: nowrap;
 }
 
+/* Reduced motion switches off every transition and animation on the site. Nothing is
+   needed to use any page: motion only ever accompanies a change that happens anyway. */
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *,
+  *::before,
+  *::after {
     transition: none !important;
+    animation: none !important;
   }
 }

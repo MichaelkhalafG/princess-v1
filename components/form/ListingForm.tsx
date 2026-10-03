@@ -27,7 +27,7 @@ function isRedirect(err: unknown): boolean {
   return typeof digest === 'string' && digest.startsWith('NEXT_REDIRECT');
 }
 
-export function ListingForm({ initialCountry }: { initialCountry: CountryCode }) {
+export function ListingForm({ initialCountry, contextQuery = '' }: { initialCountry: CountryCode; contextQuery?: string }) {
   const [values, setValues] = useState<FormValues>(() => emptyForm(initialCountry));
   const [errors, setErrors] = useState<FormErrors>({});
   const [formMessage, setFormMessage] = useState<string | null>(null);
@@ -74,7 +74,7 @@ export function ListingForm({ initialCountry }: { initialCountry: CountryCode })
     setFormMessage(null);
     try {
       // On success the action redirects to the new listing's page.
-      const res = await createListing(toPayload(values, upload.path));
+      const res = await createListing(toPayload(values, upload.path), contextQuery);
       setErrors(res.errors);
       setFormMessage(res.message);
       focusFirst(res.errors);
@@ -120,13 +120,31 @@ export function ListingForm({ initialCountry }: { initialCountry: CountryCode })
       </div>
 
       <form className={styles.card} onSubmit={onSubmit} noValidate>
-        <Field id="f-name" label="الاسم" counter={counter('name', values.name)} error={errors.name}>
-          <input {...text('name', { autoComplete: 'name', placeholder: 'كما تحبين أن تناديكِ العميلة' })} />
-        </Field>
+        {/* 1. who and where — short fields side by side */}
+        <section className={styles.section} aria-labelledby="s-you">
+          <h2 id="s-you" className={styles.sectionTitle}>عنكِ ومكانك</h2>
+          <div className={styles.two}>
+            <Field id="f-name" label="الاسم" counter={counter('name', values.name)} error={errors.name}>
+              <input {...text('name', { autoComplete: 'name', placeholder: 'كما تحبين أن تناديكِ العميلة' })} />
+            </Field>
+            <fieldset className={styles.fieldset}>
+              <legend id="l-country" className={`${fs.label} ${styles.legend}`}>الدولة</legend>
+              <CountrySelector size="large" surface="inset" labelledBy="l-country" value={values.country} onChange={(k) => set('country', k)} />
+            </fieldset>
+          </div>
+          <div className={styles.two}>
+            <Field id="f-city" label="المدينة" error={errors.city}>
+              <input {...text('city', { placeholder: `مثال: ${country.cityExample}` })} />
+            </Field>
+            <Field id="f-district" label="الحي" optional>
+              <input {...text('district', { placeholder: `مثال: ${country.districtExample}` })} />
+            </Field>
+          </div>
+        </section>
 
-        <Field id="f-title" label="عنوان الخدمة أو المنتج" counter={counter('title', values.title)} error={errors.title}>
-          <input {...text('title', { placeholder: 'مثال: مانيكير جل في منزلك' })} />
-        </Field>
+        {/* 2. what she offers */}
+        <section className={styles.section} aria-labelledby="s-offer">
+          <h2 id="s-offer" className={styles.sectionTitle}>خدمتك أو منتجك</h2>
 
         <fieldset className={styles.fieldset}>
           <legend className={`${fs.label} ${styles.legend}`}>التصنيف</legend>
@@ -140,6 +158,7 @@ export function ListingForm({ initialCountry }: { initialCountry: CountryCode })
             {CATEGORIES.map((c) => (
               <CategoryChip
                 key={c.slug}
+                category={c.slug}
                 variant="inset"
                 role="radio"
                 label={c.label}
@@ -152,19 +171,9 @@ export function ListingForm({ initialCountry }: { initialCountry: CountryCode })
           {errors.category && <FieldError id="e-category">{errors.category}</FieldError>}
         </fieldset>
 
-        <fieldset className={styles.fieldset}>
-          <legend id="l-country" className={`${fs.label} ${styles.legend}`}>الدولة</legend>
-          <CountrySelector size="large" surface="inset" labelledBy="l-country" value={values.country} onChange={(k) => set('country', k)} />
-        </fieldset>
-
-        <div className={styles.two}>
-          <Field id="f-city" label="المدينة" error={errors.city}>
-            <input {...text('city', { placeholder: `مثال: ${country.cityExample}` })} />
-          </Field>
-          <Field id="f-district" label="الحي" optional>
-            <input {...text('district', { placeholder: `مثال: ${country.districtExample}` })} />
-          </Field>
-        </div>
+        <Field id="f-title" label="عنوان الخدمة أو المنتج" counter={counter('title', values.title)} error={errors.title}>
+          <input {...text('title', { placeholder: 'مثال: مانيكير جل في منزلك' })} />
+        </Field>
 
         <Field id="f-description" label="الوصف" counter={counter('description', values.description)} error={errors.description}>
           <textarea
@@ -189,23 +198,26 @@ export function ListingForm({ initialCountry }: { initialCountry: CountryCode })
         </Field>
 
         <PhotoPicker onChange={(state, path) => setUpload({ state, path })} />
+        </section>
 
         <fieldset id="contacts" className={`${styles.contacts} ${errors.contacts ? styles.contactsInvalid : ''}`} aria-describedby="contacts-rule">
           <legend className="visually-hidden">طرق التواصل</legend>
-          <div className={styles.contactsHead}>
-            <div className={styles.contactsTitles}>
+          <div className={styles.contactsTitles}>
+            <div className={styles.contactsHead}>
               <span className={styles.contactsTitle}>كيف تتواصل معك العميلة؟</span>
-              <span id="contacts-rule" className={styles.contactsRule}>{CONTACTS_REQUIREMENT}</span>
-              <span className={styles.contactsSub}>تظهر على إعلانك كما تكتبينها.</span>
+              <span role="status" className={`${styles.status} ${contactsOk ? styles.statusOk : ''}`}>
+                {contactsOk ? 'مكتمل' : 'واحدة على الأقل مطلوبة'}
+              </span>
             </div>
-            <span role="status" className={`${styles.status} ${contactsOk ? styles.statusOk : ''}`}>
-              {contactsOk ? 'مكتمل' : 'واحدة على الأقل مطلوبة'}
-            </span>
+            <span id="contacts-rule" className={styles.contactsRule}>{CONTACTS_REQUIREMENT}</span>
+            <span className={styles.contactsSub}>تظهر على إعلانك كما تكتبينها.</span>
           </div>
           {errors.contacts && <FieldError id="e-contacts" size="lg" alert>{errors.contacts}</FieldError>}
 
-          {prefixed('whatsapp', country.dialCode, 'واتساب', { inputMode: 'tel', autoComplete: 'tel-national', placeholder: country.phone.example })}
-          {prefixed('phone', country.dialCode, 'هاتف', { inputMode: 'tel', placeholder: country.phone.example })}
+          <div className={styles.two}>
+            {prefixed('whatsapp', country.dialCode, 'واتساب', { inputMode: 'tel', autoComplete: 'tel-national', placeholder: country.phone.example })}
+            {prefixed('phone', country.dialCode, 'هاتف', { inputMode: 'tel', placeholder: country.phone.example })}
+          </div>
           {prefixed('social', '@', 'إنستغرام', { autoComplete: 'off', placeholder: 'اسم الحساب فقط، بلا رابط' })}
         </fieldset>
 

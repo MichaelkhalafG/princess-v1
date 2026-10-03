@@ -18,6 +18,11 @@
   --mark-h: var(--size-mark-banner-h);
 }
 
+.footer {
+  --mark-w: var(--size-mark-footer-w);
+  --mark-h: var(--size-mark-footer-h);
+}
+
 .status {
   --mark-w: var(--size-mark-status-w);
   --mark-h: var(--size-mark-status-h);

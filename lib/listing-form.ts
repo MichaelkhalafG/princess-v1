@@ -124,7 +124,8 @@ export type SubmitGate = { blocked: boolean; label: string; reason: 'contacts' |
  */
 export function submitGate(v: FormValues, upload: UploadState, submitting: boolean): SubmitGate {
   if (submitting) return { blocked: true, label: 'جارٍ النشر، لحظات…', reason: 'submitting' };
-  if (!hasAnyContact(v)) return { blocked: true, label: 'أضيفي طريقة تواصل لتنشري الإعلان', reason: 'contacts' };
+  // short enough to stay on one line at 380px
+  if (!hasAnyContact(v)) return { blocked: true, label: 'أضيفي طريقة تواصل أولًا', reason: 'contacts' };
   if (upload === 'uploading') return { blocked: true, label: 'انتظري اكتمال رفع الصورة', reason: 'uploading' };
   return { blocked: false, label: 'انشري الإعلان', reason: null };
 }

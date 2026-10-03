@@ -1,0 +1,59 @@
+/* The built P. Geometry is in the SVG; colours and sizes come from tokens. */
+
+.mark {
+  display: block;
+  flex: none;
+  height: 1em;
+  width: auto;
+}
+
+.full .stem { fill: var(--color-logo-ink); }
+.full .disc { fill: var(--color-logo-disc); }
+.ink .stem,
+.ink .disc { fill: var(--color-logo-ink); }
+.reversed .stem,
+.reversed .disc { fill: var(--color-logo-blush); }
+.onAccent .stem,
+.onAccent .disc { fill: var(--color-on-accent); }
+
+/* Lockup: "P" at 0.75 em seated on the baseline (the file's margin-bottom .145em), the
+   word in Gabarito Bold at -0.02em, 0.03em after the mark. */
+.lockup {
+  display: inline-flex;
+  direction: ltr;
+  unicode-bidi: isolate;
+  line-height: var(--leading-none);
+}
+
+.visual {
+  display: inline-flex;
+  align-items: flex-end;
+}
+
+.lockupMark {
+  height: var(--logo-mark-height);
+  margin-bottom: var(--logo-mark-baseline);
+}
+
+.word {
+  font-family: var(--font-logo), sans-serif;
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-logo-word);
+  line-height: var(--leading-none);
+  white-space: nowrap;
+  margin-left: var(--logo-word-gap);
+}
+
+.fullWord,
+.inkWord { color: var(--color-logo-ink); }
+.reversedWord { color: var(--color-logo-blush); }
+.onAccentWord { color: var(--color-on-accent); }
+
+/* sizes, from the file: header 32px desktop / 22px mobile, footer 28px */
+.header { font-size: var(--text-logo-header); }
+.footer { font-size: var(--text-logo-footer); }
+.hero { font-size: var(--text-logo-hero); }
+
+@media (max-width: 480px) {
+  .header { font-size: var(--text-logo-header-sm); }
+}

@@ -1,31 +1,52 @@
-.bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: var(--z-bar);
-  padding-top: env(safe-area-inset-top);
-  background: var(--color-bar-bg);
-  backdrop-filter: blur(var(--blur-bar));
-  border-bottom: var(--size-hairline) solid var(--color-bar-border);
-}
-
-.inner {
-  max-width: var(--width-content);
-  margin: 0 auto;
-  padding: 0 var(--gutter-page);
-  height: var(--size-bar);
+/* The filter summary inside the sticky header. Every piece can shrink; the category
+   label ends in an ellipsis, so the count can never be pushed off-screen (the old bar
+   pushed it to left:-196px at 380px with "رعاية كبار السن"). */
+.summary {
   display: flex;
   align-items: center;
-  gap: var(--space-8);
+  gap: var(--space-5);
+  min-width: 0;
+  max-width: 100%;
   font-size: var(--text-small);
+  animation: summary-in var(--duration-base) var(--ease-out);
 }
 
-.country {
-  font-weight: var(--weight-semibold);
+@keyframes summary-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.part {
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--color-ink);
+  cursor: pointer;
+  padding: var(--space-3) 0;
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.part:focus {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+  border-radius: var(--radius-focus);
+}
+
+.category {
+  font-weight: var(--weight-medium);
+  flex: 0 1 auto;
+}
+
+.categoryLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dot {
@@ -34,6 +55,7 @@
   border-radius: var(--radius-circle);
   background: var(--color-accent);
   display: block;
+  flex: none;
 }
 
 .divider {
@@ -41,17 +63,18 @@
   height: var(--size-divider-h);
   background: var(--color-divider);
   display: block;
-}
-
-.category {
-  font-weight: var(--weight-medium);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex: none;
 }
 
 .count {
-  margin-inline-start: auto;
   color: var(--color-text-muted);
   white-space: nowrap;
+  flex: none;
+}
+
+/* small phones: country and category only — the count is in the grid heading */
+@media (max-width: 480px) {
+  .count {
+    display: none;
+  }
 }

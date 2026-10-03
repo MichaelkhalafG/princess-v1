@@ -24,17 +24,22 @@ export function ListingCard({
   now,
   variant = 'full',
   href,
+  contextQuery,
 }: {
   listing: Listing;
   /** Public URL of listing.photo, resolved by the caller (lib/listings.ts photoUrl). */
   photoSrc: string | null;
   now: Date;
   variant?: 'full' | 'compact';
-  /** Required for the compact card: where the card links. */
+  /** Where the card opens. Defaults to the listing's own page. */
   href?: string;
+  /** The board context (country/category/search) the card was opened from, carried in the
+      listing link so the listing page can offer a real way back. */
+  contextQuery?: string;
 }) {
   const tone = getCategory(listing.category).tone;
   const compact = variant === 'compact';
+  const target = href ?? `/listing/${listing.id}${contextQuery ? `?${contextQuery}` : ''}`;
 
   const media = (
     <div className={styles.media}>
@@ -51,10 +56,13 @@ export function ListingCard({
     </div>
   );
 
+  const area = areaText(listing.city, listing.district);
+  // name and area truncate with an ellipsis on the card; the title attribute carries the
+  // full text on hover, and the listing page shows it in full
   const meta = (
     <div className={styles.meta}>
-      <span className={styles.name}>{listing.name}</span>
-      <span className={styles.area}>{areaText(listing.city, listing.district)}</span>
+      <span className={styles.name} title={listing.name}>{listing.name}</span>
+      <span className={styles.area} title={area}>{area}</span>
     </div>
   );
 
@@ -66,7 +74,7 @@ export function ListingCard({
 
   if (compact) {
     return (
-      <a href={href} className={`${styles.card} ${styles.compact}`}>
+      <a href={target} className={`${styles.card} ${styles.compact}`}>
         {media}
         <div className={styles.body}>
           {meta}
@@ -82,11 +90,16 @@ export function ListingCard({
   const external = (link: string) => (link.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {});
 
   return (
-    <article className={styles.card}>
+    // The whole card opens the listing through ONE real link — the title — whose ::after is
+    // stretched over the card ("stretched link"). The contact buttons are sibling links
+    // layered above it, never nested inside it, so each does only its own thing.
+    <article className={`${styles.card} ${styles.linked}`}>
       {media}
       <div className={styles.body}>
         {meta}
-        <h3 className={styles.title}>{listing.title}</h3>
+        <h3 className={styles.title}>
+          <a href={target} className={styles.cardLink}>{listing.title}</a>
+        </h3>
         <p className={styles.description}>{listing.description}</p>
         {listing.price && <div className={styles.price}>{listing.price}</div>}
 

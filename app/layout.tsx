@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
-import { bodyFont, headingFont } from './fonts.ts';
+import { bodyFont, headingFont, logoFont } from './fonts.ts';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -17,7 +17,7 @@ export const viewport: Viewport = {
 // Arabic only, right-to-left — set once here for the whole site.
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ar" dir="rtl" className={`${headingFont.variable} ${bodyFont.variable}`}>
+    <html lang="ar" dir="rtl" className={`${headingFont.variable} ${bodyFont.variable} ${logoFont.variable}`}>
       <body>{children}</body>
     </html>
   );

@@ -28,6 +28,9 @@
   z-index: 0;
 }
 
+/* The listing is one white card, like a board card grown: the photo inset by the card's
+   padding, the details beside it. The design left the details floating on the page
+   background next to the photo. */
 .detail {
   position: relative;
   z-index: 1;
@@ -36,6 +39,10 @@
   gap: var(--gap-detail);
   align-items: start;
   margin-top: var(--space-5);
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-card);
 }
 
 /* photo / monogram: the card's shoulder, grown */
@@ -49,10 +56,10 @@
   border-radius: var(--radius-media-lg) var(--radius-media-lg-shoulder) var(--radius-media-lg) var(--radius-media-lg);
 }
 
+/* inside the card the photo needs no shadow of its own */
 .photo {
   overflow: hidden;
   background: var(--color-tint);
-  box-shadow: var(--shadow-card);
 }
 
 .photo img {
@@ -64,7 +71,7 @@
 .monogramPanel {
   display: grid;
   place-items: center;
-  box-shadow: var(--shadow-monogram), var(--shadow-media-lift);
+  box-shadow: var(--shadow-monogram);
   container-type: inline-size;
 }
 
@@ -87,6 +94,9 @@
   flex-direction: column;
   gap: var(--space-12);
   min-width: 0;
+  /* breathing room inside the card on the side away from the photo */
+  padding-block: var(--space-15);
+  padding-inline-end: var(--space-15);
 }
 
 .heading {
@@ -105,34 +115,34 @@
   font-family: var(--font-heading), sans-serif;
   font-weight: var(--weight-heavy);
   font-size: var(--text-detail-title);
-  line-height: var(--leading-heading);
+  /* the design's 1.1 let the two lines of a long Arabic title touch */
+  line-height: var(--leading-title);
   margin: 0;
   letter-spacing: var(--tracking-display);
   text-wrap: pretty;
 }
 
+/* one run of text: a long city and district wrap like a sentence */
 .where {
-  display: flex;
-  align-items: center;
-  gap: var(--space-5);
+  margin: 0;
   font-size: var(--text-control);
+  line-height: var(--leading-body);
   color: var(--color-text-muted);
-  flex-wrap: wrap;
 }
 
 .whereDot {
+  display: inline-block;
   width: var(--size-dot-sm);
   height: var(--size-dot-sm);
   border-radius: var(--radius-circle);
   background: var(--color-highlight);
-  display: block;
+  margin-inline-end: var(--space-5);
+  vertical-align: middle;
 }
 
-.divider {
-  width: var(--size-hairline);
-  height: var(--size-divider-h);
-  background: var(--color-divider);
-  display: block;
+/* the country and its separator never part */
+.whereCountry {
+  white-space: nowrap;
 }
 
 .description {
@@ -148,7 +158,17 @@
   font-weight: var(--weight-heavy);
   font-size: var(--text-price-lg);
   color: var(--color-accent);
-  line-height: var(--leading-none);
+  line-height: var(--leading-price);
+}
+
+/* the full values live here, so they wrap rather than truncate — but a long unbroken
+   string still breaks instead of pushing past the card */
+.name,
+.title,
+.where,
+.description,
+.price {
+  overflow-wrap: anywhere;
 }
 
 .contacts {
@@ -249,15 +269,22 @@
 @media (max-width: 860px) {
   .detail {
     grid-template-columns: 1fr;
+    gap: 0;
   }
 
-  .backWord {
-    display: none;
+  /* single column: the details sit under the photo like a board card's body */
+  .info {
+    padding: var(--space-15) var(--space-8) var(--space-8);
+  }
+
+  /* On a tablet the full-width photo grew to ~635px and pushed the contact buttons
+     below the fold; capped, it stays a photo rather than a screen. */
+  .photo,
+  .monogramPanel {
+    max-height: var(--height-detail-media-max);
+    width: 100%;
   }
 }
 
-@media (max-width: 480px) {
-  .secondary {
-    flex-direction: column;
-  }
-}
+/* Small phones need no rule: the buttons wrap onto their own full-width rows. A
+   column direction here turned each button's 180px flex-basis into a 180px HEIGHT. */

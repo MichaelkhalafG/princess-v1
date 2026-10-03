@@ -43,9 +43,9 @@ export const ALL_CATEGORIES = {
 // refused there — a woman working from a shop cannot post its number.
 // cityExample / districtExample: the form's placeholders for that country.
 export const COUNTRIES = [
-  { code: 'EG', name: 'مصر', flag: '🇪🇬', currency: 'ج.م', dialCode: '+20', phone: { length: 10, lead: '1', example: '1012345678' }, cityExample: 'القاهرة', districtExample: 'مدينة نصر' },
-  { code: 'SA', name: 'السعودية', flag: '🇸🇦', currency: 'ر.س', dialCode: '+966', phone: { length: 9, lead: '5', example: '512345678' }, cityExample: 'الرياض', districtExample: 'حي النرجس' },
-  { code: 'AE', name: 'الإمارات', flag: '🇦🇪', currency: 'د.إ', dialCode: '+971', phone: { length: 9, lead: '5', example: '501234567' }, cityExample: 'دبي', districtExample: 'جميرا' },
+  { code: 'EG', name: 'مصر', flag: '/flags/eg.svg', currency: 'ج.م', dialCode: '+20', phone: { length: 10, lead: '1', example: '1012345678' }, cityExample: 'القاهرة', districtExample: 'مدينة نصر' },
+  { code: 'SA', name: 'السعودية', flag: '/flags/sa.svg', currency: 'ر.س', dialCode: '+966', phone: { length: 9, lead: '5', example: '512345678' }, cityExample: 'الرياض', districtExample: 'حي النرجس' },
+  { code: 'AE', name: 'الإمارات', flag: '/flags/ae.svg', currency: 'د.إ', dialCode: '+971', phone: { length: 9, lead: '5', example: '501234567' }, cityExample: 'دبي', districtExample: 'جميرا' },
 ] as const;
 
 export type CountryCode = (typeof COUNTRIES)[number]['code'];

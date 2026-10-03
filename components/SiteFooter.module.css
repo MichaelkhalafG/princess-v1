@@ -41,3 +41,102 @@
   outline-offset: var(--focus-offset-lg);
   border-radius: var(--radius-focus);
 }
+
+/* ── full (the board) ─────────────────────────────────────────────────────── */
+.full {
+  padding: var(--pad-footer-top) var(--gutter-page) var(--space-17);
+}
+
+.fullInner {
+  gap: var(--space-16);
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-17);
+}
+
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  max-width: var(--width-measure);
+}
+
+/* the lockup is an LTR island; as a stretched column item its contents sat on the
+   left. Shrink it to its own width so it starts on the right with the text below. */
+.logo {
+  align-self: flex-start;
+}
+
+.fullDisclaimer {
+  margin: 0;
+  line-height: var(--leading-relaxed);
+  font-size: var(--text-control);
+  color: var(--color-footer-text);
+  text-wrap: pretty;
+}
+
+.availability {
+  font-size: var(--text-small);
+  color: var(--color-footer-muted);
+}
+
+.cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-7);
+  max-width: var(--width-footer-chips);
+  align-content: flex-start;
+}
+
+.cat {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-small);
+  padding: var(--space-5) var(--space-10);
+  border-radius: var(--radius-pill);
+  background: var(--color-footer-chip);
+  color: var(--color-on-ink);
+}
+
+/* the same icon + tone as the chips, in the tone's light tint (it sits on ink) */
+.catIcon {
+  display: inline-flex;
+}
+
+.cat[data-tone='accent'] .catIcon { color: var(--tone-accent-bg); }
+.cat[data-tone='secondary'] .catIcon { color: var(--tone-secondary-bg); }
+.cat[data-tone='highlight'] .catIcon { color: var(--tone-highlight-bg); }
+.cat[data-tone='ink'] .catIcon { color: var(--tone-ink-bg); }
+
+.cat:focus {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+.bottom {
+  border-top: var(--size-hairline) solid var(--color-footer-divider);
+  padding-top: var(--space-13);
+}
+
+@media (max-width: 860px) {
+  .top {
+    flex-direction: column;
+  }
+
+  .bottom {
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+}
+
+/* Hover — pointer devices only; a lighter dark, not the design's pink */
+@media (hover: hover) {
+  .cat:hover {
+    background: var(--color-footer-chip-hover);
+    text-decoration: none;
+  }
+}

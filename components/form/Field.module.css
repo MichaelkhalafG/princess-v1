@@ -103,6 +103,9 @@
 /* Prefixed field (dialling code, "@"). The design put its focus ring on the wrapper,
    which never takes focus; :focus-within puts it where she can see it. */
 .group {
+  /* A number reads left to right, so the box does too: "+20 | 1012345678", "@ | handle".
+     In the design's RTL flow the prefix landed on the right, after the number. */
+  direction: ltr;
   display: flex;
   align-items: stretch;
   background: var(--color-surface);

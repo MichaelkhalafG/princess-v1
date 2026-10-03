@@ -1,53 +1,52 @@
 'use client';
 
 import { useEffect, useState, type RefObject } from 'react';
-import { Button } from './Button.tsx';
+import { CategoryIcon } from './CategoryIcon.tsx';
 import styles from './FilterBar.module.css';
 
 /**
- * The sticky filter bar: a fixed strip that appears once the category bar has scrolled
- * out of view and shows where she is — country, category, result count. Tapping the
- * country or the category jumps back up to that control.
+ * Where she is on the board — country, category, result count — shown INSIDE the sticky
+ * header once the category bar has scrolled away (it used to be a second fixed bar that
+ * stacked under the header). Tapping the country or the category jumps back up to that
+ * control.
  */
-export function FilterBar({
-  visible,
+export function FilterSummary({
   countryName,
   categoryLabel,
+  categoryIcon,
   countLabel,
   onCountryClick,
   onCategoryClick,
 }: {
-  visible: boolean;
   countryName: string;
   categoryLabel: string;
+  categoryIcon: string;
   countLabel: string;
   onCountryClick: () => void;
   onCategoryClick: () => void;
 }) {
-  if (!visible) return null;
   return (
-    <div role="region" aria-label="الفلتر الحالي" className={styles.bar}>
-      <div className={styles.inner}>
-        <Button variant="text" className={styles.country} onClick={onCountryClick}>
-          <span className={styles.dot} aria-hidden="true" />
-          {countryName}
-        </Button>
-        <span className={styles.divider} aria-hidden="true" />
-        <Button variant="text" className={styles.category} onClick={onCategoryClick}>
-          {categoryLabel}
-        </Button>
-        <span className={styles.count}>{countLabel}</span>
-      </div>
+    <div role="region" aria-label="الفلتر الحالي" className={styles.summary}>
+      <button type="button" className={styles.part} onClick={onCountryClick}>
+        <span className={styles.dot} aria-hidden="true" />
+        {countryName}
+      </button>
+      <span className={styles.divider} aria-hidden="true" />
+      <button type="button" className={`${styles.part} ${styles.category}`} onClick={onCategoryClick}>
+        <CategoryIcon path={categoryIcon} />
+        <span className={styles.categoryLabel}>{categoryLabel}</span>
+      </button>
+      <span className={styles.count}>{countLabel}</span>
     </div>
   );
 }
 
-/** Pixels of the grid that must still be on screen for the bar to stay (from the design). */
+/** Pixels of the grid that must still be on screen for the summary to stay (from the design). */
 const GRID_VISIBLE_THRESHOLD = 120;
 
 /**
- * The design's rule: show the bar when the category bar's bottom edge is above the
- * viewport and the grid is still on screen.
+ * The design's rule: show the summary when the category bar's bottom edge has passed the
+ * header and the grid is still on screen.
  */
 export function useFilterBarVisible(
   categoryBar: RefObject<HTMLElement | null>,
@@ -59,7 +58,8 @@ export function useFilterBarVisible(
       const cb = categoryBar.current;
       const g = grid.current;
       if (!cb || !g) return;
-      setVisible(cb.getBoundingClientRect().bottom < 0 && g.getBoundingClientRect().bottom > GRID_VISIBLE_THRESHOLD);
+      const header = document.querySelector('header')?.getBoundingClientRect().bottom ?? 0;
+      setVisible(cb.getBoundingClientRect().bottom < header && g.getBoundingClientRect().bottom > GRID_VISIBLE_THRESHOLD);
     };
     window.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', update);

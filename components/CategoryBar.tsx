@@ -27,6 +27,7 @@ export function CategoryBar({
       <div className={styles.inner}>
         <div className={styles.scroll}>
           <CategoryChip
+            category={null}
             variant="bar"
             label={ALL_CATEGORIES.label}
             icon={ALL_CATEGORIES.icon}
@@ -37,6 +38,7 @@ export function CategoryBar({
           {CATEGORIES.map((c) => (
             <CategoryChip
               key={c.slug}
+              category={c.slug}
               variant="bar"
               label={c.label}
               icon={c.icon}

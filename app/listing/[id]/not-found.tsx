@@ -9,7 +9,8 @@ import styles from './page.module.css';
 export default function ListingNotFound() {
   return (
     <div className={styles.page}>
-      <SiteHeader backHref="/" backLabel="العودة إلى اللوحة" />
+      {/* not yet carrying the board context — see the "getting back" item (pending) */}
+      <SiteHeader homeHref="/" backHref="/" />
       <main className={styles.main}>
         <span className={styles.blob} aria-hidden="true" />
         <StatusPanel

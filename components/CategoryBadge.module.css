@@ -1,5 +1,7 @@
 .badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   font-size: var(--text-caption);
   font-weight: var(--weight-semibold);
   padding: var(--space-4) var(--space-9);
@@ -11,5 +13,6 @@
 .lg {
   font-size: var(--text-small);
   padding: var(--space-5) var(--space-badge-lg-pad-x);
-  box-shadow: var(--shadow-badge-on-canvas);
+  /* the detail photo now sits inside a white card, so the ring is white like a card's */
+  box-shadow: var(--shadow-badge);
 }

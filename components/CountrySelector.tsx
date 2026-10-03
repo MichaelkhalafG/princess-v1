@@ -39,7 +39,8 @@ export function CountrySelector({
             onClick={() => onChange(k.code)}
             className={`${styles.option} ${on ? styles.selected : ''}`}
           >
-            <span className={styles.flag} aria-hidden="true">{k.flag}</span>
+            {/* Images, not emoji: Windows cannot draw flag emoji (it shows "EG / SA / AE"). */}
+            <img className={styles.flag} src={k.flag} alt="" aria-hidden="true" />
             {k.name}
           </button>
         );

@@ -5,6 +5,19 @@
   display: flex;
   flex-direction: column;
   padding: var(--space-7);
+  /* A grid item defaults to min-width:auto — it can never be narrower than its longest
+     unbreakable line, so one long free-text value widened the card, the grid and the
+     page (592px on a 380px phone). With 0 the card always fits its column. */
+  min-width: 0;
+}
+
+/* every free-text field breaks a long unbroken string rather than pushing past the edge */
+.name,
+.area,
+.title,
+.description,
+.price {
+  overflow-wrap: anywhere;
 }
 
 .media {
@@ -60,25 +73,40 @@
   flex: 1;
 }
 
+/* name and area share one line, each ending in an ellipsis when it does not fit. The
+   name keeps priority (it shrinks last); the area gives way first but never below a
+   readable minimum. Full text is on the listing page and in the title tooltip. */
 .meta {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-7);
+  min-width: 0;
+}
+
+.name,
+.area {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .name {
+  flex: 0 1 auto;
   font-family: var(--font-heading), sans-serif;
   font-weight: var(--weight-bold);
   font-size: var(--text-body);
 }
 
 .area {
+  flex: 0 3 auto;
+  min-width: var(--width-area-min);
   font-size: var(--text-small);
   color: var(--color-text-muted);
-  white-space: nowrap;
 }
 
+/* at most three lines; an 80-character title fits in three at the narrowest column */
 .title {
   font-family: var(--font-heading), sans-serif;
   font-weight: var(--weight-heavy);
@@ -86,6 +114,10 @@
   line-height: var(--leading-card-title);
   margin: 0;
   text-wrap: pretty;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .description {
@@ -99,12 +131,17 @@
   overflow: hidden;
 }
 
+/* at most two lines, spaced so they never touch (the design's line-height 1 did) */
 .price {
   font-family: var(--font-heading), sans-serif;
   font-weight: var(--weight-heavy);
   font-size: var(--text-price);
   color: var(--color-accent);
-  line-height: var(--leading-none);
+  line-height: var(--leading-price);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* margin-top:auto pins the buttons to the bottom, so cards with and without a price
@@ -121,13 +158,48 @@
   color: var(--color-text-subtle);
 }
 
+/* full card: the title link is stretched over the whole card */
+.linked {
+  position: relative;
+}
+
+.cardLink {
+  color: inherit;
+}
+
+.cardLink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-card);
+  z-index: 1;
+}
+
+/* the focus ring belongs to the whole card, not to the title text */
+.cardLink:focus {
+  outline: none;
+}
+
+.linked:has(.cardLink:focus-visible) {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset-lg);
+}
+
+/* contact buttons sit above the stretched link: they are separate links, not children */
+.linked .actions {
+  position: relative;
+  z-index: 2;
+  /* the gaps between buttons fall through to the card link — no dead spots */
+  pointer-events: none;
+}
+
+.linked .actions > * {
+  pointer-events: auto;
+}
+
 /* compact: the detail page's "others" row — the whole card is a link */
 .compact {
   color: var(--color-ink);
-}
-
-.compact:hover {
-  text-decoration: none;
 }
 
 .compact:focus {
@@ -149,4 +221,29 @@
 
 .compact .price {
   font-size: var(--text-price-sm);
+}
+
+/* cards in a row share one height; the date sits at the bottom of each, like the board
+   card's buttons, instead of leaving a blank band under shorter content */
+.compact .date {
+  margin-top: auto;
+}
+
+/* Hover — pointer devices only. The card is the main target on the board: its shadow
+   deepens (nothing moves). */
+.linked,
+.compact {
+  transition: box-shadow var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .cardLink:hover,
+  .compact:hover {
+    text-decoration: none;
+  }
+
+  .linked:hover,
+  .compact:hover {
+    box-shadow: var(--shadow-card-hover);
+  }
 }

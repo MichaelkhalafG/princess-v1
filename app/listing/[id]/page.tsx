@@ -6,6 +6,7 @@ import { ListingCard } from '@/components/ListingCard.tsx';
 import { PostedBanner } from '@/components/PostedBanner.tsx';
 import { SiteFooter } from '@/components/SiteFooter.tsx';
 import { SiteHeader } from '@/components/SiteHeader.tsx';
+import { boardHref, readBoardContext, withBoardContext } from '@/lib/board-url.ts';
 import { getCategory, getCountry } from '@/lib/constants.ts';
 import { areaText, contactLinks, listingCountLabel, monogram, relativeDate } from '@/lib/format.ts';
 import { fetchListing, fetchOthers, photoUrl } from '@/lib/listings.ts';
@@ -15,7 +16,7 @@ import styles from './page.module.css';
 
 export const dynamic = 'force-dynamic';
 
-type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ posted?: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const listing = await fetchListing(getSupabase(), (await params).id);
@@ -23,7 +24,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ListingPage({ params, searchParams }: Props) {
-  const [{ id }, { posted }] = await Promise.all([params, searchParams]);
+  const [{ id }, sp] = await Promise.all([params, searchParams]);
+  const posted = sp.posted;
+  // where she came from on the board (country / category / search), carried in the URL
+  const ctx = readBoardContext(sp);
   const db = getSupabase();
   const listing = await fetchListing(db, id);
   if (!listing) notFound();
@@ -32,20 +36,21 @@ export default async function ListingPage({ params, searchParams }: Props) {
   const now = new Date();
   const country = getCountry(listing.country);
   const category = getCategory(listing.category);
-  const boardHref = `/?country=${country.code}`;
+  // every route home returns her to that place; with no context, the listing's country
+  const home = boardHref(ctx, country.code);
+  const fromCtx = { ...ctx, country: ctx.country ?? country.code };
   const [primary, ...secondary] = contactLinks(listing);
   const external = (href: string) => (href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {});
 
   return (
     <div className={styles.page}>
-      <SiteHeader
-        backHref={boardHref}
-        backLabel={<>العودة إلى <span className={styles.backWord}>لوحة </span>{country.name}</>}
-      />
+      {/* the board's own header: someone arriving from a WhatsApp link lands on the site,
+          not on a dead-end page */}
+      <SiteHeader homeHref={home} backHref={home} postHref={withBoardContext('/new', fromCtx)} />
       <main className={styles.main}>
         <span className={styles.blob} aria-hidden="true" />
 
-        {posted === '1' && <PostedBanner countryName={country.name} boardHref={boardHref} />}
+        {posted === '1' && <PostedBanner countryName={country.name} boardHref={home} />}
 
         <article className={styles.detail}>
           <div className={styles.media}>
@@ -67,13 +72,13 @@ export default async function ListingPage({ params, searchParams }: Props) {
               <h1 className={styles.title}>{listing.title}</h1>
             </div>
 
-            {/* country, then city and district together — the landing card's area */}
-            <div className={styles.where}>
+            {/* country, then city and district together — the landing card's area. One run
+                of text, so a long area wraps like a sentence instead of stranding the
+                separator at the end of a line. */}
+            <p className={styles.where}>
               <span className={styles.whereDot} aria-hidden="true" />
-              <span>{country.name}</span>
-              <span className={styles.divider} aria-hidden="true" />
-              <span>{areaText(listing.city, listing.district)}</span>
-            </div>
+              <span className={styles.whereCountry}>{country.name} ·</span> {areaText(listing.city, listing.district)}
+            </p>
 
             <p className={styles.description}>{listing.description}</p>
             {listing.price && <div className={styles.price}>{listing.price}</div>}
@@ -113,7 +118,7 @@ export default async function ListingPage({ params, searchParams }: Props) {
                   <ListingCard
                     listing={o}
                     variant="compact"
-                    href={`/listing/${o.id}`}
+                    href={withBoardContext(`/listing/${o.id}`, ctx)}
                     photoSrc={o.photo ? photoUrl(db, o.photo) : null}
                     now={now}
                   />
@@ -124,11 +129,12 @@ export default async function ListingPage({ params, searchParams }: Props) {
         ) : (
           <div className={styles.alone}>
             <span className={styles.aloneText}>هذا الإعلان الوحيد في «{category.label}» في {country.name} حتى الآن.</span>
-            <Button variant="soft" size="compact" href={boardHref}>تصفحي كل إعلانات {country.name}</Button>
+            {/* a different destination on purpose: ALL of the country, not her filtered board */}
+            <Button variant="soft" size="compact" href={boardHref({ country: country.code, category: null, q: '' })}>تصفحي كل إعلانات {country.name}</Button>
           </div>
         )}
       </main>
-      <SiteFooter withDisclaimer />
+      <SiteFooter variant="full" ctx={fromCtx} />
     </div>
   );
 }

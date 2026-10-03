@@ -25,7 +25,9 @@
   text-wrap: pretty;
 }
 
-/* the form card: the landing card's surface, radius and shadow */
+/* the form card: the landing card's surface, radius and shadow. Three titled sections
+   (who and where / what she offers / how to reach her) instead of thirteen fields in one
+   undifferentiated column — the design's structure. */
 .card {
   position: relative;
   z-index: 1;
@@ -35,7 +37,25 @@
   box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
-  gap: var(--space-14);
+  gap: var(--space-16);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.section + .section {
+  border-top: var(--size-hairline) solid var(--color-tint);
+  padding-top: var(--space-16);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-body);
 }
 
 .fieldset {
@@ -89,18 +109,19 @@
   outline-offset: calc(var(--border-field) * -1);
 }
 
+/* heading and status pill share one line; the requirement and the note run full width
+   beneath, so neither pushes the pill onto a line of its own nor squeezes the text */
+.contactsTitles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-hairline-gap);
+}
+
 .contactsHead {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-7);
-  flex-wrap: wrap;
-}
-
-.contactsTitles {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-hairline-gap);
 }
 
 .contactsTitle {

@@ -51,10 +51,6 @@
   color: var(--color-ink);
 }
 
-.dropzone:hover {
-  background: var(--color-tint-soft);
-}
-
 .dropzone:focus {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
@@ -161,4 +157,10 @@
   display: flex;
   gap: var(--space-3);
   flex: 0 0 auto;
+}
+
+@media (hover: hover) {
+  .dropzone:hover {
+    background: var(--color-tint-soft);
+  }
 }
