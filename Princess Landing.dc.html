@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;700;800&family=Readex+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#FFF6F1}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+a:hover{text-decoration:underline}
+img{display:block}
+input::placeholder{color:#1C0A14;opacity:.5}
+[data-r="scroll"]::-webkit-scrollbar{display:none}
+@media (max-width:860px){
+  [data-r="nav"]{display:none!important}
+  [data-r="hero"]{flex-direction:column!important; align-items:stretch!important; padding-top:8px!important}
+  [data-r="collage"]{order:-1; max-width:440px; margin:0 auto}
+  [data-r="hero-copy"]{padding-top:0!important}
+  [data-r="h1"]{font-size:clamp(34px,9.5vw,44px)!important}
+  [data-r="country-hero"]{width:100%}
+  [data-r="country-hero"] button{flex:1; justify-content:center}
+  [data-r="search"]{flex-basis:100%!important}
+  [data-r="hero-chips"]{flex-wrap:nowrap!important; overflow-x:auto; max-width:none!important; margin:0 calc(-1 * clamp(16px,4vw,48px)); padding:4px clamp(16px,4vw,48px) 10px; scrollbar-width:none}
+  [data-r="cta-row"]{flex-direction:column; align-items:stretch!important}
+  [data-r="cta-row"] a{text-align:center}
+  [data-r="catbar-wrap"]{padding:0!important}
+  [data-r="catbar-inner"]{border-radius:0!important; padding:8px clamp(16px,4vw,48px)!important}
+  [data-r="footer-top"]{flex-direction:column}
+  [data-r="footer-bottom"]{flex-direction:column; gap:12px!important}
+}
+@media (max-width:480px){
+  [data-r="country-head"] button{padding:8px 10px!important; font-size:13px!important}
+  [data-r="country-head"] [data-r="flag"]{display:none}
+  [data-r="logo-text"]{font-size:20px!important}
+  [data-r="logo-mark"]{width:28px!important; height:34px!important}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</helmet>
+
+<div dir="rtl" style="background:#FFF6F1; color:#1C0A14; font-family:'Readex Pro',sans-serif; min-height:100vh">
+
+  <!-- orientation bar: appears after the chips scroll past -->
+  <sc-if value="{{ showBar }}" hint-placeholder-val="{{ false }}">
+    <div role="region" aria-label="الفلتر الحالي" style="position:fixed; top:0; left:0; right:0; z-index:20; padding-top:env(safe-area-inset-top); background:rgba(255,246,241,.94); backdrop-filter:blur(10px); border-bottom:1px solid rgba(255,77,141,.18)">
+      <div style="max-width:1400px; margin:0 auto; padding:0 clamp(16px,4vw,48px); height:40px; display:flex; align-items:center; gap:12px; font-size:13px">
+        <button type="button" onClick="{{ jumpCountry }}" style="border:0; background:transparent; font:inherit; font-size:13px; font-weight:600; color:#1C0A14; cursor:pointer; padding:6px 0; display:flex; align-items:center; gap:6px" style-focus="outline:3px solid #FFB038; outline-offset:2px; border-radius:6px"><span aria-hidden="true" style="width:8px; height:8px; border-radius:50%; background:#FF4D8D; display:block"></span>{{ countryName }}</button>
+        <span aria-hidden="true" style="width:1px; height:14px; background:rgba(28,10,20,.2); display:block"></span>
+        <button type="button" onClick="{{ jumpCats }}" style="border:0; background:transparent; font:inherit; font-size:13px; font-weight:500; color:#1C0A14; cursor:pointer; padding:6px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis" style-focus="outline:3px solid #FFB038; outline-offset:2px; border-radius:6px">{{ activeCatLabel }}</button>
+        <span style="margin-inline-start:auto; color:#6B5460; white-space:nowrap">{{ countLabel }}</span>
+      </div>
+    </div>
+  </sc-if>
+
+  <header style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px clamp(16px,4vw,48px)">
+    <a href="#" style="display:flex; align-items:center; gap:8px; flex:0 0 auto" style-hover="text-decoration:none">
+      <span data-r="logo-mark" style="width:34px; height:42px; background:#FF4D8D; border-radius:999px 999px 9px 9px; display:block; box-shadow:0 10px 20px -8px rgba(255,77,141,.6)"></span>
+      <span data-r="logo-text" style="font-family:'Alexandria'; font-weight:800; font-size:24px; letter-spacing:-.01em">برينسيس</span>
+    </a>
+    <div data-r="country-head" role="radiogroup" aria-label="الدولة" style="display:inline-flex; background:#fff; border-radius:999px; padding:4px; gap:2px; box-shadow:0 10px 24px -12px rgba(255,77,141,.35), 0 0 0 1px rgba(255,77,141,.08)">
+      <sc-for list="{{ countries }}" as="k" hint-placeholder-count="3">
+        <button type="button" role="radio" aria-checked="{{ k.on }}" onClick="{{ k.pick }}" style="display:flex; align-items:center; gap:6px; border:0; cursor:pointer; font:inherit; font-size:14px; font-weight:600; padding:9px 13px; border-radius:999px; white-space:nowrap; background:{{ k.bg }}; color:{{ k.ink }}" style-focus="outline:3px solid #FFB038; outline-offset:2px"><span data-r="flag" aria-hidden="true" style="font-size:15px; line-height:1">{{ k.flag }}</span>{{ k.name }}</button>
+      </sc-for>
+    </div>
+    <nav data-r="nav" style="display:flex; align-items:center; gap:24px; font-weight:500; font-size:15px">
+      <a href="#">كيف يعمل؟</a>
+      <a href="#" style="background:#1C0A14; color:#FFF6F1; padding:12px 22px; border-radius:999px; font-family:'Alexandria'; font-weight:700" style-hover="background:#FF4D8D; text-decoration:none" style-focus="outline:3px solid #FFB038; outline-offset:3px">اعرضي خدمتك</a>
+    </nav>
+  </header>
+
+  <!-- hero -->
+  <section data-r="hero" style="display:flex; align-items:center; gap:clamp(24px,4vw,48px); padding:16px clamp(16px,4vw,48px) clamp(40px,6vw,64px); position:relative; overflow:hidden; max-width:1400px; margin:0 auto">
+    <span aria-hidden="true" style="position:absolute; right:-160px; top:-200px; width:560px; height:560px; border-radius:50%; background:#FFE3D3; z-index:0"></span>
+    <span aria-hidden="true" style="position:absolute; left:10%; bottom:-260px; width:460px; height:460px; border-radius:50%; background:#FFE9C2; z-index:0"></span>
+
+    <div data-r="hero-copy" style="flex:1 1 0; min-width:0; position:relative; z-index:1; display:flex; flex-direction:column; gap:20px; padding-top:12px">
+      <h1 data-r="h1" style="font-family:'Alexandria'; font-weight:800; font-size:clamp(40px,4.6vw,64px); line-height:1.08; margin:0; letter-spacing:-.015em; text-wrap:pretty">عملكِ يصل<br>إلى كل سيدة حولك</h1>
+      <p style="font-size:clamp(16px,1.4vw,19px); line-height:1.7; margin:0; color:#4A3540; max-width:520px; text-wrap:pretty">اعرضي خدمتك أو ملابسك، وتتواصل معك من تحتاجها عبر واتساب مباشرة. بلا وسيط وبلا عمولة.</p>
+
+      <div ref="{{ heroSelRef }}" style="display:flex; flex-wrap:wrap; align-items:center; gap:10px; max-width:640px">
+        <div data-r="country-hero" role="radiogroup" aria-label="الدولة" style="display:inline-flex; background:#fff; border-radius:999px; padding:5px; gap:2px; box-shadow:0 18px 40px -16px rgba(255,77,141,.35), 0 2px 6px rgba(28,10,20,.06)">
+          <sc-for list="{{ countries }}" as="k" hint-placeholder-count="3">
+            <button type="button" role="radio" aria-checked="{{ k.on }}" onClick="{{ k.pick }}" style="display:flex; align-items:center; gap:7px; border:0; cursor:pointer; font:inherit; font-size:15px; font-weight:600; padding:12px 16px; border-radius:999px; background:{{ k.bg }}; color:{{ k.ink }}" style-focus="outline:3px solid #FFB038; outline-offset:2px"><span aria-hidden="true" style="font-size:16px; line-height:1">{{ k.flag }}</span>{{ k.name }}</button>
+          </sc-for>
+        </div>
+        <label data-r="search" style="flex:1 1 300px; display:flex; align-items:center; gap:8px; background:#fff; border-radius:999px; padding:6px 6px 6px 20px; box-shadow:0 18px 40px -16px rgba(255,77,141,.35), 0 2px 6px rgba(28,10,20,.06)" style-focus="outline:3px solid #FFB038">
+          <span aria-hidden="true" style="width:12px; height:12px; border:2.5px solid #FF4D8D; border-radius:50%; display:block; flex:0 0 auto"></span>
+          <input value="{{ query }}" onChange="{{ onQuery }}" aria-label="ابحثي في الإعلانات" placeholder="{{ searchPlaceholder }}" style="flex:1; border:0; outline:0; background:transparent; font:inherit; font-size:16px; color:#1C0A14; padding:10px 4px; min-width:0">
+          <button type="button" style="background:#FF4D8D; color:#fff; border:0; border-radius:999px; padding:13px 20px; font-family:'Alexandria'; font-weight:700; font-size:15px; cursor:pointer" style-hover="background:#E83D7C" style-focus="outline:3px solid #1C0A14; outline-offset:2px">ابحثي</button>
+        </label>
+      </div>
+
+      <div data-r="hero-chips" style="display:flex; flex-wrap:wrap; gap:8px; max-width:600px">
+        <sc-for list="{{ heroChips }}" as="c" hint-placeholder-count="6">
+          <button type="button" onClick="{{ c.pick }}" style="display:inline-flex; align-items:center; gap:6px; flex:0 0 auto; border:0; cursor:pointer; font:inherit; font-size:13px; font-weight:500; padding:8px 12px; border-radius:999px; white-space:nowrap; background:{{ c.bg }}; color:{{ c.ink }}; box-shadow:{{ c.shadow }}" style-focus="outline:3px solid #FFB038; outline-offset:2px">
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15" style="fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; flex:0 0 auto"><path d="{{ c.icon }}"></path></svg>
+            <span>{{ c.name }}</span>
+            <span style="font-size:11px; font-weight:400; color:{{ c.countInk }}">{{ c.count }}</span>
+          </button>
+        </sc-for>
+      </div>
+
+      <div data-r="cta-row" style="display:flex; align-items:center; gap:16px; margin-top:4px">
+        <a href="#" style="background:#1C0A14; color:#FFF6F1; padding:18px 32px; border-radius:999px; font-family:'Alexandria'; font-weight:800; font-size:18px; box-shadow:0 20px 40px -18px rgba(28,10,20,.6)" style-hover="background:#FF4D8D; text-decoration:none" style-focus="outline:3px solid #FFB038; outline-offset:3px">اعرضي خدمتك</a>
+        <span style="font-size:14px; color:#6B5460">مجاني، بلا حساب أو تسجيل</span>
+      </div>
+    </div>
+
+    <div data-r="collage" style="flex:1 1 0; min-width:0; width:100%; position:relative; z-index:1; aspect-ratio:1/1.08">
+      <span aria-hidden="true" style="position:absolute; right:2%; bottom:8%; width:24%; aspect-ratio:1; border-radius:50%; background:#2BA39B; z-index:0"></span>
+      <div ref="{{ p1 }}" style="position:absolute; right:10%; top:0; width:52%; height:70%; border-radius:999px 999px 12% 12%; overflow:hidden; box-shadow:0 40px 70px -30px rgba(255,77,141,.55), 0 8px 20px -8px rgba(28,10,20,.15); z-index:2; will-change:transform">
+        <img src="https://images.pexels.com/photos/34871553/pexels-photo-34871553.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="أظافر طويلة بطلاء أحمر" style="width:100%; height:100%; object-fit:cover">
+      </div>
+      <div ref="{{ p2 }}" style="position:absolute; left:2%; top:10%; width:40%; height:55%; border-radius:999px 999px 10% 10%; overflow:hidden; box-shadow:0 30px 60px -26px rgba(255,176,56,.65), 0 6px 16px -6px rgba(28,10,20,.15); z-index:1; will-change:transform">
+        <img src="https://images.pexels.com/photos/33078826/pexels-photo-33078826/free-photo-of-tailor-meticulously-crafting-garments-in-workshop.jpeg?w=1260&h=750&dpr=1" alt="تفصيل فستان في الورشة" style="width:100%; height:100%; object-fit:cover">
+      </div>
+      <div ref="{{ p3 }}" style="position:absolute; left:20%; bottom:0; width:48%; height:42%; border-radius:999px 999px 10% 10%; overflow:hidden; box-shadow:0 34px 60px -24px rgba(43,163,155,.55), 0 6px 16px -6px rgba(28,10,20,.15); z-index:3; will-change:transform">
+        <img src="https://images.pexels.com/photos/6287459/pexels-photo-6287459.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="يدان تطبخان في المطبخ" style="width:100%; height:100%; object-fit:cover; object-position:center 30%">
+      </div>
+    </div>
+  </section>
+
+  <!-- category bar -->
+  <div data-r="catbar-wrap" ref="{{ catbarRef }}" style="padding:0 clamp(16px,4vw,48px); max-width:1400px; margin:0 auto">
+    <div data-r="catbar-inner" style="background:#fff; border-radius:999px; padding:6px; box-shadow:0 14px 34px -16px rgba(255,77,141,.3)">
+      <div data-r="scroll" style="display:flex; gap:2px; overflow-x:auto; scrollbar-width:none">
+        <sc-for list="{{ cats }}" as="c" hint-placeholder-count="8">
+          <button type="button" onClick="{{ c.pick }}" style="display:inline-flex; align-items:center; gap:6px; border:0; cursor:pointer; font:inherit; font-size:13px; font-weight:500; padding:9px 13px; border-radius:999px; white-space:nowrap; flex:0 0 auto; background:{{ c.barBg }}; color:{{ c.barInk }}" style-hover="background:#FFE3D3" style-focus="outline:3px solid #FFB038; outline-offset:-3px">
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15" style="fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; flex:0 0 auto"><path d="{{ c.icon }}"></path></svg>
+            <span>{{ c.name }}</span>
+            <span style="font-size:11px; font-weight:400; color:{{ c.barCountInk }}">{{ c.count }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- grid -->
+  <section ref="{{ gridRef }}" style="padding:clamp(24px,3.5vw,40px) clamp(16px,4vw,48px) clamp(48px,6vw,72px); display:flex; flex-direction:column; gap:22px; max-width:1400px; margin:0 auto">
+    <div style="display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap">
+      <h2 style="font-family:'Alexandria'; font-weight:800; font-size:clamp(26px,3vw,34px); margin:0; line-height:1.1">{{ gridTitle }}</h2>
+      <span style="font-size:14px; color:#6B5460">{{ countLabel }}</span>
+    </div>
+
+    <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#fff; border-radius:28px 140px 28px 28px; padding:64px 28px 40px; text-align:center; max-width:520px; margin:8px auto 0; box-shadow:0 24px 50px -24px rgba(255,77,141,.4)">
+        <div style="font-family:'Alexandria'; font-weight:800; font-size:26px; line-height:1.2; margin-bottom:12px; text-wrap:pretty">لا توجد إعلانات في «{{ activeCat }}» في {{ countryName }} بعد</div>
+        <p style="margin:0 0 22px; color:#4A3540; line-height:1.7">كوني أول من تعرض هنا. الإعلان يستغرق دقيقتين، والباحثات موجودات فعلًا.</p>
+        <a href="#" style="display:inline-block; background:#FF4D8D; color:#fff; padding:14px 28px; border-radius:999px; font-family:'Alexandria'; font-weight:700" style-hover="background:#E83D7C; text-decoration:none" style-focus="outline:3px solid #1C0A14; outline-offset:3px">اعرضي خدمتك الآن</a>
+      </div>
+    </sc-if>
+
+    <!-- card: a soft slab whose photo has one sweeping shoulder (half an arch) at the leading corner; the badge pins the photo to the body -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%,260px), 1fr)); gap:clamp(20px,3vw,28px)">
+      <sc-for list="{{ listings }}" as="item" hint-placeholder-count="0">
+        <article style="background:#fff; border-radius:26px; box-shadow:0 30px 56px -26px rgba(255,77,141,.42), 0 2px 10px rgba(255,77,141,.08); display:flex; flex-direction:column; padding:10px">
+          <div style="position:relative">
+            <sc-if value="{{ item.hasPhoto }}" hint-placeholder-val="{{ false }}">
+              <div style="aspect-ratio:4/3.3; overflow:hidden; border-radius:16px 150px 16px 16px; background:#FFE3D3">
+                <img src="{{ item.photo }}" alt="{{ item.title }}" style="width:100%; height:100%; object-fit:cover">
+              </div>
+            </sc-if>
+            <sc-if value="{{ item.noPhoto }}" hint-placeholder-val="{{ true }}">
+              <div style="aspect-ratio:4/3.3; display:grid; place-items:center; border-radius:16px 150px 16px 16px; background:{{ item.badge }}; box-shadow:inset -40px -40px 90px -50px rgba(28,10,20,.22)">
+                <span style="font-family:'Alexandria'; font-weight:800; font-size:clamp(100px,36%,136px); line-height:1; color:{{ item.badgeInk }}; margin-top:6%">{{ item.initial }}</span>
+              </div>
+            </sc-if>
+            <span style="position:absolute; right:14px; bottom:-13px; font-size:12px; font-weight:600; padding:7px 13px; border-radius:999px; white-space:nowrap; background:{{ item.badge }}; color:{{ item.badgeInk }}; box-shadow:0 0 0 4px #fff, 0 10px 20px -10px rgba(28,10,20,.3)">{{ item.category }}</span>
+          </div>
+          <div style="padding:24px 12px 12px; display:flex; flex-direction:column; gap:9px; flex:1">
+            <div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px">
+              <span style="font-family:'Alexandria'; font-weight:700; font-size:16px">{{ item.name }}</span>
+              <span style="font-size:13px; color:#6B5460; white-space:nowrap">{{ item.area }}</span>
+            </div>
+            <h3 style="font-family:'Alexandria'; font-weight:800; font-size:21px; line-height:1.22; margin:0; text-wrap:pretty">{{ item.title }}</h3>
+            <p style="margin:0; font-size:14px; line-height:1.65; color:#4A3540; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden">{{ item.desc }}</p>
+            <sc-if value="{{ item.hasPrice }}" hint-placeholder-val="{{ true }}">
+              <div style="font-family:'Alexandria'; font-weight:800; font-size:22px; color:#FF4D8D; line-height:1">{{ item.priceText }}</div>
+            </sc-if>
+            <div style="display:flex; gap:8px; margin-top:auto; padding-top:6px">
+              <a href="#" style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; background:#1C0A14; color:#fff; border-radius:999px; padding:13px 16px; font-family:'Alexandria'; font-weight:700; font-size:15px; min-height:46px" style-hover="background:#2BA39B; text-decoration:none" style-focus="outline:3px solid #FFB038; outline-offset:2px"><span aria-hidden="true" style="width:9px; height:9px; border-radius:50%; background:#2BA39B; display:block"></span>واتساب</a>
+              <a href="#" aria-label="اتصال" style="width:46px; height:46px; border-radius:50%; background:#FFF0E8; display:grid; place-items:center; font-size:13px; font-weight:600; color:#1C0A14" style-hover="background:#FFE3D3; text-decoration:none" style-focus="outline:3px solid #FFB038">اتصال</a>
+              <a href="#" aria-label="إنستغرام" style="width:46px; height:46px; border-radius:50%; background:#FFF0E8; display:grid; place-items:center; font-size:13px; font-weight:600; color:#1C0A14" style-hover="background:#FFE3D3; text-decoration:none" style-focus="outline:3px solid #FFB038">إنستا</a>
+            </div>
+            <div style="font-size:12px; color:#8A7580">{{ item.date }}</div>
+          </div>
+        </article>
+      </sc-for>
+    </div>
+  </section>
+
+  <footer style="background:#1C0A14; color:#FFF6F1; padding:clamp(40px,6vw,56px) clamp(16px,4vw,48px) 32px; border-radius:clamp(32px,5vw,48px) clamp(32px,5vw,48px) 0 0">
+    <div style="max-width:1400px; margin:0 auto; display:flex; flex-direction:column; gap:28px">
+      <div data-r="footer-top" style="display:flex; justify-content:space-between; gap:32px">
+        <div style="display:flex; flex-direction:column; gap:12px; max-width:520px">
+          <div style="display:flex; align-items:center; gap:10px">
+            <span style="width:26px; height:32px; background:#FF4D8D; border-radius:999px 999px 7px 7px; display:block"></span>
+            <span style="font-family:'Alexandria'; font-weight:800; font-size:26px">برينسيس</span>
+          </div>
+          <p style="margin:0; line-height:1.75; font-size:15px; color:#E9D3DC; text-wrap:pretty">برينسيس لوحة إعلانات فقط. الاتفاق والدفع يتمّان مباشرة بين الطرفين، والموقع ليس طرفًا في أي تعامل ولا يضمن أي خدمة أو منتج.</p>
+          <span style="font-size:13px; color:#B899A8">متاح في مصر والسعودية والإمارات</span>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:10px; max-width:440px; align-content:flex-start">
+          <sc-for list="{{ footCats }}" as="c" hint-placeholder-count="6">
+            <a href="#" style="font-size:13px; padding:8px 14px; border-radius:999px; background:#2E1A26; color:#FFF6F1" style-hover="background:#FF4D8D; text-decoration:none" style-focus="outline:3px solid #FFB038">{{ c.name }}</a>
+          </sc-for>
+        </div>
+      </div>
+      <div data-r="footer-bottom" style="display:flex; justify-content:space-between; gap:16px; font-size:13px; color:#B899A8; border-top:1px solid #3A2532; padding-top:20px">
+        <span>برينسيس — مشروع من MDN</span>
+        <div style="display:flex; gap:20px"><a href="#">الشروط</a><a href="#">الخصوصية</a><a href="#">تواصلي معنا</a></div>
+      </div>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showPrices&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;البطاقات&quot;},&quot;parallax&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;الحركة&quot;}}">
+const CATS = ['كوافير وتجميل','مكياج','أظافر','حنّة','خياطة وتفصيل','بيع ملابس','طبخ وحلويات','دروس خصوصية','تنظيف منازل','رعاية أطفال','رعاية كبار السن'];
+// line icons, 24-box, single path each (tool or result of the category)
+const ICONS = {
+  'الكل':'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z',
+  'كوافير وتجميل':'M6 3.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5M6 15.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5M20 4L8.1 15.6M14.5 14.5L20 20M8.1 8.4L12 12',
+  'مكياج':'M3 21l8.5-8.5M10.5 11.5l6-7.5a2.1 2.1 0 0 1 3 3l-7.5 6z',
+  'أظافر':'M9.5 3h5v4h-5zM9.5 7h5l1.5 3.5V20a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-9.5zM8 14h8',
+  'حنّة':'M19 5l-2.5 9.5L11 20l-7-7 5.5-5.5zM19 5l-6 6M9 16l2-2',
+  'خياطة وتفصيل':'M6 4h10M6 20h10M7 4v16M15 4v16M7 8h8M7 12h8M7 16h8M21 3l-4 6M20.3 3.7a1 1 0 1 1 .7.7',
+  'بيع ملابس':'M12 3a2 2 0 0 1 2 2c0 1.5-2 2-2 3.5V10M12 10L3 16.5A1.5 1.5 0 0 0 4 19h16a1.5 1.5 0 0 0 1-2.5z',
+  'طبخ وحلويات':'M3 12h18a9 9 0 0 1-18 0zM13 11l5-8M15.5 11l3-8M18 3l.5 0',
+  'دروس خصوصية':'M12 6c-2-1.5-5-2-9-2v14c4 0 7 .5 9 2 2-1.5 5-2 9-2V4c-4 0-7 .5-9 2zM12 6v14',
+  'تنظيف منازل':'M9 9h6l1 12H8zM10 9V6a2 2 0 0 1 2-2h5M17 4h2M17 4v2M14 4l1 2',
+  'رعاية أطفال':'M12 3a4.5 4.5 0 1 0 0 9a4.5 4.5 0 1 0 0-9M12 12v5M12 17a2 2 0 1 0 0 4a2 2 0 1 0 0-4',
+  'رعاية كبار السن':'M14 21V7a3 3 0 0 0-6 0v1M12 21h4',
+};
+const COUNTRIES = [
+  { id:'EG', name:'مصر', flag:'🇪🇬', currency:'ج.م', code:'+20', cities:['القاهرة','الجيزة','الإسكندرية','المنصورة','طنطا','أسيوط'] },
+  { id:'SA', name:'السعودية', flag:'🇸🇦', currency:'ر.س', code:'+966', cities:['الرياض','جدة','مكة','المدينة','الدمام','الخبر'] },
+  { id:'AE', name:'الإمارات', flag:'🇦🇪', currency:'د.إ', code:'+971', cities:['دبي','أبوظبي','الشارقة','العين','عجمان','رأس الخيمة'] },
+];
+const COLORS = {
+  'أظافر':{badge:'#FF4D8D',ink:'#fff'},
+  'مكياج':{badge:'#FF4D8D',ink:'#fff'},
+  'كوافير وتجميل':{badge:'#FF4D8D',ink:'#fff'},
+  'حنّة':{badge:'#1C0A14',ink:'#FFF6F1'},
+  'خياطة وتفصيل':{badge:'#2BA39B',ink:'#fff'},
+  'بيع ملابس':{badge:'#2BA39B',ink:'#fff'},
+  'طبخ وحلويات':{badge:'#FFB038',ink:'#1C0A14'},
+  'دروس خصوصية':{badge:'#FFB038',ink:'#1C0A14'},
+  'تنظيف منازل':{badge:'#2BA39B',ink:'#fff'},
+  'رعاية أطفال':{badge:'#FFB038',ink:'#1C0A14'},
+  'رعاية كبار السن':{badge:'#1C0A14',ink:'#FFF6F1'},
+};
+const IMG = {
+  nails:'https://images.pexels.com/photos/34871553/pexels-photo-34871553.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  nails2:'https://images.pexels.com/photos/7147578/pexels-photo-7147578.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+  tailor:'https://images.pexels.com/photos/33078826/pexels-photo-33078826/free-photo-of-tailor-meticulously-crafting-garments-in-workshop.jpeg?w=1260&h=750&dpr=1',
+  tailor2:'https://images.pexels.com/photos/15177562/pexels-photo-15177562/free-photo-of-tailor-at-work.jpeg?w=1260&h=750&dpr=1',
+  machine:'https://images.pexels.com/photos/29107942/pexels-photo-29107942/free-photo-of-close-up-of-sewing-machine-with-fabric-and-hands.jpeg?cs=tinysrgb&dpr=1&w=1200',
+  cooking:'https://images.pexels.com/photos/6287459/pexels-photo-6287459.jpeg?auto=compress&cs=tinysrgb&w=1200',
+};
+// price: null | {amount, prefix?, unit?} — currency comes from the country
+const LISTINGS = [
+  {c:'EG',name:'منى عبد الرحمن',title:'مانيكير وباديكير جل في منزلك',category:'أظافر',area:'القاهرة، مدينة نصر',desc:'جل يدوم ثلاثة أسابيع دون تقشّر، معي كل ألوان الموسم وأصل إليك حتى باب البيت.',price:{amount:'١٥٠'},photo:IMG.nails2,date:'قبل ٣ ساعات'},
+  {c:'EG',name:'سارة الجندي',title:'تفصيل فساتين سهرة',category:'خياطة وتفصيل',area:'القاهرة، المعادي',desc:'أفصّل على مقاسك تمامًا مع بروفة قبل التسليم. القماش منك أو منّي.',price:null,photo:IMG.tailor,date:'أمس'},
+  {c:'EG',name:'هبة حسني',title:'صواني حلويات شرقية منزلية',category:'طبخ وحلويات',area:'القاهرة، شبرا',desc:'كنافة وبسبوسة وقطايف بسمن بلدي، الصينية الكبيرة تكفي ١٥ شخصًا وتصل ساخنة.',price:{amount:'٢٢٠',unit:'للصينية'},photo:IMG.cooking,date:'قبل ساعتين'},
+  {c:'EG',name:'ندى فتحي',title:'نقش حناء سوداني وخليجي',category:'حنّة',area:'الجيزة، فيصل',desc:'رسمة يد كاملة في ساعة، حناء طبيعية بلا مواد كيميائية، أعمل في المناسبات والأعياد.',price:null,photo:'',date:'اليوم'},
+  {c:'EG',name:'إيمان رشدي',title:'تعديل وتضييق الملابس',category:'خياطة وتفصيل',area:'القاهرة، حلوان',desc:'تقصير وتضييق وتغيير سحّابات خلال يومين على الأكثر، عمل متقن ومتين.',price:{amount:'٥٠',prefix:'من'},photo:IMG.machine,date:'قبل ٥ ساعات'},
+  {c:'EG',name:'دعاء محمود',title:'دروس عربي وإنجليزي للمرحلة الابتدائية',category:'دروس خصوصية',area:'الجيزة، المهندسين',desc:'حصص فردية في المنزل أو عن بُعد، متابعة الواجبات ومراجعات قبل الامتحانات.',price:{amount:'١٠٠',unit:'للحصة'},photo:'',date:'قبل يومين'},
+  {c:'SA',name:'نورة العتيبي',title:'عبايات مطرّزة يدويًا للمناسبات',category:'بيع ملابس',area:'الرياض، حي النرجس',desc:'ثلاث عبايات جديدة مقاس M وL، تطريز خرز يدوي، لُبست مرة واحدة. البيع نهائي.',price:{amount:'٨٥٠'},photo:IMG.tailor2,date:'قبل ٣ أيام'},
+  {c:'SA',name:'ريم الشهري',title:'مكياج عرائس ومناسبات',category:'مكياج',area:'جدة، الحمراء',desc:'مكياج يثبت ٢٤ ساعة بمنتجات أصلية، مع بروفة قبل الزفاف بأسبوع. أصل إلى منزلك.',price:null,photo:'',date:'أمس'},
+  {c:'SA',name:'لمى القحطاني',title:'أظافر جل وأكريليك',category:'أظافر',area:'الدمام، الشاطئ',desc:'تصاميم موسمية وفرنش ناعم، أدوات معقّمة لكل عميلة على حدة.',price:{amount:'١٨٠'},photo:IMG.nails,date:'قبل ٤ ساعات'},
+  {c:'SA',name:'عهود الدوسري',title:'كليجا ومعمول بالتمر',category:'طبخ وحلويات',area:'الخبر، العقربية',desc:'عجينة طازجة كل صباح وتمر سكري من القصيم. التوصيل في الخبر والدمام.',price:{amount:'١٢٠',unit:'للعلبة'},photo:IMG.cooking,date:'اليوم'},
+  {c:'SA',name:'منال الحربي',title:'تفصيل جلابيات وفساتين خليجية',category:'خياطة وتفصيل',area:'مكة، العزيزية',desc:'تفصيل بالمقاس وتطريز حسب الرغبة، تسليم خلال أسبوع.',price:null,photo:IMG.machine,date:'قبل يومين'},
+  {c:'AE',name:'فاطمة المزروعي',title:'نقش حناء إماراتية وهندية',category:'حنّة',area:'دبي، جميرا',desc:'حناء طبيعية بلون غامق يدوم أسبوعين، أعمل في الأعراس والمناسبات العائلية.',price:{amount:'٢٥٠'},photo:'',date:'قبل ساعة'},
+  {c:'AE',name:'مريم الكعبي',title:'فساتين سهرة للبيع',category:'بيع ملابس',area:'أبوظبي، الخالدية',desc:'أربعة فساتين من مصممين، مقاس S وM، حالة ممتازة ولُبست مرة واحدة.',price:null,photo:IMG.tailor,date:'أمس'},
+  {c:'AE',name:'حصة الشامسي',title:'حلويات وكيك للمناسبات',category:'طبخ وحلويات',area:'الشارقة، المجاز',desc:'كيك مخصص بالتصميم الذي تريدينه، ولقيمات وبلاليط للمناسبات.',price:{amount:'١٥٠',prefix:'من'},photo:IMG.cooking,date:'قبل ٦ ساعات'},
+  {c:'AE',name:'آمنة النعيمي',title:'رعاية أطفال في المنزل',category:'رعاية أطفال',area:'العين، الجيمي',desc:'خبرة ثماني سنوات مع الأطفال من عمر سنة، أوقات مرنة صباحًا ومساءً.',price:{amount:'٤٠',unit:'للساعة'},photo:'',date:'قبل ٣ أيام'},
+  {c:'AE',name:'شيخة البلوشي',title:'مانيكير وباديكير في منزلك',category:'أظافر',area:'عجمان، الراشدية',desc:'باقة كاملة مع تدليك اليدين والقدمين، أدوات مخصصة لكل عميلة.',price:{amount:'١٦٠'},photo:IMG.nails,date:'قبل يومين'},
+];
+const AR_NUM = (n) => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+
+class Component extends DCLogic {
+  state = { cat: 'الكل', query: '', country: 'EG', showBar: false };
+  p1 = React.createRef(); p2 = React.createRef(); p3 = React.createRef();
+  catbarRef = React.createRef(); gridRef = React.createRef(); heroSelRef = React.createRef();
+  componentDidMount() {
+    this._reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this._onScroll = () => {
+      const y = window.scrollY || document.documentElement.scrollTop || 0;
+      if (!this._reduced && (this.props.parallax ?? true) !== false) {
+        [[this.p1,-0.06],[this.p2,0.04],[this.p3,-0.1]].forEach(([r,f]) => {
+          if (r.current) r.current.style.transform = `translateY(${(y*f).toFixed(1)}px)`;
+        });
+      }
+      const cb = this.catbarRef.current, g = this.gridRef.current;
+      if (cb && g) {
+        const show = cb.getBoundingClientRect().bottom < 0 && g.getBoundingClientRect().bottom > 120;
+        if (show !== this.state.showBar) this.setState({ showBar: show });
+      }
+    };
+    window.addEventListener('scroll', this._onScroll, { passive: true });
+    this._onScroll();
+  }
+  componentWillUnmount() { if (this._onScroll) window.removeEventListener('scroll', this._onScroll); }
+  jumpTo(el, focusSel) {
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + (window.scrollY || 0) - 16;
+    window.scrollTo({ top, behavior: this._reduced ? 'auto' : 'smooth' });
+    const f = focusSel && el.querySelector(focusSel);
+    if (f) setTimeout(() => f.focus({ preventScroll: true }), this._reduced ? 0 : 450);
+  }
+  renderVals() {
+    const { cat, query, country, showBar } = this.state;
+    const showPrices = this.props.showPrices ?? true;
+    const K = COUNTRIES.find(k => k.id === country);
+    const inCountry = LISTINGS.filter(l => l.c === country);
+    const mkCat = (name) => {
+      const on = name === cat;
+      const count = name === 'الكل' ? inCountry.length : inCountry.filter(l => l.category === name).length;
+      return { name, pick: () => this.setState({ cat: name }), icon: ICONS[name], count: AR_NUM(count),
+        bg: on ? '#1C0A14' : '#fff', ink: on ? '#FFF6F1' : '#1C0A14', countInk: on ? '#D9B8C8' : '#8A7580',
+        shadow: on ? '0 10px 20px -10px rgba(28,10,20,.6)' : '0 6px 16px -8px rgba(255,77,141,.35)',
+        barBg: on ? '#1C0A14' : 'transparent', barInk: on ? '#FFF6F1' : '#1C0A14', barCountInk: on ? '#D9B8C8' : '#8A7580' };
+    };
+    const countries = COUNTRIES.map(k => {
+      const on = k.id === country;
+      return { ...k, on, pick: () => this.setState({ country: k.id }), bg: on ? '#FF4D8D' : 'transparent', ink: on ? '#fff' : '#6B5460' };
+    });
+    const q = query.trim();
+    const listings = inCountry.filter(l => (cat === 'الكل' || l.category === cat) && (!q || l.title.includes(q) || l.name.includes(q) || l.category.includes(q) || l.area.includes(q)))
+      .map(l => {
+        const a = COLORS[l.category]; const p = l.price;
+        return { ...l, hasPhoto: !!l.photo, noPhoto: !l.photo, hasPrice: showPrices && !!p,
+          priceText: p ? [p.prefix, `${p.amount} ${K.currency}`, p.unit].filter(Boolean).join(' ') : '',
+          initial: l.name[0], badge: a.badge, badgeInk: a.ink };
+      });
+    const n = listings.length;
+    return {
+      query, onQuery: (e) => this.setState({ query: e.target.value }),
+      searchPlaceholder: `عمّ تبحثين في ${K.name}؟`,
+      countries, countryName: K.name,
+      heroChips: ['أظافر','خياطة وتفصيل','طبخ وحلويات','مكياج','حنّة','دروس خصوصية'].map(mkCat),
+      cats: ['الكل', ...CATS].map(mkCat),
+      footCats: CATS.map(c => ({ name: c })),
+      listings, isEmpty: n === 0, activeCat: cat,
+      activeCatLabel: cat === 'الكل' ? 'كل الفئات' : cat,
+      gridTitle: cat === 'الكل' ? `آخر الإعلانات في ${K.name}` : `${cat} في ${K.name}`,
+      countLabel: n === 0 ? 'لا نتائج' : (n === 1 ? 'إعلان واحد' : n === 2 ? 'إعلانان' : `${AR_NUM(n)} إعلانات`),
+      showBar,
+      jumpCountry: () => this.jumpTo(this.heroSelRef.current, '[role="radio"][aria-checked="true"]'),
+      jumpCats: () => this.jumpTo(this.catbarRef.current, 'button'),
+      p1: this.p1, p2: this.p2, p3: this.p3, catbarRef: this.catbarRef, gridRef: this.gridRef, heroSelRef: this.heroSelRef,
+    };
+  }
+}
+</script>
+</body>
+</html>

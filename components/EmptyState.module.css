@@ -1,0 +1,25 @@
+.panel {
+  background: var(--color-surface);
+  /* physical, as in the design: the sweeping corner is top-right — the leading corner in RTL */
+  border-radius: var(--radius-panel) var(--radius-panel-shoulder) var(--radius-panel) var(--radius-panel);
+  padding: var(--space-empty-pad-top) var(--space-16) var(--space-empty-pad-bottom);
+  text-align: center;
+  max-width: var(--width-measure);
+  margin: var(--space-5) auto 0;
+  box-shadow: var(--shadow-panel);
+}
+
+.title {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-heavy);
+  font-size: var(--text-heading-sm);
+  line-height: var(--leading-title);
+  margin-bottom: var(--space-8);
+  text-wrap: pretty;
+}
+
+.body {
+  margin: 0 0 var(--space-14);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-body);
+}

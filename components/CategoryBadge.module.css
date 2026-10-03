@@ -1,0 +1,15 @@
+.badge {
+  display: inline-block;
+  font-size: var(--text-caption);
+  font-weight: var(--weight-semibold);
+  padding: var(--space-4) var(--space-9);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  box-shadow: var(--shadow-badge);
+}
+
+.lg {
+  font-size: var(--text-small);
+  padding: var(--space-5) var(--space-badge-lg-pad-x);
+  box-shadow: var(--shadow-badge-on-canvas);
+}

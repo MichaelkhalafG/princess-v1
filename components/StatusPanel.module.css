@@ -1,0 +1,40 @@
+.panel {
+  position: relative;
+  z-index: 1;
+  background: var(--color-surface);
+  /* physical, as in the design: the sweeping corner is top-right — the leading corner in RTL */
+  border-radius: var(--radius-panel) var(--radius-panel-shoulder) var(--radius-panel) var(--radius-panel);
+  padding: var(--space-status-pad-top) var(--space-16) var(--space-empty-pad-bottom);
+  text-align: center;
+  max-width: var(--width-status);
+  margin: var(--space-15) auto 0;
+  box-shadow: var(--shadow-panel);
+}
+
+.mark {
+  margin: 0 auto var(--space-13);
+}
+
+.title {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-heavy);
+  font-size: var(--text-notfound-title);
+  line-height: var(--leading-notfound-title);
+  margin: 0 0 var(--space-8);
+  text-wrap: pretty;
+}
+
+.body {
+  margin: 0 auto var(--space-15);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-body);
+  max-width: var(--width-status-text);
+  text-wrap: pretty;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  justify-content: center;
+}

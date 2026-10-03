@@ -1,0 +1,22 @@
+/* Category tone pairs: the fill and ink shared by the category badge and the monogram
+   panel. Which category gets which tone is set in lib/constants.ts. */
+
+.accent {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.secondary {
+  background: var(--color-secondary);
+  color: var(--color-on-accent);
+}
+
+.highlight {
+  background: var(--color-highlight);
+  color: var(--color-ink);
+}
+
+.ink {
+  background: var(--color-ink);
+  color: var(--color-on-ink);
+}

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;700;800&family=Readex+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#FFF6F1}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+a:hover{text-decoration:underline}
+img{display:block}
+input::placeholder,textarea::placeholder{color:#1C0A14;opacity:.5}
+input,textarea{font:inherit}
+@media (max-width:860px){
+  [data-r="nav"]{display:none!important}
+  [data-r="two"]{grid-template-columns:1fr!important}
+  [data-r="card"]{padding:22px 16px 20px!important; border-radius:22px!important}
+  [data-r="h1"]{font-size:clamp(30px,8vw,36px)!important}
+}
+@media (max-width:480px){
+  [data-r="logo-text"]{font-size:20px!important}
+  [data-r="logo-mark"]{width:28px!important; height:34px!important}
+  [data-r="country"] button{padding:11px 8px!important; font-size:14px!important}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</helmet>
+
+<div dir="rtl" style="background:#FFF6F1; color:#1C0A14; font-family:'Readex Pro',sans-serif; min-height:100vh; display:flex; flex-direction:column; overflow-x:clip">
+
+  <header style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px clamp(16px,4vw,48px)">
+    <a href="Princess Landing.dc.html" style="display:flex; align-items:center; gap:8px; flex:0 0 auto" style-hover="text-decoration:none" style-focus="outline:3px solid #FFB038; outline-offset:3px; border-radius:6px">
+      <span data-r="logo-mark" style="width:34px; height:42px; background:#FF4D8D; border-radius:999px 999px 9px 9px; display:block; box-shadow:0 10px 20px -8px rgba(255,77,141,.6)"></span>
+      <span data-r="logo-text" style="font-family:'Alexandria'; font-weight:800; font-size:24px; letter-spacing:-.01em">برينسيس</span>
+    </a>
+    <a href="Princess Landing.dc.html" style="display:flex; align-items:center; gap:8px; font-size:14px; font-weight:500; color:#1C0A14; padding:10px 16px; border-radius:999px; background:#fff; box-shadow:0 10px 24px -12px rgba(255,77,141,.35), 0 0 0 1px rgba(255,77,141,.08)" style-hover="background:#FFE3D3; text-decoration:none" style-focus="outline:3px solid #FFB038; outline-offset:2px"><span aria-hidden="true" style="width:8px; height:8px; border-radius:50%; background:#FF4D8D; display:block"></span>العودة إلى اللوحة</a>
+  </header>
+
+  <main style="flex:1; width:100%; max-width:720px; margin:0 auto; padding:8px clamp(16px,4vw,48px) clamp(48px,6vw,72px); position:relative">
+    <span aria-hidden="true" style="position:absolute; right:-220px; top:-120px; width:460px; height:460px; border-radius:50%; background:#FFE3D3; z-index:0"></span>
+    <span aria-hidden="true" style="position:absolute; left:-200px; bottom:10%; width:380px; height:380px; border-radius:50%; background:#FFE9C2; z-index:0"></span>
+
+    <!-- success -->
+    <sc-if value="{{ isSuccess }}" hint-placeholder-val="{{ false }}">
+      <section role="status" style="position:relative; z-index:1; background:#fff; border-radius:28px 140px 28px 28px; padding:72px 28px 40px; text-align:center; margin-top:24px; box-shadow:0 24px 50px -24px rgba(255,77,141,.4)">
+        <span aria-hidden="true" style="width:56px; height:68px; background:#2BA39B; border-radius:999px 999px 14px 14px; display:block; margin:0 auto 20px"></span>
+        <h1 style="font-family:'Alexandria'; font-weight:800; font-size:clamp(28px,4vw,36px); line-height:1.1; margin:0 0 12px; text-wrap:pretty">إعلانك الآن على اللوحة</h1>
+        <p style="margin:0 auto 24px; color:#4A3540; line-height:1.7; max-width:420px; text-wrap:pretty">يظهر منذ هذه اللحظة لكل سيدة في {{ countryName }}، ومن تحتاج خدمتك ستتواصل معك مباشرة.</p>
+        <div style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center">
+          <a href="Princess Listing.dc.html#s=posted" style="display:inline-block; background:#FF4D8D; color:#fff; padding:14px 28px; border-radius:999px; font-family:'Alexandria'; font-weight:700" style-hover="background:#E83D7C; text-decoration:none" style-focus="outline:3px solid #1C0A14; outline-offset:3px">اعرضي إعلانك</a>
+          <a href="Princess Landing.dc.html" style="display:inline-block; background:#FFF0E8; color:#1C0A14; padding:14px 24px; border-radius:999px; font-weight:600" style-hover="background:#FFE3D3; text-decoration:none" style-focus="outline:3px solid #FFB038; outline-offset:3px">العودة إلى اللوحة</a>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isForm }}" hint-placeholder-val="{{ true }}">
+      <div style="position:relative; z-index:1; display:flex; flex-direction:column; gap:10px; padding:16px 4px 24px">
+        <h1 data-r="h1" style="font-family:'Alexandria'; font-weight:800; font-size:clamp(34px,4.6vw,48px); line-height:1.08; margin:0; letter-spacing:-.015em">اعرضي خدمتك</h1>
+        <p style="font-size:clamp(15px,1.3vw,17px); line-height:1.7; margin:0; color:#4A3540; max-width:520px; text-wrap:pretty">دقيقتان، ويظهر إعلانك لكل سيدة في بلدك. بلا حساب، وبلا عمولة.</p>
+      </div>
+
+      <form ref="{{ formRef }}" onSubmit="{{ onSubmit }}" noValidate="{{ true }}" data-r="card" style="position:relative; z-index:1; background:#fff; border-radius:26px; padding:30px 28px 28px; box-shadow:0 30px 56px -26px rgba(255,77,141,.42), 0 2px 10px rgba(255,77,141,.08); display:flex; flex-direction:column; gap:22px">
+
+        <!-- الاسم -->
+        <div style="display:flex; flex-direction:column; gap:7px">
+          <div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px">
+            <label for="f-name" style="font-family:'Alexandria'; font-weight:700; font-size:14px">الاسم</label>
+            <span style="font-size:12px; color:{{ name.countInk }}; font-weight:{{ name.countWeight }}">{{ name.count }}</span>
+          </div>
+          <input id="f-name" value="{{ name.value }}" onChange="{{ name.onChange }}" aria-invalid="{{ name.invalid }}" aria-describedby="e-name" autoComplete="name" placeholder="كما تحبين أن تناديكِ العميلة" style="width:100%; background:#FFF6F1; border:1.5px solid {{ name.border }}; border-radius:14px; padding:12px 16px; font-size:16px; color:#1C0A14; min-height:48px; outline:0" style-focus="outline:3px solid #FFB038; outline-offset:2px">
+          <sc-if value="{{ name.hasError }}" hint-placeholder-val="{{ false }}"><p id="e-name" style="margin:0; display:flex; gap:8px; align-items:flex-start; font-size:13px; font-weight:500; line-height:1.5"><span aria-hidden="true" style="width:7px; height:7px; border-radius:50%; background:#FF4D8D; display:block; margin-top:7px; flex:0 0 auto"></span>{{ name.error }}</p></sc-if>
+        </div>
+
+        <!-- العنوان -->
+        <div style="display:flex; flex-direction:column; gap:7px">
+          <div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px">
+            <label for="f-title" style="font-family:'Alexandria'; font-weight:700; font-size:14px">عنوان الخدمة أو المنتج</label>
+            <span style="font-size:12px; color:{{ title.countInk }}; font-weight:{{ title.countWeight }}">{{ title.count }}</span>
+          </div>
+          <input id="f-title" value="{{ title.value }}" onChange="{{ title.onChange }}" aria-invalid="{{ title.invalid }}" aria-describedby="e-title" placeholder="مثال: مانيكير جل في منزلك" style="width:100%; background:#FFF6F1; border:1.5px solid {{ title.border }}; border-radius:14px; padding:12px 16px; font-size:16px; color:#1C0A14; min-height:48px; outline:0" style-focus="outline:3px solid #FFB038; outline-offset:2px">
+          <sc-if value="{{ title.hasError }}" hint-placeholder-val="{{ false }}"><p id="e-title" style="margin:0; display:flex; gap:8px; align-items:flex-start; font-size:13px; font-weight:500; line-height:1.5"><span aria-hidden="true" style="width:7px; height:7px; border-radius:50%; background:#FF4D8D; display:block; margin-top:7px; flex:0 0 auto"></span>{{ title.error }}</p></sc-if>
+        </div>
+
+        <!-- التصنيف -->
+        <fieldset style="border:0; margin:0; padding:0; min-width:0; display:flex; flex-direction:column; gap:9px">
+          <legend style="font-family:'Alexandria'; font-weight:700; font-size:14px; padding:0; margin-bottom:9px">التصنيف</legend>
+          <div role="radiogroup" aria-describedby="e-cat" style="display:flex; flex-wrap:wrap; gap:8px; padding:2px; border-radius:16px; outline:{{ catOutline }}">
+            <sc-for list="{{ cats }}" as="c" hint-placeholder-count="11">
+              <button type="button" role="radio" aria-checked="{{ c.on }}" onClick="{{ c.pick }}" style="display:inline-flex; align-items:center; gap:6px; border:0; cursor:pointer; font:inherit; font-size:13px; font-weight:500; padding:9px 13px; border-radius:999px; min-height:38px; background:{{ c.bg }}; color:{{ c.ink }}; box-shadow:{{ c.shadow }}" style-hover="background:#FFE3D3" style-focus="outline:3px solid #FFB038; outline-offset:2px">
+                <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15" style="fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; flex:0 0 auto"><path d="{{ c.icon }}"></path></svg>
+                <span>{{ c.name }}</span>
+              </button>
+            </sc-for>
+          </div>
+          <sc-if value="{{ catError }}" hint-placeholder-val="{{ false }}"><p id="e-cat" style="margin:0; display:flex; gap:8px; align-items:flex-start; font-size:13px; font-weight:500; line-height:1.5"><span aria-hidden="true" style="width:7px; height:7px; border-radius:50%; background:#FF4D8D; display:block; margin-top:7px; flex:0 0 auto"></span>اختاري التصنيف الأقرب لما تقدمينه، ليجدكِ من تبحث عنه.</p></sc-if>
+        </fieldset>
+
+        <!-- الدولة -->
+        <fieldset style="border:0; margin:0; padding:0; min-width:0; display:flex; flex-direction:column; gap:9px">
+          <legend style="font-family:'Alexandria'; font-weight:700; font-size:14px; padding:0; margin-bottom:9px">الدولة</legend>
+          <div data-r="country" role="radiogroup" aria-label="الدولة" style="display:flex; background:#FFF6F1; border-radius:999px; padding:5px; gap:2px">
+            <sc-for list="{{ countries }}" as="k" hint-placeholder-count="3">
+              <button type="button" role="radio" aria-checked="{{ k.on }}" onClick="{{ k.pick }}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:7px; border:0; cursor:pointer; font:inherit; font-size:15px; font-weight:600; padding:11px 14px; border-radius:999px; min-height:44px; background:{{ k.bg }}; color:{{ k.ink }}" style-focus="outline:3px solid #FFB038; outline-offset:2px"><span aria-hidden="true" style="font-size:16px; line-height:1">{{ k.flag }}</span>{{ k.name }}</button>
+            </sc-for>
+          </div>
+        </fieldset>
+
+        <!-- المدينة / الحي -->
+        <div data-r="two" style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+          <div style="display:flex; flex-direction:column; gap:7px; min-width:0">
+            <label for="f-city" style="font-family:'Alexandria'; font-weight:700; font-size:14px">المدينة</label>
+            <input id="f-city" value="{{ city.value }}" onChange="{{ city.onChange }}" aria-invalid="{{ city.invalid }}" aria-describedby="e-city" placeholder="{{ cityHint }}" style="width:100%; background:#FFF6F1; border:1.5px solid {{ city.border }}; border-radius:14px; padding:12px 16px; font-size:16px; color:#1C0A14; min-height:48px; outline:0" style-focus="outline:3px solid #FFB038; outline-offset:2px">
+            <sc-if value="{{ city.hasError }}" hint-placeholder-val="{{ false }}"><p id="e-city" style="margin:0; display:flex; gap:8px; align-items:flex-start; font-size:13px; font-weight:500; line-height:1.5"><span aria-hidden="true" style="width:7px; height:7px; border-radius:50%; background:#FF4D8D; display:block; margin-top:7px; flex:0 0 auto"></span>{{ city.error }}</p></sc-if>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:7px; min-width:0">
+            <div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px">
+              <label for="f-district" style="font-family:'Alexandria'; font-weight:700; font-size:14px">الحي</label>
+              <span style="font-size:12px; color:#8A7580">اختياري</span>
+            </div>
+            <input id="f-district" value="{{ district.value }}" onChange="{{ district.onChange }}" placeholder="{{ districtHint }}" style="width:100%; background:#FFF6F1; border:1.5px solid #FFF6F1; border-radius:14px; padding:12px 16px; font-size:16px; color:#1C0A14; min-height:48px; outline:0" style-focus="outline:3px solid #FFB038; outline-offset:2px">
+          </div>
+        </div>
+
+        <!-- الوصف -->
+        <div style="display:flex; flex-direction:column; gap:7px">
+          <div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px">
+            <label for="f-desc" style="font-family:'Alexandria'; font-weight:700; font-size:14px">الوصف</label>
+            <span style="font-size:12px; color:{{ desc.countInk }}; font-weight:{{ desc.countWeight }}">{{ desc.count }}</span>
+          </div>
+          <textarea id="f-desc" value="{{ desc.value }}" onChange="{{ desc.onChange }}" aria-invalid="{{ desc.invalid }}" aria-describedby="e-desc" rows="5" placeholder="ماذا تقدمين بالضبط؟ كيف تعملين، وما الذي يميزك، وما الذي تحتاج العميلة معرفته قبل أن تتواصل معك." style="width:100%; background:#FFF6F1; border:1.5px solid {{ desc.border }}; border-radius:18px; padding:14px 16px; font-size:16px; line-height:1.65; color:#1C0A14; resize:vertical; min-height:140px; outline:0" style-focus="outline:3px solid #FFB038; outline-offset:2px"></textarea>
+          <sc-if value="{{ desc.hasError }}" hint-placeholder-val="{{ false }}"><p id="e-desc" style="margin:0; display:flex; gap:8px; align-items:flex-start; font-size:13px; font-weight:500; line-height:1.5"><span aria-hidden="true" style="width:7px; height:7px; border-radius:50%; background:#FF4D8D; display:block; margin-top:7px; flex:0 0 auto"></span>{{ desc.error }}</p></sc-if>
+        </div>
+
+        <!-- السعر -->
+        <div style="display:flex; flex-direction:column; gap:7px">
+          <div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px">
+            <label for="f-price" style="font-family:'Alexandria'; font-weight:700; font-size:14px">السعر</label>
+            <span style="font-size:12px; color:{{ price.countInk }}; font-weight:{{ price.countWeight }}">{{ price.count }}</span>
+          </div>
+          <input id="f-price" value="{{ price.value }}" onChange="{{ price.onChange }}" aria-invalid="{{ price.invalid }}" aria-describedby="e-price h-price" placeholder="{{ priceHint }}" style="width:100%; background:#FFF6F1; border:1.5px solid {{ price.border }}; border-radius:14px; padding:12px 16px; font-size:16px; color:#1C0A14; min-height:48px; outline:0" style-focus="outline:3px solid #FFB038; outline-offset:2px">
+          <p id="h-price" style="margin:0; font-size:13px; color:#6B5460; line-height:1.5">اكتبيه كما تريدين أن يظهر، أو اتركيه فارغًا ويُتفق عليه مباشرة.</p>
+          <sc-if value="{{ price.hasError }}" hint-placeholder-val="{{ false }}"><p id="e-price" style="margin:0; display:flex; gap:8px; align-items:flex-start; font-size:13px; font-weight:500; line-height:1.5"><span aria-hidden="true" style="width:7px; height:7px; border-radius:50%; background:#FF4D8D; display:block; margin-top:7px; flex:0 0 auto"></span>{{ price.error }}</p></sc-if>
+        </div>
+
+        <!-- صورة -->
+        <div style="display:flex; flex-direction:column; gap:9px">
+          <div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px">
+            <span id="l-image" style="font-family:'Alexandria'; font-weight:700; font-size:14px">صورة من عملك</span>
+            <span style="font-size:12px; color:#8A7580">اختياري</span>
+          </div>
+          <input ref="{{ fileRef }}" type="file" accept="image/jpeg,image/png,image/webp" onChange="{{ onFile }}" aria-labelledby="l-image" style="position:absolute; width:1px; height:1px; opacity:0; overflow:hidden; pointer-events:none">
+
+          <sc-if value="{{ img.idle }}" hint-placeholder-val="{{ true }}">
+            <button type="button" onClick="{{ pickFile }}" style="width:100%; text-align:start; cursor:pointer; font:inherit; background:#FFF6F1; border:1.5px dashed rgba(255,77,141,.45); border-radius:16px 150px 16px 16px; padding:26px 24px 22px; display:flex; flex-direction:column; gap:6px; color:#1C0A14" style-hover="background:#FFF0E8" style-focus="outline:3px solid #FFB038; outline-offset:2px">
+              <span style="font-family:'Alexandria'; font-weight:700; font-size:16px">اختاري صورة لعملك</span>
+              <span style="font-size:13px; color:#6B5460; line-height:1.5">صورة واحدة لنتيجة أو منتج، لا لوجهك. JPEG أو PNG أو WebP حتى ٥ ميغابايت.</span>
+            </button>
+          </sc-if>
+
+          <sc-if value="{{ img.uploading }}" hint-placeholder-val="{{ false }}">
+            <div role="status" aria-live="polite" style="background:#FFF6F1; border-radius:16px 150px 16px 16px; padding:14px; display:flex; gap:14px; align-items:center">
+              <span style="width:76px; height:76px; border-radius:14px 60px 14px 14px; overflow:hidden; background:#FFE3D3; flex:0 0 auto; display:block"><img src="{{ img.preview }}" alt="" style="width:100%; height:100%; object-fit:cover"></span>
+              <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:8px">
+                <span style="font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ img.name }}</span>
+                <span style="height:6px; border-radius:999px; background:#FFE3D3; display:block; overflow:hidden"><span style="display:block; height:100%; border-radius:999px; background:#FF4D8D; width:{{ img.progressCss }}"></span></span>
+                <span style="font-size:13px; color:#6B5460">جارٍ الرفع… {{ img.progress }}٪</span>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ img.chosen }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#FFF6F1; border-radius:16px 150px 16px 16px; padding:14px; display:flex; gap:14px; align-items:center">
+              <span style="width:76px; height:76px; border-radius:14px 60px 14px 14px; overflow:hidden; flex:0 0 auto; display:block"><img src="{{ img.preview }}" alt="معاينة الصورة المختارة" style="width:100%; height:100%; object-fit:cover"></span>
+              <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px">
+                <span style="font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ img.name }}</span>
+                <span style="font-size:13px; color:#2BA39B; font-weight:600">تم رفعها، {{ img.size }}</span>
+              </div>
+              <div style="display:flex; gap:6px; flex:0 0 auto">
+                <button type="button" onClick="{{ pickFile }}" style="border:0; cursor:pointer; font:inherit; font-size:13px; font-weight:600; padding:10px 14px; border-radius:999px; background:#fff; color:#1C0A14; min-height:40px" style-hover="background:#FFE3D3" style-focus="outline:3px solid #FFB038; outline-offset:2px">تغيير</button>
+                <button type="button" onClick="{{ removeFile }}" aria-label="إزالة الصورة" style="border:0; cursor:pointer; font:inherit; font-size:13px; font-weight:600; padding:10px 14px; border-radius:999px; background:#fff; color:#1C0A14; min-height:40px" style-hover="background:#FFE3D3" style-focus="outline:3px solid #FFB038; outline-offset:2px">إزالة</button>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ img.rejected }}" hint-placeholder-val="{{ false }}">
+            <button type="button" onClick="{{ pickFile }}" aria-describedby="e-image" style="width:100%; text-align:start; cursor:pointer; font:inherit; background:#FFF6F1; border:1.5px solid #FF4D8D; border-radius:16px 150px 16px 16px; padding:26px 24px 22px; display:flex; flex-direction:column; gap:6px; color:#1C0A14" style-hover="background:#FFF0E8" style-focus="outline:3px solid #FFB038; outline-offset:2px">
+              <span style="font-family:'Alexandria'; font-weight:700; font-size:16px">اختاري صورة أخرى</span>
+              <span style="font-size:13px; color:#6B5460; line-height:1.5">JPEG أو PNG أو WebP حتى ٥ ميغابايت.</span>
+            </button>
+            <p id="e-image" role="alert" style="margin:0; display:flex; gap:8px; align-items:flex-start; font-size:13px; font-weight:500; line-height:1.5"><span aria-hidden="true" style="width:7px; height:7px; border-radius:50%; background:#FF4D8D; display:block; margin-top:7px; flex:0 0 auto"></span>{{ img.reason }}</p>
+          </sc-if>
+        </div>
+
+        <!-- طرق التواصل: the "at least one" rule lives on the group header as a live status -->
+        <fieldset ref="{{ contactsRef }}" aria-describedby="e-contacts" style="border:0; margin:0; padding:18px 16px 16px; min-width:0; background:#FFF6F1; border-radius:20px; outline:{{ contactsOutline }}; outline-offset:-2px; display:flex; flex-direction:column; gap:14px">
+          <legend style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)">طرق التواصل</legend>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap">
+            <div style="display:flex; flex-direction:column; gap:3px">
+              <span style="font-family:'Alexandria'; font-weight:700; font-size:16px">كيف تتواصل معك العميلة؟</span>
+              <span style="font-size:13px; color:#6B5460">تظهر على إعلانك كما تكتبينها.</span>
+            </div>
+            <span role="status" style="font-size:12px; font-weight:600; padding:7px 12px; border-radius:999px; white-space:nowrap; background:{{ contactsStatusBg }}; color:{{ contactsStatusInk }}">{{ contactsStatus }}</span>
+          </div>
+          <sc-if value="{{ contactsError }}" hint-placeholder-val="{{ false }}">
+            <p id="e-contacts" role="alert" style="margin:0; display:flex; gap:8px; align-items:flex-start; font-size:14px; font-weight:600; line-height:1.5"><span aria-hidden="true" style="width:7px; height:7px; border-radius:50%; background:#FF4D8D; display:block; margin-top:8px; flex:0 0 auto"></span>لم تضيفي أي طريقة تواصل. اكتبي رقم واتساب، أو رقم هاتف، أو حساب إنستغرام — واحدة تكفي لنشر الإعلان.</p>
+          </sc-if>
+
+          <div style="display:flex; flex-direction:column; gap:7px">
+            <label for="f-wa" style="font-family:'Alexandria'; font-weight:700; font-size:14px">واتساب</label>
+            <div style="display:flex; align-items:stretch; background:#fff; border:1.5px solid {{ whatsapp.border }}; border-radius:14px; overflow:hidden" style-focus="outline:3px solid #FFB038; outline-offset:2px">
+              <span aria-hidden="true" style="display:flex; align-items:center; padding:0 14px; font-size:15px; font-weight:600; color:#6B5460; background:#FFF0E8; direction:ltr">{{ dial }}</span>
+              <input id="f-wa" ref="{{ waRef }}" value="{{ whatsapp.value }}" onChange="{{ whatsapp.onChange }}" aria-invalid="{{ whatsapp.invalid }}" aria-describedby="e-wa" inputMode="tel" autoComplete="tel-national" placeholder="{{ phoneHint }}" style="flex:1; min-width:0; border:0; outline:0; background:transparent; padding:12px 14px; font-size:16px; color:#1C0A14; min-height:46px; direction:ltr; text-align:left" style-focus="outline:3px solid #FFB038; outline-offset:-3px; border-radius:12px">
+            </div>
+            <sc-if value="{{ whatsapp.hasError }}" hint-placeholder-val="{{ false }}"><p id="e-wa" style="margin:0; display:flex; gap:8px; align-items:flex-start; font-size:13px; font-weight:500; line-height:1.5"><span aria-hidden="true" style="width:7px; height:7px; border-radius:50%; background:#FF4D8D; display:block; margin-top:7px; flex:0 0 auto"></span>{{ whatsapp.error }}</p></sc-if>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:7px">
+            <label for="f-phone" style="font-family:'Alexandria'; font-weight:700; font-size:14px">هاتف</label>
+            <div style="display:flex; align-items:stretch; background:#fff; border:1.5px solid {{ phone.border }}; border-radius:14px; overflow:hidden">
+              <span aria-hidden="true" style="display:flex; align-items:center; padding:0 14px; font-size:15px; font-weight:600; color:#6B5460; background:#FFF0E8; direction:ltr">{{ dial }}</span>
+              <input id="f-phone" value="{{ phone.value }}" onChange="{{ phone.onChange }}" aria-invalid="{{ phone.invalid }}" aria-describedby="e-phone" inputMode="tel" placeholder="{{ phoneHint }}" style="flex:1; min-width:0; border:0; outline:0; background:transparent; padding:12px 14px; font-size:16px; color:#1C0A14; min-height:46px; direction:ltr; text-align:left" style-focus="outline:3px solid #FFB038; outline-offset:-3px; border-radius:12px">
+            </div>
+            <sc-if value="{{ phone.hasError }}" hint-placeholder-val="{{ false }}"><p id="e-phone" style="margin:0; display:flex; gap:8px; align-items:flex-start; font-size:13px; font-weight:500; line-height:1.5"><span aria-hidden="true" style="width:7px; height:7px; border-radius:50%; background:#FF4D8D; display:block; margin-top:7px; flex:0 0 auto"></span>{{ phone.error }}</p></sc-if>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:7px">
+            <label for="f-ig" style="font-family:'Alexandria'; font-weight:700; font-size:14px">إنستغرام</label>
+            <div style="display:flex; align-items:stretch; background:#fff; border:1.5px solid {{ instagram.border }}; border-radius:14px; overflow:hidden">
+              <span aria-hidden="true" style="display:flex; align-items:center; padding:0 14px; font-size:16px; font-weight:600; color:#6B5460; background:#FFF0E8">@</span>
+              <input id="f-ig" value="{{ instagram.value }}" onChange="{{ instagram.onChange }}" aria-invalid="{{ instagram.invalid }}" aria-describedby="e-ig" autoComplete="off" placeholder="اسم الحساب فقط، بلا رابط" style="flex:1; min-width:0; border:0; outline:0; background:transparent; padding:12px 14px; font-size:16px; color:#1C0A14; min-height:46px; direction:ltr; text-align:left" style-focus="outline:3px solid #FFB038; outline-offset:-3px; border-radius:12px">
+            </div>
+            <sc-if value="{{ instagram.hasError }}" hint-placeholder-val="{{ false }}"><p id="e-ig" style="margin:0; display:flex; gap:8px; align-items:flex-start; font-size:13px; font-weight:500; line-height:1.5"><span aria-hidden="true" style="width:7px; height:7px; border-radius:50%; background:#FF4D8D; display:block; margin-top:7px; flex:0 0 auto"></span>{{ instagram.error }}</p></sc-if>
+          </div>
+        </fieldset>
+
+        <!-- submit -->
+        <div style="display:flex; flex-direction:column; gap:10px; padding-top:4px">
+          <button type="submit" disabled="{{ submitDisabled }}" aria-disabled="{{ submitDisabled }}" style="width:100%; border:0; cursor:{{ submitCursor }}; font-family:'Alexandria'; font-weight:800; font-size:18px; padding:16px 24px; min-height:54px; border-radius:999px; background:{{ submitBg }}; color:{{ submitInk }}; box-shadow:{{ submitShadow }}" style-hover="background:{{ submitHover }}" style-focus="outline:3px solid #1C0A14; outline-offset:3px">{{ submitLabel }}</button>
+          <p style="margin:0; font-size:13px; color:#6B5460; text-align:center; line-height:1.6">بنشرك الإعلان توافقين على أن برينسيس لوحة إعلانات فقط، والاتفاق يتم بينك وبين العميلة مباشرة.</p>
+        </div>
+      </form>
+    </sc-if>
+  </main>
+
+  <footer style="background:#1C0A14; color:#FFF6F1; padding:28px clamp(16px,4vw,48px); border-radius:clamp(32px,5vw,48px) clamp(32px,5vw,48px) 0 0">
+    <div style="max-width:1400px; margin:0 auto; display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; font-size:13px; color:#B899A8">
+      <span>برينسيس — مشروع من MDN</span>
+      <div style="display:flex; gap:20px"><a href="#" style-focus="outline:3px solid #FFB038; outline-offset:3px; border-radius:6px">الشروط</a><a href="#" style-focus="outline:3px solid #FFB038; outline-offset:3px; border-radius:6px">الخصوصية</a><a href="#" style-focus="outline:3px solid #FFB038; outline-offset:3px; border-radius:6px">تواصلي معنا</a></div>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;scenario&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;empty&quot;,&quot;options&quot;:[&quot;empty&quot;,&quot;errors&quot;,&quot;contacts&quot;,&quot;image-chosen&quot;,&quot;image-uploading&quot;,&quot;image-rejected&quot;,&quot;submitting&quot;,&quot;success&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;الحالة&quot;}}">
+const CATS = ['كوافير وتجميل','مكياج','أظافر','حنّة','خياطة وتفصيل','بيع ملابس','طبخ وحلويات','دروس خصوصية','تنظيف منازل','رعاية أطفال','رعاية كبار السن'];
+const ICONS = {
+  'كوافير وتجميل':'M6 3.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5M6 15.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5M20 4L8.1 15.6M14.5 14.5L20 20M8.1 8.4L12 12',
+  'مكياج':'M3 21l8.5-8.5M10.5 11.5l6-7.5a2.1 2.1 0 0 1 3 3l-7.5 6z',
+  'أظافر':'M9.5 3h5v4h-5zM9.5 7h5l1.5 3.5V20a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-9.5zM8 14h8',
+  'حنّة':'M19 5l-2.5 9.5L11 20l-7-7 5.5-5.5zM19 5l-6 6M9 16l2-2',
+  'خياطة وتفصيل':'M6 4h10M6 20h10M7 4v16M15 4v16M7 8h8M7 12h8M7 16h8M21 3l-4 6M20.3 3.7a1 1 0 1 1 .7.7',
+  'بيع ملابس':'M12 3a2 2 0 0 1 2 2c0 1.5-2 2-2 3.5V10M12 10L3 16.5A1.5 1.5 0 0 0 4 19h16a1.5 1.5 0 0 0 1-2.5z',
+  'طبخ وحلويات':'M3 12h18a9 9 0 0 1-18 0zM13 11l5-8M15.5 11l3-8M18 3l.5 0',
+  'دروس خصوصية':'M12 6c-2-1.5-5-2-9-2v14c4 0 7 .5 9 2 2-1.5 5-2 9-2V4c-4 0-7 .5-9 2zM12 6v14',
+  'تنظيف منازل':'M9 9h6l1 12H8zM10 9V6a2 2 0 0 1 2-2h5M17 4h2M17 4v2M14 4l1 2',
+  'رعاية أطفال':'M12 3a4.5 4.5 0 1 0 0 9a4.5 4.5 0 1 0 0-9M12 12v5M12 17a2 2 0 1 0 0 4a2 2 0 1 0 0-4',
+  'رعاية كبار السن':'M14 21V7a3 3 0 0 0-6 0v1M12 21h4',
+};
+const COUNTRIES = [
+  { id:'EG', name:'مصر', flag:'🇪🇬', currency:'ج.م', dial:'+20', len:10, lead:'1', ex:'1012345678', city:'مثال: القاهرة', district:'مثال: مدينة نصر' },
+  { id:'SA', name:'السعودية', flag:'🇸🇦', currency:'ر.س', dial:'+966', len:9, lead:'5', ex:'512345678', city:'مثال: الرياض', district:'مثال: حي النرجس' },
+  { id:'AE', name:'الإمارات', flag:'🇦🇪', currency:'د.إ', dial:'+971', len:9, lead:'5', ex:'501234567', city:'مثال: دبي', district:'مثال: جميرا' },
+];
+const LIMITS = { name:60, title:80, desc:600, price:40 };
+const LABELS = { name:'الاسم', title:'العنوان', desc:'الوصف', price:'السعر', city:'المدينة' };
+const AR = (n) => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+const toLatin = (s) => s.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+// Arabic number agreement: 1, 2, 3–10, 11+
+const chars = (n) => n === 1 ? 'بحرف واحد' : n === 2 ? 'بحرفين' : n <= 10 ? `بـ ${AR(n)} أحرف` : `بـ ${AR(n)} حرفًا`;
+const digitsWord = (n) => n === 1 ? 'رقمًا واحدًا' : n === 2 ? 'رقمين' : n <= 10 ? `${AR(n)} أرقام` : `${AR(n)} رقمًا`;
+const SAMPLE_IMG = 'https://images.pexels.com/photos/34871553/pexels-photo-34871553.jpeg?auto=compress&cs=tinysrgb&w=600';
+const EMPTY = { name:'', title:'', cat:'', country:'EG', city:'', district:'', desc:'', price:'', whatsapp:'', phone:'', instagram:'' };
+const FILLED = { name:'منى عبد الرحمن', title:'مانيكير وباديكير جل في منزلك', cat:'أظافر', country:'EG', city:'القاهرة', district:'مدينة نصر', desc:'جل يدوم ثلاثة أسابيع دون تقشّر، معي كل ألوان الموسم وأصل إليك حتى باب البيت. أعمل من السبت إلى الخميس، والحجز قبلها بيوم.', price:'١٥٠ ج.م', whatsapp:'1012345678', phone:'', instagram:'mona.nails' };
+
+class Component extends DCLogic {
+  state = { v: { ...EMPTY }, errors: {}, status: 'idle', img: { status: 'idle' } };
+  formRef = React.createRef(); fileRef = React.createRef(); contactsRef = React.createRef(); waRef = React.createRef();
+  componentDidMount() {
+    this._reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const fromHash = () => { const m = location.hash.match(/s=([\w-]+)/); if (m) this.seed(m[1]); };
+    fromHash();
+    this._onHash = fromHash; window.addEventListener('hashchange', this._onHash);
+    const s = this.props.scenario; if (s && s !== 'empty') this.seed(s);
+  }
+  componentDidUpdate(prev) { if (prev.scenario !== this.props.scenario) this.seed(this.props.scenario || 'empty'); }
+  componentWillUnmount() { window.removeEventListener('hashchange', this._onHash); clearInterval(this._timer); }
+  seed(s) {
+    clearInterval(this._timer);
+    const base = { v: { ...EMPTY }, errors: {}, status: 'idle', img: { status: 'idle' } };
+    if (s === 'errors') {
+      const v = { ...FILLED, title: 'مانيكير وباديكير جل وأكريليك وتصاميم موسمية مع تدليك اليدين والقدمين في منزلك بأدوات معقّمة', phone: '10123', whatsapp: '' };
+      this.setState({ ...base, v, errors: this.validate(v) });
+    } else if (s === 'contacts') {
+      const v = { ...FILLED, whatsapp: '', phone: '', instagram: '' };
+      this.setState({ ...base, v, errors: this.validate(v) });
+    } else if (s === 'image-chosen') this.setState({ ...base, v: { ...FILLED }, img: { status: 'chosen', name: 'manicure-march.jpg', size: '١٫٨ ميغابايت', preview: SAMPLE_IMG } });
+    else if (s === 'image-uploading') this.setState({ ...base, v: { ...FILLED }, img: { status: 'uploading', name: 'manicure-march.jpg', progress: 46, preview: SAMPLE_IMG } });
+    else if (s === 'image-rejected') this.setState({ ...base, v: { ...FILLED }, img: { status: 'rejected', reason: 'الصورة أكبر من المسموح (٧٫٤ ميغابايت). صغّريها إلى ٥ ميغابايت أو أقل ثم اختاريها من جديد.' } });
+    else if (s === 'submitting') this.setState({ ...base, v: { ...FILLED }, status: 'submitting', img: { status: 'chosen', name: 'manicure-march.jpg', size: '١٫٨ ميغابايت', preview: SAMPLE_IMG } });
+    else if (s === 'success') this.setState({ ...base, v: { ...FILLED }, status: 'success' });
+    else this.setState(base);
+  }
+  K() { return COUNTRIES.find(k => k.id === this.state.v.country); }
+  validate(v) {
+    const e = {}; const K = COUNTRIES.find(k => k.id === v.country);
+    for (const f of ['name','title','desc']) {
+      const len = v[f].trim().length;
+      if (!len) e[f] = { name:'اكتبي اسمك ليظهر على الإعلان، فالعميلة تتواصل مع شخص لا مع عنوان.', title:'اكتبي عنوانًا قصيرًا يصف ما تقدمينه، مثل «تفصيل فساتين سهرة».', desc:'اكتبي وصفًا يقول للعميلة ماذا تقدمين وكيف تعملين.' }[f];
+      else if (len > LIMITS[f]) e[f] = `${LABELS[f]} أطول من المسموح ${chars(len - LIMITS[f])}. اختصريه إلى ${AR(LIMITS[f])} حرفًا.`;
+    }
+    if (v.price.trim().length > LIMITS.price) e.price = `السعر أطول من المسموح ${chars(v.price.trim().length - LIMITS.price)}. اختصريه إلى ${AR(LIMITS.price)} حرفًا.`;
+    if (!v.cat) e.cat = true;
+    if (!v.city.trim()) e.city = `اكتبي المدينة التي تعملين فيها، ${K.city.replace('مثال: ', 'مثل ')}.`;
+    for (const f of ['whatsapp','phone']) {
+      const raw = toLatin(v[f]).replace(/[\s\-()]/g, '').replace(/^0+/, '');
+      if (!raw) continue;
+      if (!/^\d+$/.test(raw)) e[f] = `${f === 'whatsapp' ? 'رقم واتساب' : 'رقم الهاتف'} يحتوي على رموز غير الأرقام. اكتبي الأرقام فقط، مثل ${K.ex}.`;
+      else if (raw.length !== K.len || raw[0] !== K.lead) e[f] = `${f === 'whatsapp' ? 'رقم واتساب' : 'رقم الهاتف'} غير مكتمل. اكتبي ${digitsWord(K.len)} بعد ${K.dial} تبدأ بـ ${AR(K.lead)}، مثل ${K.ex}.`;
+    }
+    if (v.instagram && !/^[A-Za-z0-9._]{1,30}$/.test(v.instagram.replace(/^@/, ''))) e.instagram = 'اكتبي اسم الحساب فقط بحروف إنجليزية وأرقام ونقاط، بلا رابط وبلا مسافات.';
+    if (!v.whatsapp.trim() && !v.phone.trim() && !v.instagram.trim()) e.contacts = true;
+    return e;
+  }
+  set(f, val) {
+    const v = { ...this.state.v, [f]: val };
+    const errors = { ...this.state.errors }; delete errors[f];
+    if (['whatsapp','phone','instagram'].includes(f) && val.trim()) delete errors.contacts;
+    this.setState({ v, errors });
+  }
+  field(f) {
+    const val = this.state.v[f]; const err = this.state.errors[f]; const lim = LIMITS[f];
+    const len = val.length; const over = lim && len > lim;
+    return { value: val, onChange: (e) => this.set(f, e.target.value), error: typeof err === 'string' ? err : '', hasError: !!err, invalid: !!err,
+      border: err ? '#FF4D8D' : '#FFF6F1',
+      count: lim ? `${AR(len)} / ${AR(lim)}` : '', countInk: over ? '#1C0A14' : '#8A7580', countWeight: over ? 600 : 400 };
+  }
+  onSubmit = (e) => {
+    e.preventDefault();
+    if (this.state.status === 'submitting') return;
+    const errors = this.validate(this.state.v);
+    if (Object.keys(errors).length) {
+      this.setState({ errors }, () => {
+        const form = this.formRef.current; if (!form) return;
+        const first = errors.contacts && Object.keys(errors).length === 1 ? this.waRef.current : form.querySelector('[aria-invalid="true"], [role="radiogroup"][aria-describedby="e-cat"] button');
+        const target = errors.contacts && Object.keys(errors).length === 1 ? this.contactsRef.current : first;
+        if (target) { const top = target.getBoundingClientRect().top + window.scrollY - 24; window.scrollTo({ top, behavior: this._reduced ? 'auto' : 'smooth' }); }
+        if (first) setTimeout(() => first.focus({ preventScroll: true }), this._reduced ? 0 : 400);
+      });
+      return;
+    }
+    this.setState({ status: 'submitting', errors: {} });
+    this._timer = setTimeout(() => { this.setState({ status: 'success' }); window.scrollTo({ top: 0, behavior: this._reduced ? 'auto' : 'smooth' }); }, 1400);
+  };
+  onFile = (e) => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    const ok = ['image/jpeg','image/png','image/webp'].includes(f.type);
+    if (!ok) return this.setState({ img: { status: 'rejected', reason: `هذا الملف ${f.type ? 'من نوع ' + f.type.split('/')[1].toUpperCase() : 'ليس صورة'}. اختاري صورة JPEG أو PNG أو WebP.` } });
+    if (f.size > 5 * 1024 * 1024) return this.setState({ img: { status: 'rejected', reason: `الصورة أكبر من المسموح (${AR((f.size / 1048576).toFixed(1)).replace('.', '٫')} ميغابايت). صغّريها إلى ٥ ميغابايت أو أقل ثم اختاريها من جديد.` } });
+    const preview = URL.createObjectURL(f); const size = `${AR((f.size / 1048576).toFixed(1)).replace('.', '٫')} ميغابايت`;
+    let p = 0; clearInterval(this._timer);
+    this.setState({ img: { status: 'uploading', name: f.name, progress: 0, preview } });
+    this._timer = setInterval(() => {
+      p = Math.min(100, p + 9 + Math.random() * 12);
+      if (p >= 100) { clearInterval(this._timer); this.setState({ img: { status: 'chosen', name: f.name, size, preview } }); }
+      else this.setState({ img: { status: 'uploading', name: f.name, progress: Math.round(p), preview } });
+    }, 220);
+    e.target.value = '';
+  };
+  renderVals() {
+    const { v, errors, status, img } = this.state; const K = this.K();
+    const anyContact = !!(v.whatsapp.trim() || v.phone.trim() || v.instagram.trim());
+    const submitting = status === 'submitting';
+    return {
+      isSuccess: status === 'success', isForm: status !== 'success', countryName: K.name,
+      name: this.field('name'), title: this.field('title'), city: this.field('city'), district: this.field('district'), desc: this.field('desc'), price: this.field('price'),
+      whatsapp: this.field('whatsapp'), phone: this.field('phone'), instagram: this.field('instagram'),
+      cats: CATS.map(c => { const on = v.cat === c; return { name: c, icon: ICONS[c], on, pick: () => this.set('cat', c),
+        bg: on ? '#1C0A14' : '#FFF6F1', ink: on ? '#FFF6F1' : '#1C0A14', shadow: on ? '0 10px 20px -10px rgba(28,10,20,.6)' : 'none' }; }),
+      catError: !!errors.cat, catOutline: errors.cat ? '1.5px solid #FF4D8D' : 'none',
+      countries: COUNTRIES.map(k => { const on = k.id === v.country; return { ...k, on, pick: () => this.set('country', k.id), bg: on ? '#FF4D8D' : 'transparent', ink: on ? '#fff' : '#6B5460' }; }),
+      cityHint: K.city, districtHint: K.district, priceHint: `مثال: ٥٠ ${K.currency}`, dial: K.dial, phoneHint: K.ex,
+      img: { idle: img.status === 'idle', uploading: img.status === 'uploading', chosen: img.status === 'chosen', rejected: img.status === 'rejected',
+        name: img.name || '', size: img.size || '', preview: img.preview || SAMPLE_IMG, progress: AR(img.progress || 0), progressCss: `${img.progress || 0}%`, reason: img.reason || '' },
+      pickFile: () => this.fileRef.current && this.fileRef.current.click(),
+      removeFile: () => this.setState({ img: { status: 'idle' } }),
+      onFile: this.onFile, fileRef: this.fileRef, formRef: this.formRef, contactsRef: this.contactsRef, waRef: this.waRef,
+      contactsError: !!errors.contacts, contactsOutline: errors.contacts ? '2px solid #FF4D8D' : 'none',
+      contactsStatus: anyContact ? 'مكتمل' : 'واحدة على الأقل مطلوبة', contactsStatusBg: anyContact ? '#2BA39B' : '#fff', contactsStatusInk: anyContact ? '#fff' : '#1C0A14',
+      onSubmit: this.onSubmit, submitDisabled: submitting, submitCursor: submitting ? 'default' : 'pointer',
+      submitLabel: submitting ? 'جارٍ النشر، لحظات…' : 'انشري الإعلان',
+      submitBg: submitting ? '#FFE3D3' : '#FF4D8D', submitInk: submitting ? '#1C0A14' : '#fff', submitHover: submitting ? '#FFE3D3' : '#E83D7C',
+      submitShadow: submitting ? 'none' : '0 20px 40px -18px rgba(255,77,141,.6)',
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+'use client';
+
+import { useState, type FormEvent } from 'react';
+import { createListing } from '@/app/new/actions.ts';
+import { CATEGORIES, getCountry, type CategorySlug, type CountryCode } from '@/lib/constants.ts';
+import { pricePlaceholder } from '@/lib/format.ts';
+import {
+  CONTACTS_REQUIREMENT, PUBLISH_FAILED_MESSAGE, counter, emptyForm, hasAnyContact, submitGate, toPayload, validateForm,
+  type FormErrors, type FormField, type FormValues, type UploadState,
+} from '@/lib/listing-form.ts';
+import { Button } from '../Button.tsx';
+import { CategoryChip } from '../CategoryChip.tsx';
+import { CountrySelector } from '../CountrySelector.tsx';
+import { Field, FieldError, describedBy, fieldStyles as fs } from './Field.tsx';
+import { PhotoPicker } from './PhotoPicker.tsx';
+import styles from './ListingForm.module.css';
+
+/** Where focus goes for each field's error, in the order the fields appear. */
+const FOCUS_ORDER: [FormField, string][] = [
+  ['name', '#f-name'], ['title', '#f-title'], ['category', '#g-category [role="radio"]'], ['city', '#f-city'],
+  ['description', '#f-description'], ['price', '#f-price'], ['whatsapp', '#f-whatsapp'], ['phone', '#f-phone'],
+  ['social', '#f-social'], ['contacts', '#f-whatsapp'],
+];
+
+function isRedirect(err: unknown): boolean {
+  const digest = (err as { digest?: unknown } | null)?.digest;
+  return typeof digest === 'string' && digest.startsWith('NEXT_REDIRECT');
+}
+
+export function ListingForm({ initialCountry }: { initialCountry: CountryCode }) {
+  const [values, setValues] = useState<FormValues>(() => emptyForm(initialCountry));
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [formMessage, setFormMessage] = useState<string | null>(null);
+  const [upload, setUpload] = useState<{ state: UploadState; path: string | null }>({ state: 'idle', path: null });
+  const [submitting, setSubmitting] = useState(false);
+
+  const country = getCountry(values.country);
+  const contactsOk = hasAnyContact(values);
+  const gate = submitGate(values, upload.state, submitting);
+
+  const set = <K extends keyof FormValues>(field: K, value: FormValues[K]) => {
+    setValues((v) => ({ ...v, [field]: value }));
+    setErrors((e) => {
+      const next = { ...e };
+      delete next[field];
+      if ((field === 'whatsapp' || field === 'phone' || field === 'social') && String(value).trim()) delete next.contacts;
+      return next;
+    });
+    setFormMessage(null);
+  };
+
+  const focusFirst = (errs: FormErrors) => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const onlyContacts = Object.keys(errs).length === 1 && errs.contacts;
+    const target = onlyContacts
+      ? document.getElementById('contacts')
+      : FOCUS_ORDER.map(([f, sel]) => (errs[f] ? document.querySelector<HTMLElement>(sel) : null)).find(Boolean) ?? null;
+    const focus = onlyContacts ? document.getElementById('f-whatsapp') : target;
+    if (!target) return;
+    window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 24, behavior: reduced ? 'auto' : 'smooth' });
+    setTimeout(() => focus?.focus({ preventScroll: true }), reduced ? 0 : 400);
+  };
+
+  const onSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (submitting || gate.reason === 'uploading') return;
+    const errs = validateForm(values);
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      focusFirst(errs);
+      return;
+    }
+    setSubmitting(true);
+    setFormMessage(null);
+    try {
+      // On success the action redirects to the new listing's page.
+      const res = await createListing(toPayload(values, upload.path));
+      setErrors(res.errors);
+      setFormMessage(res.message);
+      focusFirst(res.errors);
+    } catch (err) {
+      if (isRedirect(err)) throw err;
+      setFormMessage(PUBLISH_FAILED_MESSAGE);
+    }
+    setSubmitting(false);
+  };
+
+  const text = (field: 'name' | 'title' | 'city' | 'district' | 'price', extra: Record<string, unknown> = {}) => ({
+    id: `f-${field}`,
+    className: fs.input,
+    value: values[field],
+    onChange: (e: { target: { value: string } }) => set(field, e.target.value),
+    ...describedBy(`f-${field}`, { error: errors[field], hint: field === 'price' }),
+    ...extra,
+  });
+
+  const prefixed = (field: 'whatsapp' | 'phone' | 'social', prefix: string, label: string, extra: Record<string, unknown>) => (
+    <div className={fs.field}>
+      <label htmlFor={`f-${field}`} className={fs.label}>{label}</label>
+      <div className={`${fs.group} ${errors[field] ? fs.invalid : ''}`}>
+        <span className={`${fs.prefix} ${field === 'social' ? fs.prefixSymbol : ''}`} aria-hidden="true">{prefix}</span>
+        <input
+          id={`f-${field}`}
+          className={fs.groupInput}
+          value={values[field]}
+          onChange={(e) => set(field, e.target.value)}
+          {...describedBy(`f-${field}`, { error: errors[field] })}
+          {...extra}
+        />
+      </div>
+      {errors[field] && <FieldError id={`e-f-${field}`}>{errors[field]}</FieldError>}
+    </div>
+  );
+
+  return (
+    <>
+      <div className={styles.intro}>
+        <h1 className={styles.title}>اعرضي خدمتك</h1>
+        <p className={styles.lead}>دقيقتان، ويظهر إعلانك لكل سيدة في بلدك. بلا حساب، وبلا عمولة.</p>
+      </div>
+
+      <form className={styles.card} onSubmit={onSubmit} noValidate>
+        <Field id="f-name" label="الاسم" counter={counter('name', values.name)} error={errors.name}>
+          <input {...text('name', { autoComplete: 'name', placeholder: 'كما تحبين أن تناديكِ العميلة' })} />
+        </Field>
+
+        <Field id="f-title" label="عنوان الخدمة أو المنتج" counter={counter('title', values.title)} error={errors.title}>
+          <input {...text('title', { placeholder: 'مثال: مانيكير جل في منزلك' })} />
+        </Field>
+
+        <fieldset className={styles.fieldset}>
+          <legend className={`${fs.label} ${styles.legend}`}>التصنيف</legend>
+          <div
+            id="g-category"
+            role="radiogroup"
+            aria-label="التصنيف"
+            className={`${styles.chips} ${errors.category ? styles.chipsInvalid : ''}`}
+            {...(errors.category ? { 'aria-describedby': 'e-category' } : {})}
+          >
+            {CATEGORIES.map((c) => (
+              <CategoryChip
+                key={c.slug}
+                variant="inset"
+                role="radio"
+                label={c.label}
+                icon={c.icon}
+                selected={values.category === c.slug}
+                onSelect={() => set('category', c.slug as CategorySlug)}
+              />
+            ))}
+          </div>
+          {errors.category && <FieldError id="e-category">{errors.category}</FieldError>}
+        </fieldset>
+
+        <fieldset className={styles.fieldset}>
+          <legend id="l-country" className={`${fs.label} ${styles.legend}`}>الدولة</legend>
+          <CountrySelector size="large" surface="inset" labelledBy="l-country" value={values.country} onChange={(k) => set('country', k)} />
+        </fieldset>
+
+        <div className={styles.two}>
+          <Field id="f-city" label="المدينة" error={errors.city}>
+            <input {...text('city', { placeholder: `مثال: ${country.cityExample}` })} />
+          </Field>
+          <Field id="f-district" label="الحي" optional>
+            <input {...text('district', { placeholder: `مثال: ${country.districtExample}` })} />
+          </Field>
+        </div>
+
+        <Field id="f-description" label="الوصف" counter={counter('description', values.description)} error={errors.description}>
+          <textarea
+            id="f-description"
+            className={fs.textarea}
+            rows={5}
+            value={values.description}
+            onChange={(e) => set('description', e.target.value)}
+            placeholder="ماذا تقدمين بالضبط؟ كيف تعملين، وما الذي يميزك، وما الذي تحتاج العميلة معرفته قبل أن تتواصل معك."
+            {...describedBy('f-description', { error: errors.description })}
+          />
+        </Field>
+
+        <Field
+          id="f-price"
+          label="السعر"
+          counter={counter('price', values.price)}
+          hint="اكتبيه كما تريدين أن يظهر، أو اتركيه فارغًا ويُتفق عليه مباشرة."
+          error={errors.price}
+        >
+          <input {...text('price', { placeholder: pricePlaceholder(values.country) })} />
+        </Field>
+
+        <PhotoPicker onChange={(state, path) => setUpload({ state, path })} />
+
+        <fieldset id="contacts" className={`${styles.contacts} ${errors.contacts ? styles.contactsInvalid : ''}`} aria-describedby="contacts-rule">
+          <legend className="visually-hidden">طرق التواصل</legend>
+          <div className={styles.contactsHead}>
+            <div className={styles.contactsTitles}>
+              <span className={styles.contactsTitle}>كيف تتواصل معك العميلة؟</span>
+              <span id="contacts-rule" className={styles.contactsRule}>{CONTACTS_REQUIREMENT}</span>
+              <span className={styles.contactsSub}>تظهر على إعلانك كما تكتبينها.</span>
+            </div>
+            <span role="status" className={`${styles.status} ${contactsOk ? styles.statusOk : ''}`}>
+              {contactsOk ? 'مكتمل' : 'واحدة على الأقل مطلوبة'}
+            </span>
+          </div>
+          {errors.contacts && <FieldError id="e-contacts" size="lg" alert>{errors.contacts}</FieldError>}
+
+          {prefixed('whatsapp', country.dialCode, 'واتساب', { inputMode: 'tel', autoComplete: 'tel-national', placeholder: country.phone.example })}
+          {prefixed('phone', country.dialCode, 'هاتف', { inputMode: 'tel', placeholder: country.phone.example })}
+          {prefixed('social', '@', 'إنستغرام', { autoComplete: 'off', placeholder: 'اسم الحساب فقط، بلا رابط' })}
+        </fieldset>
+
+        <div className={styles.submit}>
+          {formMessage && <FieldError id="e-form" size="lg" alert>{formMessage}</FieldError>}
+          <Button
+            type="submit"
+            variant="submit"
+            aria-disabled={gate.blocked}
+            {...(gate.reason === 'contacts' ? { 'aria-describedby': 'contacts-rule' } : {})}
+          >
+            {gate.label}
+          </Button>
+          <p className={styles.note}>بنشرك الإعلان توافقين على أن برينسيس لوحة إعلانات فقط، والاتفاق يتم بينك وبين العميلة مباشرة.</p>
+        </div>
+      </form>
+    </>
+  );
+}

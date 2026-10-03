@@ -1,0 +1,86 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 0 0 auto;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-small);
+  font-weight: var(--weight-medium);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.count {
+  font-size: var(--text-micro);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-subtle);
+}
+
+.selected {
+  background: var(--color-ink);
+  color: var(--color-on-ink);
+}
+
+.selected .count {
+  color: var(--color-text-muted-on-ink);
+}
+
+/* hero chips */
+.raised {
+  padding: var(--space-5) var(--space-8);
+  box-shadow: var(--shadow-chip);
+}
+
+.raised.selected {
+  box-shadow: var(--shadow-chip-selected);
+}
+
+.raised:focus {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+/* category bar chips */
+.bar {
+  padding: var(--space-6) var(--space-9);
+  background: transparent;
+}
+
+.bar.selected {
+  background: var(--color-ink);
+}
+
+/* As in the design, hover applies to the selected chip too (see the session report). */
+.bar:hover {
+  background: var(--color-tint);
+}
+
+.bar:focus {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset-inset);
+}
+
+/* form category choice (the design's min-height:38px is dropped: landing chip height) */
+.inset {
+  padding: var(--space-6) var(--space-9);
+  background: var(--color-canvas);
+}
+
+.inset.selected {
+  background: var(--color-ink);
+  box-shadow: var(--shadow-chip-selected);
+}
+
+/* As in the design, hover applies to the selected chip too. */
+.inset:hover {
+  background: var(--color-tint);
+}
+
+.inset:focus {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}

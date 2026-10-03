@@ -1,0 +1,50 @@
+.field {
+  flex: 1 1 var(--width-search-basis);
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  margin: 0;
+  background: var(--color-surface);
+  border-radius: var(--radius-pill);
+  /* physical, as in the design: the wider 20px is on the left (the end side in RTL) */
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-13);
+  box-shadow: var(--shadow-control);
+}
+
+/* Fix (decision 8b): the design put this ring on the label, which never takes focus,
+   while the input had outline:0 — so the field showed no focus at all. */
+.field:focus-within {
+  outline: var(--focus-ring);
+}
+
+.glyph {
+  width: var(--size-search-glyph);
+  height: var(--size-search-glyph);
+  border: var(--stroke-search-glyph) solid var(--color-accent);
+  border-radius: var(--radius-circle);
+  display: block;
+  flex: 0 0 auto;
+}
+
+.input {
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  font-size: var(--text-body);
+  color: var(--color-ink);
+  padding: var(--space-7) var(--space-2);
+  min-width: 0;
+  appearance: none;
+}
+
+.input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+@media (max-width: 860px) {
+  .field {
+    flex-basis: 100%;
+  }
+}

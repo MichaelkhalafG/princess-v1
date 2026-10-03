@@ -1,0 +1,157 @@
+.intro {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  padding: var(--space-11) var(--space-2) var(--space-15);
+}
+
+.title {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-heavy);
+  font-size: var(--text-form-title);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  margin: 0;
+}
+
+.lead {
+  font-size: var(--text-lead-sm);
+  line-height: var(--leading-body);
+  margin: 0;
+  color: var(--color-text-secondary);
+  max-width: var(--width-measure);
+  text-wrap: pretty;
+}
+
+/* the form card: the landing card's surface, radius and shadow */
+.card {
+  position: relative;
+  z-index: 1;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  padding: var(--pad-form-card);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-14);
+}
+
+.fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.legend {
+  padding: 0;
+  margin-bottom: var(--space-6);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  padding: var(--space-1);
+  border-radius: var(--radius-field);
+}
+
+.chipsInvalid {
+  outline: var(--border-field) solid var(--color-accent);
+}
+
+.two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-11);
+}
+
+/* the grouped contact section (decision 4) */
+.contacts {
+  border: 0;
+  margin: 0;
+  padding: var(--space-12) var(--space-11) var(--space-11);
+  min-width: 0;
+  background: var(--color-canvas);
+  border-radius: var(--radius-section);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+.contactsInvalid {
+  outline: var(--border-field) solid var(--color-accent);
+  outline-offset: calc(var(--border-field) * -1);
+}
+
+.contactsHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-7);
+  flex-wrap: wrap;
+}
+
+.contactsTitles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-hairline-gap);
+}
+
+.contactsTitle {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-body);
+}
+
+.contactsRule {
+  font-size: var(--text-small);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
+}
+
+.contactsSub {
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+}
+
+.status {
+  font-size: var(--text-caption);
+  font-weight: var(--weight-semibold);
+  padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.statusOk {
+  background: var(--color-secondary);
+  color: var(--color-on-accent);
+}
+
+.submit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  padding-top: var(--space-2);
+}
+
+.note {
+  margin: 0;
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+  text-align: center;
+  line-height: var(--leading-note);
+}
+
+@media (max-width: 860px) {
+  .two {
+    grid-template-columns: 1fr;
+  }
+}

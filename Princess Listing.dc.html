@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;700;800&family=Readex+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#FFF6F1}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+a:hover{text-decoration:underline}
+img{display:block}
+[data-r="scroll"]::-webkit-scrollbar{display:none}
+@media (max-width:860px){
+  [data-r="detail"]{grid-template-columns:1fr!important; gap:28px!important}
+  [data-r="h1"]{font-size:clamp(28px,7.5vw,36px)!important}
+  [data-r="back-text"]{display:none}
+}
+@media (max-width:480px){
+  [data-r="logo-text"]{font-size:20px!important}
+  [data-r="logo-mark"]{width:28px!important; height:34px!important}
+  [data-r="actions"]{flex-direction:column}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</helmet>
+
+<div dir="rtl" style="background:#FFF6F1; color:#1C0A14; font-family:'Readex Pro',sans-serif; min-height:100vh; display:flex; flex-direction:column; overflow-x:clip">
+
+  <header style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px clamp(16px,4vw,48px)">
+    <a href="Princess Landing.dc.html" style="display:flex; align-items:center; gap:8px; flex:0 0 auto" style-hover="text-decoration:none" style-focus="outline:3px solid #FFB038; outline-offset:3px; border-radius:6px">
+      <span data-r="logo-mark" style="width:34px; height:42px; background:#FF4D8D; border-radius:999px 999px 9px 9px; display:block; box-shadow:0 10px 20px -8px rgba(255,77,141,.6)"></span>
+      <span data-r="logo-text" style="font-family:'Alexandria'; font-weight:800; font-size:24px; letter-spacing:-.01em">برينسيس</span>
+    </a>
+    <a href="Princess Landing.dc.html" style="display:flex; align-items:center; gap:8px; font-size:14px; font-weight:500; color:#1C0A14; padding:10px 16px; border-radius:999px; background:#fff; box-shadow:0 10px 24px -12px rgba(255,77,141,.35), 0 0 0 1px rgba(255,77,141,.08)" style-hover="background:#FFE3D3; text-decoration:none" style-focus="outline:3px solid #FFB038; outline-offset:2px"><span aria-hidden="true" style="width:8px; height:8px; border-radius:50%; background:#FF4D8D; display:block"></span>العودة إلى <span data-r="back-text">لوحة </span>{{ countryName }}</a>
+  </header>
+
+  <main style="flex:1; width:100%; max-width:1200px; margin:0 auto; padding:8px clamp(16px,4vw,48px) clamp(48px,6vw,72px); position:relative; display:flex; flex-direction:column; gap:clamp(36px,5vw,56px)">
+    <span aria-hidden="true" style="position:absolute; right:-220px; top:-140px; width:460px; height:460px; border-radius:50%; background:#FFE3D3; z-index:0"></span>
+
+    <!-- not found -->
+    <sc-if value="{{ notFound }}" hint-placeholder-val="{{ false }}">
+      <section style="position:relative; z-index:1; background:#fff; border-radius:28px 140px 28px 28px; padding:72px 28px 40px; text-align:center; max-width:560px; margin:24px auto 0; box-shadow:0 24px 50px -24px rgba(255,77,141,.4)">
+        <span aria-hidden="true" style="width:56px; height:68px; background:#FFB038; border-radius:999px 999px 14px 14px; display:block; margin:0 auto 20px"></span>
+        <h1 style="font-family:'Alexandria'; font-weight:800; font-size:clamp(26px,4vw,34px); line-height:1.15; margin:0 0 12px; text-wrap:pretty">هذا الإعلان لم يعد على اللوحة</h1>
+        <p style="margin:0 auto 24px; color:#4A3540; line-height:1.7; max-width:400px; text-wrap:pretty">ربما أزالته صاحبته بعد أن اكتمل حجزها. على اللوحة سيدات أخريات يقدمن الخدمة نفسها.</p>
+        <div style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center">
+          <a href="Princess Landing.dc.html" style="display:inline-block; background:#FF4D8D; color:#fff; padding:14px 28px; border-radius:999px; font-family:'Alexandria'; font-weight:700" style-hover="background:#E83D7C; text-decoration:none" style-focus="outline:3px solid #1C0A14; outline-offset:3px">تصفحي إعلانات {{ countryName }}</a>
+          <a href="Princess Form.dc.html" style="display:inline-block; background:#FFF0E8; color:#1C0A14; padding:14px 24px; border-radius:999px; font-weight:600" style-hover="background:#FFE3D3; text-decoration:none" style-focus="outline:3px solid #FFB038; outline-offset:3px">اعرضي خدمتك</a>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ found }}" hint-placeholder-val="{{ false }}">
+      <!-- just-posted confirmation -->
+      <sc-if value="{{ posted }}" hint-placeholder-val="{{ false }}">
+        <div role="status" style="position:relative; z-index:1; display:flex; align-items:center; gap:14px; flex-wrap:wrap; background:#2BA39B; color:#fff; border-radius:20px 80px 20px 20px; padding:16px 20px; margin-top:8px">
+          <span aria-hidden="true" style="width:22px; height:28px; background:#fff; border-radius:999px 999px 6px 6px; display:block; flex:0 0 auto"></span>
+          <div style="flex:1; min-width:200px; display:flex; flex-direction:column; gap:2px">
+            <span style="font-family:'Alexandria'; font-weight:800; font-size:17px">إعلانك الآن على اللوحة</span>
+            <span style="font-size:14px; line-height:1.5">يظهر لكل سيدة في {{ countryName }} منذ هذه اللحظة. هكذا تراه العميلة.</span>
+          </div>
+          <a href="Princess Landing.dc.html" style="font-size:14px; font-weight:600; padding:10px 16px; border-radius:999px; background:#fff; color:#1C0A14; white-space:nowrap" style-hover="background:#FFE3D3; text-decoration:none" style-focus="outline:3px solid #1C0A14; outline-offset:2px">العودة إلى اللوحة</a>
+        </div>
+      </sc-if>
+
+      <article data-r="detail" style="position:relative; z-index:1; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr); gap:clamp(28px,4vw,48px); align-items:start; margin-top:8px">
+        <!-- photo / monogram: the card's shoulder, grown -->
+        <div style="position:relative">
+          <sc-if value="{{ hasPhoto }}" hint-placeholder-val="{{ false }}">
+            <div style="aspect-ratio:4/3.6; overflow:hidden; border-radius:24px 220px 24px 24px; background:#FFE3D3; box-shadow:0 30px 56px -26px rgba(255,77,141,.42), 0 2px 10px rgba(255,77,141,.08)">
+              <img data-src="{{ photoSrc }}" alt="{{ title }}" style="width:100%; height:100%; object-fit:cover">
+            </div>
+          </sc-if>
+          <sc-if value="{{ noPhoto }}" hint-placeholder-val="{{ true }}">
+            <div style="aspect-ratio:4/3.6; display:grid; place-items:center; border-radius:24px 220px 24px 24px; background:{{ badge }}; box-shadow:inset -40px -40px 90px -50px rgba(28,10,20,.22), 0 30px 56px -26px rgba(255,77,141,.42); container-type:inline-size">
+              <span aria-hidden="true" style="font-family:'Alexandria'; font-weight:800; font-size:42cqw; line-height:1; color:{{ badgeInk }}; margin-top:8%">{{ initial }}</span>
+            </div>
+          </sc-if>
+          <span style="position:absolute; right:22px; bottom:-15px; font-size:13px; font-weight:600; padding:8px 15px; border-radius:999px; white-space:nowrap; background:{{ badge }}; color:{{ badgeInk }}; box-shadow:0 0 0 4px #FFF6F1, 0 10px 20px -10px rgba(28,10,20,.3)">{{ category }}</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:18px; min-width:0">
+          <div style="display:flex; flex-direction:column; gap:8px">
+            <span style="font-family:'Alexandria'; font-weight:700; font-size:18px">{{ name }}</span>
+            <h1 data-r="h1" style="font-family:'Alexandria'; font-weight:800; font-size:clamp(30px,3.6vw,44px); line-height:1.1; margin:0; letter-spacing:-.015em; text-wrap:pretty">{{ title }}</h1>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; font-size:15px; color:#6B5460; flex-wrap:wrap">
+            <span aria-hidden="true" style="width:8px; height:8px; border-radius:50%; background:#FFB038; display:block"></span>
+            <span>{{ countryName }}</span>
+            <span aria-hidden="true" style="width:1px; height:14px; background:rgba(28,10,20,.2); display:block"></span>
+            <span>{{ area }}</span>
+          </div>
+          <p style="margin:0; font-size:16px; line-height:1.75; color:#4A3540; text-wrap:pretty">{{ desc }}</p>
+          <sc-if value="{{ hasPrice }}" hint-placeholder-val="{{ false }}">
+            <div style="font-family:'Alexandria'; font-weight:800; font-size:clamp(26px,3vw,32px); color:#FF4D8D; line-height:1">{{ priceText }}</div>
+          </sc-if>
+
+          <div style="display:flex; flex-direction:column; gap:10px; padding-top:4px">
+            <a href="{{ primary.href }}" style="display:flex; align-items:center; justify-content:center; gap:10px; background:#1C0A14; color:#fff; border-radius:999px; padding:16px 24px; font-family:'Alexandria'; font-weight:700; font-size:17px; min-height:54px" style-hover="background:#2BA39B; text-decoration:none" style-focus="outline:3px solid #FFB038; outline-offset:3px"><span aria-hidden="true" style="width:10px; height:10px; border-radius:50%; background:#2BA39B; display:block"></span>{{ primary.label }}<span dir="ltr" style="font-family:'Readex Pro'; font-weight:500; font-size:15px; color:#D9B8C8">{{ primary.value }}</span></a>
+            <div data-r="actions" style="display:flex; gap:8px; flex-wrap:wrap">
+              <sc-for list="{{ secondary }}" as="s" hint-placeholder-count="0">
+                <a href="{{ s.href }}" style="flex:1 1 180px; display:flex; align-items:center; justify-content:center; gap:10px; background:#FFF0E8; color:#1C0A14; border-radius:999px; padding:13px 18px; font-weight:600; font-size:14px; min-height:46px" style-hover="background:#FFE3D3; text-decoration:none" style-focus="outline:3px solid #FFB038; outline-offset:2px">{{ s.label }}<span dir="ltr" style="font-weight:500; color:#6B5460">{{ s.value }}</span></a>
+              </sc-for>
+            </div>
+          </div>
+          <div style="font-size:13px; color:#8A7580">نُشر {{ date }}</div>
+        </div>
+      </article>
+
+      <!-- others in the same category & country -->
+      <sc-if value="{{ hasOthers }}" hint-placeholder-val="{{ true }}">
+        <section style="position:relative; z-index:1; display:flex; flex-direction:column; gap:18px">
+          <div style="display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap">
+            <h2 style="font-family:'Alexandria'; font-weight:800; font-size:clamp(22px,2.6vw,28px); margin:0; line-height:1.1">{{ othersTitle }}</h2>
+            <span style="font-size:14px; color:#6B5460">{{ othersCount }}</span>
+          </div>
+          <div data-r="scroll" style="display:flex; gap:clamp(16px,2.5vw,24px); overflow-x:auto; scrollbar-width:none; margin:0 calc(-1 * clamp(16px,4vw,48px)); padding:6px clamp(16px,4vw,48px) 36px">
+            <sc-for list="{{ others }}" as="item" hint-placeholder-count="0">
+              <a href="Princess Listing.dc.html#s=full" style="flex:0 0 280px; background:#fff; border-radius:26px; box-shadow:0 30px 56px -26px rgba(255,77,141,.42), 0 2px 10px rgba(255,77,141,.08); display:flex; flex-direction:column; padding:10px; color:#1C0A14" style-hover="text-decoration:none" style-focus="outline:3px solid #FFB038; outline-offset:3px">
+                <div style="position:relative">
+                  <sc-if value="{{ item.hasPhoto }}" hint-placeholder-val="{{ false }}">
+                    <div style="aspect-ratio:4/3.3; overflow:hidden; border-radius:16px 150px 16px 16px; background:#FFE3D3"><img data-src="{{ item.photoSrc }}" alt="{{ item.title }}" style="width:100%; height:100%; object-fit:cover"></div>
+                  </sc-if>
+                  <sc-if value="{{ item.noPhoto }}" hint-placeholder-val="{{ true }}">
+                    <div style="aspect-ratio:4/3.3; display:grid; place-items:center; border-radius:16px 150px 16px 16px; background:{{ item.badge }}; box-shadow:inset -40px -40px 90px -50px rgba(28,10,20,.22); container-type:inline-size"><span aria-hidden="true" style="font-family:'Alexandria'; font-weight:800; font-size:46cqw; line-height:1; color:{{ item.badgeInk }}; margin-top:6%">{{ item.initial }}</span></div>
+                  </sc-if>
+                  <span style="position:absolute; right:14px; bottom:-13px; font-size:12px; font-weight:600; padding:7px 13px; border-radius:999px; white-space:nowrap; background:{{ item.badge }}; color:{{ item.badgeInk }}; box-shadow:0 0 0 4px #fff, 0 10px 20px -10px rgba(28,10,20,.3)">{{ item.category }}</span>
+                </div>
+                <div style="padding:24px 12px 12px; display:flex; flex-direction:column; gap:8px">
+                  <div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px">
+                    <span style="font-family:'Alexandria'; font-weight:700; font-size:15px">{{ item.name }}</span>
+                    <span style="font-size:13px; color:#6B5460; white-space:nowrap">{{ item.area }}</span>
+                  </div>
+                  <span style="font-family:'Alexandria'; font-weight:800; font-size:18px; line-height:1.22; text-wrap:pretty">{{ item.title }}</span>
+                  <sc-if value="{{ item.hasPrice }}" hint-placeholder-val="{{ false }}"><span style="font-family:'Alexandria'; font-weight:800; font-size:19px; color:#FF4D8D; line-height:1">{{ item.priceText }}</span></sc-if>
+                  <span style="font-size:12px; color:#8A7580">{{ item.date }}</span>
+                </div>
+              </a>
+            </sc-for>
+          </div>
+        </section>
+      </sc-if>
+      <sc-if value="{{ noOthers }}" hint-placeholder-val="{{ false }}">
+        <div style="position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; background:#fff; border-radius:20px 80px 20px 20px; padding:18px 22px; box-shadow:0 14px 34px -16px rgba(255,77,141,.3)">
+          <span style="font-size:15px; color:#4A3540; line-height:1.5">هذا الإعلان الوحيد في «{{ category }}» في {{ countryName }} حتى الآن.</span>
+          <a href="Princess Landing.dc.html" style="font-size:14px; font-weight:600; padding:11px 18px; border-radius:999px; background:#FFF0E8; color:#1C0A14; white-space:nowrap" style-hover="background:#FFE3D3; text-decoration:none" style-focus="outline:3px solid #FFB038; outline-offset:2px">تصفحي كل إعلانات {{ countryName }}</a>
+        </div>
+      </sc-if>
+    </sc-if>
+  </main>
+
+  <footer style="background:#1C0A14; color:#FFF6F1; padding:28px clamp(16px,4vw,48px); border-radius:clamp(32px,5vw,48px) clamp(32px,5vw,48px) 0 0">
+    <div style="max-width:1400px; margin:0 auto; display:flex; flex-direction:column; gap:14px">
+      <p style="margin:0; line-height:1.7; font-size:14px; color:#E9D3DC; max-width:620px; text-wrap:pretty">برينسيس لوحة إعلانات فقط. الاتفاق والدفع يتمّان مباشرة بين الطرفين، والموقع ليس طرفًا في أي تعامل ولا يضمن أي خدمة أو منتج.</p>
+      <div style="display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; font-size:13px; color:#B899A8">
+        <span>برينسيس — مشروع من MDN</span>
+        <div style="display:flex; gap:20px"><a href="#" style-focus="outline:3px solid #FFB038; outline-offset:3px; border-radius:6px">الشروط</a><a href="#" style-focus="outline:3px solid #FFB038; outline-offset:3px; border-radius:6px">الخصوصية</a><a href="#" style-focus="outline:3px solid #FFB038; outline-offset:3px; border-radius:6px">تواصلي معنا</a></div>
+      </div>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;scenario&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;full&quot;,&quot;options&quot;:[&quot;full&quot;,&quot;minimal&quot;,&quot;posted&quot;,&quot;notfound&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;الحالة&quot;}}">
+const COUNTRIES = { EG:{ name:'مصر', currency:'ج.م', dial:'+20' }, SA:{ name:'السعودية', currency:'ر.س', dial:'+966' }, AE:{ name:'الإمارات', currency:'د.إ', dial:'+971' } };
+const COLORS = {
+  'أظافر':{badge:'#FF4D8D',ink:'#fff'}, 'مكياج':{badge:'#FF4D8D',ink:'#fff'}, 'كوافير وتجميل':{badge:'#FF4D8D',ink:'#fff'},
+  'حنّة':{badge:'#1C0A14',ink:'#FFF6F1'}, 'رعاية كبار السن':{badge:'#1C0A14',ink:'#FFF6F1'},
+  'خياطة وتفصيل':{badge:'#2BA39B',ink:'#fff'}, 'بيع ملابس':{badge:'#2BA39B',ink:'#fff'}, 'تنظيف منازل':{badge:'#2BA39B',ink:'#fff'},
+  'طبخ وحلويات':{badge:'#FFB038',ink:'#1C0A14'}, 'دروس خصوصية':{badge:'#FFB038',ink:'#1C0A14'}, 'رعاية أطفال':{badge:'#FFB038',ink:'#1C0A14'},
+};
+const IMG = {
+  nails:'https://images.pexels.com/photos/34871553/pexels-photo-34871553.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  nails2:'https://images.pexels.com/photos/7147578/pexels-photo-7147578.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1200',
+  tailor:'https://images.pexels.com/photos/33078826/pexels-photo-33078826/free-photo-of-tailor-meticulously-crafting-garments-in-workshop.jpeg?w=1260&h=750&dpr=1',
+  machine:'https://images.pexels.com/photos/29107942/pexels-photo-29107942/free-photo-of-close-up-of-sewing-machine-with-fabric-and-hands.jpeg?cs=tinysrgb&dpr=1&w=1200',
+  cooking:'https://images.pexels.com/photos/6287459/pexels-photo-6287459.jpeg?auto=compress&cs=tinysrgb&w=1200',
+};
+const LISTINGS = [
+  {id:'mona',c:'EG',name:'منى عبد الرحمن',title:'مانيكير وباديكير جل في منزلك',category:'أظافر',area:'القاهرة، مدينة نصر',desc:'جل يدوم ثلاثة أسابيع دون تقشّر، معي كل ألوان الموسم وأصل إليك حتى باب البيت. أعمل من السبت إلى الخميس، والحجز قبلها بيوم على الأقل. الأدوات معقّمة لكل عميلة، وأحضر معي عينات الألوان لتختاري أمامي.',price:{amount:'١٥٠'},photo:IMG.nails,date:'قبل ٣ ساعات',whatsapp:'1012345678',phone:'1012345678',instagram:'mona.nails'},
+  {id:'laila',c:'EG',name:'ليلى حامد',title:'أظافر أكريليك وتصاميم موسمية',category:'أظافر',area:'القاهرة، المعادي',desc:'أكريليك وجل مع تصاميم يدوية، أستقبل في منزلي بالمعادي.',price:{amount:'٢٠٠',prefix:'من'},photo:'',date:'أمس',whatsapp:'1098765432'},
+  {id:'rasha',c:'EG',name:'رشا كمال',title:'باديكير طبي ومانيكير فرنسي',category:'أظافر',area:'الجيزة، الدقي',desc:'عناية كاملة بالقدمين مع باديكير طبي، وفرنش ناعم لليدين.',price:null,photo:'',date:'قبل يومين',whatsapp:'1055512345'},
+  {id:'sara',c:'EG',name:'سارة الجندي',title:'تفصيل فساتين سهرة',category:'خياطة وتفصيل',area:'القاهرة، المعادي',desc:'أفصّل على مقاسك تمامًا مع بروفة قبل التسليم.',price:null,photo:IMG.tailor,date:'أمس',whatsapp:'1011111111'},
+  {id:'nada',c:'EG',name:'ندى فتحي',title:'نقش حناء سوداني وخليجي',category:'حنّة',area:'الجيزة، فيصل',desc:'رسمة يد كاملة في ساعة، حناء طبيعية بلا مواد كيميائية. أعمل في المناسبات والأعياد وليالي الحناء، وأصل إلى منزلك أو مكان المناسبة في الجيزة والقاهرة. السعر يُتفق عليه حسب الرسمة وعدد الأيدي.',price:null,photo:'',date:'اليوم',phone:'1122334455'},
+];
+const AR = (n) => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+const countWord = (n) => n === 0 ? 'لا إعلانات' : n === 1 ? 'إعلان واحد' : n === 2 ? 'إعلانان' : n <= 10 ? `${AR(n)} إعلانات` : `${AR(n)} إعلانًا`;
+const fmtPhone = (dial, n) => `${dial} ${n.replace(/(\d{2,3})(\d{3})(\d{4})$/, '$1 $2 $3')}`;
+const SCENARIOS = { full:'mona', posted:'mona', minimal:'nada', notfound:null };
+
+class Component extends DCLogic {
+  state = { scenario: 'full' };
+  componentDidMount() {
+    const fromHash = () => { const m = location.hash.match(/s=([\w-]+)/); if (m) this.setState({ scenario: m[1] }); };
+    fromHash(); this._onHash = fromHash; window.addEventListener('hashchange', this._onHash);
+    if (this.props.scenario) this.setState({ scenario: this.props.scenario });
+    this.hydrateImages();
+  }
+  componentDidUpdate(prev) { if (prev.scenario !== this.props.scenario && this.props.scenario) this.setState({ scenario: this.props.scenario }); this.hydrateImages(); }
+  hydrateImages() { document.querySelectorAll('img[data-src]').forEach(im => { const s = im.getAttribute('data-src'); if (s && !s.includes('{{') && im.getAttribute('src') !== s) im.setAttribute('src', s); }); }
+  componentWillUnmount() { window.removeEventListener('hashchange', this._onHash); }
+  renderVals() {
+    const sc = this.state.scenario; const id = SCENARIOS[sc] === undefined ? 'mona' : SCENARIOS[sc];
+    const L = id ? LISTINGS.find(l => l.id === id) : null;
+    if (!L) return { notFound: true, found: false, countryName: 'مصر' };
+    const K = COUNTRIES[L.c]; const col = COLORS[L.category];
+    const price = (p) => p ? [p.prefix, `${p.amount} ${K.currency}`, p.unit].filter(Boolean).join(' ') : '';
+    const contacts = [
+      L.whatsapp && { key:'wa', label:'واتساب', value: fmtPhone(K.dial, L.whatsapp), href:`https://wa.me/${K.dial.slice(1)}${L.whatsapp}` },
+      L.phone && { key:'tel', label:'اتصال', value: fmtPhone(K.dial, L.phone), href:`tel:${K.dial}${L.phone}` },
+      L.instagram && { key:'ig', label:'إنستغرام', value:`@${L.instagram}`, href:`https://instagram.com/${L.instagram}` },
+    ].filter(Boolean);
+    const others = LISTINGS.filter(l => l.c === L.c && l.category === L.category && l.id !== L.id).map(l => ({ ...l,
+      hasPhoto: !!l.photo, noPhoto: !l.photo, photoSrc: l.photo || undefined, hasPrice: !!l.price, priceText: price(l.price), initial: l.name[0], badge: COLORS[l.category].badge, badgeInk: COLORS[l.category].ink }));
+    return {
+      notFound: false, found: true, posted: sc === 'posted', countryName: K.name,
+      name: L.name, title: L.title, category: L.category, area: L.area, desc: L.desc, date: L.date,
+      hasPhoto: !!L.photo, noPhoto: !L.photo, photoSrc: L.photo || undefined, initial: L.name[0], badge: col.badge, badgeInk: col.ink,
+      hasPrice: !!L.price, priceText: price(L.price),
+      primary: contacts[0], secondary: contacts.slice(1),
+      hasOthers: others.length > 0, noOthers: others.length === 0, others,
+      othersTitle: `إعلانات أخرى في ${L.category} في ${K.name}`, othersCount: countWord(others.length),
+    };
+  }
+}
+</script>
+</body>
+</html>

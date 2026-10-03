@@ -1,0 +1,164 @@
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.labelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-7);
+}
+
+.label {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-body-sm);
+}
+
+.optional {
+  font-size: var(--text-caption);
+  color: var(--color-text-subtle);
+}
+
+.file {
+  position: absolute;
+  width: var(--size-hairline);
+  height: var(--size-hairline);
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* the picker shares the card photo's shoulder */
+.dropzone,
+.row {
+  background: var(--color-canvas);
+  border-radius: var(--radius-media) var(--radius-media-shoulder) var(--radius-media) var(--radius-media);
+}
+
+.dropzone {
+  width: 100%;
+  text-align: start;
+  cursor: pointer;
+  font: inherit;
+  border: var(--border-field) dashed var(--color-dropzone-border);
+  padding: var(--space-dropzone-pad-top) var(--space-15) var(--space-14);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  color: var(--color-ink);
+}
+
+.dropzone:hover {
+  background: var(--color-tint-soft);
+}
+
+.dropzone:focus {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+.rejected {
+  border-style: solid;
+  border-color: var(--color-accent);
+}
+
+.dropTitle {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-body);
+}
+
+.dropHint {
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+  line-height: var(--leading-snug);
+}
+
+.row {
+  padding: var(--space-10);
+  display: flex;
+  gap: var(--space-10);
+  align-items: center;
+}
+
+.thumb {
+  width: var(--size-thumb);
+  height: var(--size-thumb);
+  border-radius: var(--radius-thumb) var(--radius-thumb-shoulder) var(--radius-thumb) var(--radius-thumb);
+  overflow: hidden;
+  background: var(--color-tint);
+  flex: 0 0 auto;
+  display: block;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.infoTight {
+  gap: var(--space-2);
+}
+
+.name {
+  font-size: var(--text-body-sm);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.progress {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: var(--size-progress);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-tint);
+  overflow: hidden;
+}
+
+.progress::-webkit-progress-bar {
+  background: var(--color-tint);
+  border-radius: var(--radius-pill);
+}
+
+.progress::-webkit-progress-value {
+  background: var(--color-accent);
+  border-radius: var(--radius-pill);
+}
+
+.progress::-moz-progress-bar {
+  background: var(--color-accent);
+  border-radius: var(--radius-pill);
+}
+
+.meta {
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+}
+
+.done {
+  font-size: var(--text-small);
+  color: var(--color-secondary);
+  font-weight: var(--weight-semibold);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-3);
+  flex: 0 0 auto;
+}
