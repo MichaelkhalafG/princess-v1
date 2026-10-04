@@ -1,7 +1,9 @@
+/* The footer: ink, rounded at the top like the design's, and quiet — logo, one line,
+   the real links, the maker. */
 .footer {
   background: var(--color-ink);
   color: var(--color-on-ink);
-  padding: var(--pad-footer-compact) var(--gutter-page);
+  padding: var(--pad-footer-top) var(--gutter-page) var(--space-17);
   border-radius: var(--radius-footer) var(--radius-footer) 0 0;
 }
 
@@ -10,50 +12,14 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: var(--space-10);
-}
-
-.disclaimer {
-  margin: 0;
-  line-height: var(--leading-body);
-  font-size: var(--text-body-sm);
-  color: var(--color-footer-text);
-  max-width: var(--width-footer-text);
-  text-wrap: pretty;
-}
-
-.row {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-11);
-  flex-wrap: wrap;
-  font-size: var(--text-small);
-  color: var(--color-footer-muted);
-}
-
-.links {
-  display: flex;
-  gap: var(--space-13);
-}
-
-.links a:focus-visible {
-  outline: var(--focus-ring);
-  outline-offset: var(--focus-offset-lg);
-  border-radius: var(--radius-focus);
-}
-
-/* ── full (the board) ─────────────────────────────────────────────────────── */
-.full {
-  padding: var(--pad-footer-top) var(--gutter-page) var(--space-17);
-}
-
-.fullInner {
   gap: var(--space-16);
 }
 
+/* wide: what Princess is at the start (right), the links at the end (left) */
 .top {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: var(--space-17);
 }
 
@@ -61,7 +27,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
-  max-width: var(--width-measure);
+  max-width: var(--width-footer-text);
 }
 
 /* the lockup is an LTR island; as a stretched column item its contents sat on the
@@ -70,7 +36,7 @@
   align-self: flex-start;
 }
 
-.fullDisclaimer {
+.line {
   margin: 0;
   line-height: var(--leading-relaxed);
   font-size: var(--text-control);
@@ -78,65 +44,34 @@
   text-wrap: pretty;
 }
 
-.availability {
-  font-size: var(--text-small);
-  color: var(--color-footer-muted);
-}
-
-.cats {
+.links {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-7);
-  max-width: var(--width-footer-chips);
-  align-content: flex-start;
+  gap: var(--space-13);
+  font-size: var(--text-body-sm);
+  font-weight: var(--weight-medium);
 }
 
-.cat {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-3);
-  font-size: var(--text-small);
-  padding: var(--space-5) var(--space-10);
-  border-radius: var(--radius-pill);
-  background: var(--color-footer-chip);
-  color: var(--color-on-ink);
+.links a {
+  color: var(--color-footer-text);
 }
 
-/* the same icon + tone as the chips, in the tone's light tint (it sits on ink) */
-.catIcon {
-  display: inline-flex;
-}
-
-.cat[data-tone='accent'] .catIcon { color: var(--tone-accent-bg); }
-.cat[data-tone='secondary'] .catIcon { color: var(--tone-secondary-bg); }
-.cat[data-tone='highlight'] .catIcon { color: var(--tone-highlight-bg); }
-.cat[data-tone='ink'] .catIcon { color: var(--tone-ink-bg); }
-
-.cat:focus-visible {
+.links a:focus-visible {
   outline: var(--focus-ring);
-  outline-offset: var(--focus-offset);
+  outline-offset: var(--focus-offset-lg);
+  border-radius: var(--radius-focus);
 }
 
 .bottom {
+  margin: 0;
   border-top: var(--size-hairline) solid var(--color-footer-divider);
   padding-top: var(--space-13);
+  font-size: var(--text-small);
+  color: var(--color-footer-muted);
 }
 
 @media (max-width: 860px) {
   .top {
     flex-direction: column;
-  }
-
-  .bottom {
-    flex-direction: column;
-    gap: var(--space-8);
-  }
-}
-
-/* Hover — pointer devices only; a lighter dark, not the design's pink */
-@media (hover: hover) {
-  .cat:hover {
-    background: var(--color-footer-chip-hover);
-    text-decoration: none;
+    gap: var(--space-15);
   }
 }

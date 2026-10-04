@@ -24,6 +24,7 @@ export function CategoryChip({
   selected,
   variant,
   role = 'toggle',
+  tabIndex,
   onSelect,
 }: {
   /** null for "all categories" (no tone) */
@@ -34,6 +35,8 @@ export function CategoryChip({
   selected: boolean;
   variant: 'raised' | 'bar' | 'inset';
   role?: 'toggle' | 'radio';
+  /** in a radio group, only one chip takes Tab (lib/radio.ts) */
+  tabIndex?: number;
   onSelect: () => void;
 }) {
   const a11y = role === 'radio' ? { role: 'radio', 'aria-checked': selected } : { 'aria-pressed': selected };
@@ -43,8 +46,9 @@ export function CategoryChip({
       type="button"
       {...a11y}
       onClick={onSelect}
+      tabIndex={tabIndex}
       data-tone={tone ?? undefined}
-      className={[styles.chip, styles[variant], selected && styles.selected].filter(Boolean).join(' ')}
+      className={['tap-area', styles.chip, styles[variant], selected && styles.selected].filter(Boolean).join(' ')}
     >
       <span className={styles.icon}><CategoryIcon path={icon} /></span>
       <span>{label}</span>

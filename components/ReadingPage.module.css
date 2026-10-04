@@ -1,0 +1,207 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: clip;
+}
+
+/* one column for reading: 640px, centred */
+.main {
+  flex: 1;
+  width: 100%;
+  max-width: calc(var(--width-reading) + var(--gutter-page) * 2);
+  margin: 0 auto;
+  padding: var(--space-5) var(--gutter-page) var(--pad-section-bottom);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-15);
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding-top: var(--space-11);
+}
+
+.title {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-heavy);
+  font-size: var(--text-form-title);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  margin: 0;
+}
+
+.updated {
+  margin: 0;
+  font-size: var(--text-small);
+  color: var(--color-text-subtle);
+}
+
+/* "باختصار": the part most people will read — the strongest box on the page */
+.summary {
+  background: var(--tone-accent-bg);
+  border-radius: var(--radius-card) var(--radius-banner-shoulder) var(--radius-card) var(--radius-card);
+  padding: var(--space-15) var(--space-16);
+  color: var(--color-ink);
+  line-height: var(--leading-body);
+  font-size: var(--text-body);
+}
+
+.summaryTitle {
+  margin: 0 0 var(--space-8);
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-heavy);
+  font-size: var(--text-heading-sm);
+}
+
+.summary ul {
+  margin: 0;
+  padding-inline-start: var(--space-15);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
+
+.contents {
+  font-size: var(--text-body-sm);
+}
+
+.contentsTitle {
+  margin: 0 0 var(--space-5);
+  font-size: var(--text-body-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-subtle);
+}
+
+.contents ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* two columns of full-height rows: every entry is a 44px tap target, none overlap */
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--space-11);
+  counter-reset: contents;
+}
+
+.contents li {
+  counter-increment: contents;
+  display: flex;
+  align-items: center;
+  min-height: var(--size-hit-min);
+}
+
+/* "١ ما يُنشر": the same Arabic-Indic numbers as the sections */
+.contents li::before {
+  content: counter(contents, arabic-indic);
+  margin-inline-end: var(--space-3);
+  color: var(--color-accent);
+  font-weight: var(--weight-bold);
+}
+
+.contents a {
+  display: flex;
+  align-items: center;
+  min-height: var(--size-hit-min);
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-underline-offset: var(--space-2);
+}
+
+.contents a:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+  border-radius: var(--radius-focus);
+}
+
+/* the text: one white card with the sweeping corner */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-panel) var(--radius-panel-shoulder) var(--radius-panel) var(--radius-panel);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-17) var(--space-16);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+/* landing on a section from the contents leaves it clear of the sticky header */
+.section {
+  scroll-margin-top: calc(var(--size-header) + var(--space-11));
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-5);
+  margin: 0 0 var(--space-5);
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-cta);
+  color: var(--color-ink);
+}
+
+.number {
+  color: var(--color-accent);
+  font-weight: var(--weight-heavy);
+}
+
+.section p,
+.section ul {
+  margin: 0 0 var(--space-8);
+}
+
+.section > :last-child {
+  margin-bottom: 0;
+}
+
+.section ul {
+  padding-inline-start: var(--space-15);
+}
+
+.section li + li {
+  margin-top: var(--space-3);
+}
+
+.section strong {
+  color: var(--color-ink);
+}
+
+/* ── draft only: delete with the text's last <Flag> ─────────────────────── */
+.draft {
+  margin: var(--space-8) 0 0;
+  padding: var(--space-8) var(--space-11);
+  border-radius: var(--radius-card);
+  background: var(--tone-highlight-bg);
+  color: var(--tone-highlight-ink);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-body);
+}
+
+.flag {
+  background: var(--tone-highlight-bg);
+  color: var(--color-ink);
+  border-radius: var(--radius-focus);
+  box-decoration-break: clone;
+  padding: 0 var(--space-2);
+}
+
+.why {
+  color: var(--tone-highlight-ink);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-small);
+}
+
+@media (max-width: 480px) {
+  .summary {
+    padding: var(--space-13) var(--space-11);
+  }
+
+  .card {
+    padding: var(--space-15) var(--space-11);
+  }
+}

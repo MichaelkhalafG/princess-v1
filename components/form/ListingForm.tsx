@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type KeyboardEvent } from 'react';
 import { createListing } from '@/app/new/actions.ts';
 import { CATEGORIES, getCountry, type CategorySlug, type CountryCode } from '@/lib/constants.ts';
 import { pricePlaceholder } from '@/lib/format.ts';
+import { nextRadioIndex, radioTabIndex } from '@/lib/radio.ts';
 import {
   CONTACTS_REQUIREMENT, PUBLISH_FAILED_MESSAGE, counter, emptyForm, hasAnyContact, submitGate, toPayload, validateForm,
   type FormErrors, type FormField, type FormValues, type UploadState,
@@ -17,7 +18,7 @@ import styles from './ListingForm.module.css';
 
 /** Where focus goes for each field's error, in the order the fields appear. */
 const FOCUS_ORDER: [FormField, string][] = [
-  ['name', '#f-name'], ['title', '#f-title'], ['category', '#g-category [role="radio"]'], ['city', '#f-city'],
+  ['name', '#f-name'], ['city', '#f-city'], ['category', '#g-category [role="radio"]'], ['title', '#f-title'],
   ['description', '#f-description'], ['price', '#f-price'], ['whatsapp', '#f-whatsapp'], ['phone', '#f-phone'],
   ['social', '#f-social'], ['contacts', '#f-whatsapp'],
 ];
@@ -83,6 +84,17 @@ export function ListingForm({ initialCountry, contextQuery = '' }: { initialCoun
       setFormMessage(PUBLISH_FAILED_MESSAGE);
     }
     setSubmitting(false);
+  };
+
+  // the category radios: one Tab stop, the arrows move the choice (lib/radio.ts)
+  const checkedCategory = CATEGORIES.findIndex((c) => c.slug === values.category);
+  const onCategoryKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    const radios = [...e.currentTarget.querySelectorAll<HTMLElement>('[role="radio"]')];
+    const next = nextRadioIndex(e.key, radios.indexOf(document.activeElement as HTMLElement), radios.length, getComputedStyle(e.currentTarget).direction === 'rtl');
+    if (next === null) return;
+    e.preventDefault();
+    set('category', CATEGORIES[next].slug as CategorySlug);
+    radios[next].focus();
   };
 
   const text = (field: 'name' | 'title' | 'city' | 'district' | 'price', extra: Record<string, unknown> = {}) => ({
@@ -151,12 +163,14 @@ export function ListingForm({ initialCountry, contextQuery = '' }: { initialCoun
           <div
             id="g-category"
             role="radiogroup"
+            onKeyDown={onCategoryKey}
             aria-label="التصنيف"
             className={`${styles.chips} ${errors.category ? styles.chipsInvalid : ''}`}
             {...(errors.category ? { 'aria-describedby': 'e-category' } : {})}
           >
-            {CATEGORIES.map((c) => (
+            {CATEGORIES.map((c, i) => (
               <CategoryChip
+                tabIndex={radioTabIndex(i, checkedCategory)}
                 key={c.slug}
                 category={c.slug}
                 variant="inset"
@@ -204,9 +218,9 @@ export function ListingForm({ initialCountry, contextQuery = '' }: { initialCoun
           <legend className="visually-hidden">طرق التواصل</legend>
           <div className={styles.contactsTitles}>
             <div className={styles.contactsHead}>
-              <span className={styles.contactsTitle}>كيف تتواصل معك العميلة؟</span>
+              <h2 className={styles.contactsTitle}>كيف تتواصل معك العميلة؟</h2>
               <span role="status" className={`${styles.status} ${contactsOk ? styles.statusOk : ''}`}>
-                {contactsOk ? 'مكتمل' : 'واحدة على الأقل مطلوبة'}
+                {contactsOk ? 'أضفتِ طريقة تواصل' : 'طريقة تواصل واحدة على الأقل مطلوبة'}
               </span>
             </div>
             <span id="contacts-rule" className={styles.contactsRule}>{CONTACTS_REQUIREMENT}</span>

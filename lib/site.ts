@@ -18,3 +18,6 @@ function siteUrl(): URL {
 }
 
 export const SITE_URL = siteUrl();
+
+/** Where she writes to us, and where removal requests go (handled by hand). */
+export const CONTACT_EMAIL = 'info@mdneg.com';

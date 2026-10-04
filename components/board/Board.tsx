@@ -126,18 +126,25 @@ export function Board({
   };
 
   const postHref = withBoardContext('/new', ctx);
+
+  /** "Clear the search": back to the same country and category, with no search. */
+  const clearSearch = () => {
+    setQuery('');
+    navigate({ q: '' });
+  };
   const currentCategory = selected.category ? getCategory(selected.category) : null;
 
   return (
     <div className={styles.page}>
       <SiteHeader
         homeHref={boardHref(ctx)}
+        skip={{ href: '#listings', label: 'انتقلي إلى الإعلانات' }}
         postHref={postHref}
         center={summaryVisible ? (
           <FilterSummary
             countryName={getCountry(selected.country).name}
             countryFlag={getCountry(selected.country).flag}
-            categoryLabel={currentCategory ? currentCategory.label : ALL_CATEGORIES.barLabel}
+            categoryLabel={currentCategory ? currentCategory.label : ALL_CATEGORIES.label}
             categoryIcon={currentCategory ? currentCategory.icon : ALL_CATEGORIES.icon}
             countLabel={pending ? LOADING_LABEL : countLabel}
             onCountryClick={() => jumpTo(heroControls.current, '[role="radio"][aria-checked="true"]')}
@@ -149,6 +156,7 @@ export function Board({
       {/* Full-width band under the header, holding the hero. It tucks up behind the
           (transparent) header so the orbs bleed off the top of the screen; they are
           clipped by the screen edges, never by a section boundary. */}
+      <main id="main">
       <div className={styles.top}>
         <span className={`${styles.blob} ${styles.blobTint}`} aria-hidden="true" />
         <span className={`${styles.blob} ${styles.blobAmber}`} aria-hidden="true" />
@@ -198,20 +206,41 @@ export function Board({
 
       <CategoryBar ref={categoryBar} selected={selected.category} counts={counts} onSelect={(c) => navigate({ category: c })} />
 
-      <section className={styles.grid} ref={grid} aria-busy={pending}>
+      {/* tabIndex -1: the skip link's target takes focus, so the next Tab is the first card */}
+      <section id="listings" tabIndex={-1} className={styles.grid} ref={grid} aria-busy={pending} aria-labelledby="listings-title">
         <div className={styles.gridHead}>
-          <h2 className={styles.gridTitle}>{category ? `${activeLabel} في ${k.name}` : `آخر الإعلانات في ${k.name}`}</h2>
+          <h2 id="listings-title" className={styles.gridTitle}>
+            {q
+              ? `نتائج «${q}»${category ? ` في «${activeLabel}»` : ''} في ${k.name}`
+              : category ? `${activeLabel} في ${k.name}` : `آخر الإعلانات في ${k.name}`}
+          </h2>
           <span className={styles.count}>{pending ? LOADING_LABEL : countLabel}</span>
           {pending && <span className={styles.loading} aria-hidden="true" />}
         </div>
 
         {n === 0 ? (
-          <EmptyState
-            title={`لا توجد إعلانات في «${activeLabel}» في ${k.name} بعد`}
-            body="كوني أول من تعرض هنا. الإعلان يستغرق دقيقتين، والباحثات موجودات فعلًا."
-            actionLabel="اعرضي خدمتك الآن"
-            actionHref={postHref}
-          />
+          q ? (
+            // A search that found nothing: say what she searched for, and the two ways out —
+            // drop the search, or (inside a category) go back to the whole country.
+            <EmptyState
+              title={`لا نتائج لـ«${q}»${category ? ` في «${activeLabel}»` : ''} في ${k.name}`}
+              body="جرّبي كلمة أخرى أو أقصر، أو امسحي البحث لتري كل الإعلانات."
+              actions={[
+                { label: 'امسحي البحث', onClick: clearSearch },
+                category ? { label: `كل إعلانات ${k.name}`, onClick: () => { setQuery(''); navigate({ category: null, q: '' }); } } : undefined,
+              ]}
+            />
+          ) : (
+            // Nothing posted here yet: invite her to be first, or let her see the rest.
+            <EmptyState
+              title={category ? `لا توجد إعلانات في «${activeLabel}» في ${k.name} بعد` : `لا توجد إعلانات في ${k.name} بعد`}
+              body="كوني أول من تعرض هنا، فالإعلان يستغرق دقيقتين."
+              actions={[
+                { label: 'اعرضي خدمتك الآن', href: postHref },
+                category ? { label: 'تصفحي كل الفئات', onClick: () => navigate({ category: null }) } : undefined,
+              ]}
+            />
+          )
         ) : (
           <div
             // a new element per result set, so the fade-in plays once per new set
@@ -224,8 +253,9 @@ export function Board({
           </div>
         )}
       </section>
+      </main>
 
-      <SiteFooter variant="full" ctx={ctx} />
+      <SiteFooter ctx={ctx} />
     </div>
   );
 }

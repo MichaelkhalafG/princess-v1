@@ -23,12 +23,12 @@ export default async function NewListingPage({ searchParams }: Props) {
     <div className={styles.page}>
       {/* the form's one action is the way back; "post" would point at this page */}
       <SiteHeader homeHref={home} backHref={home} />
-      <main className={styles.main}>
+      <main id="main" tabIndex={-1} className={styles.main}>
         <span className={`${styles.blob} ${styles.blobTint}`} aria-hidden="true" />
         <span className={`${styles.blob} ${styles.blobAmber}`} aria-hidden="true" />
         <ListingForm initialCountry={initialCountry} contextQuery={boardQuery(ctx)} />
       </main>
-      <SiteFooter />
+      <SiteFooter ctx={ctx} />
     </div>
   );
 }

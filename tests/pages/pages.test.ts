@@ -11,6 +11,7 @@ import { createServer } from 'node:net';
 import { createClient } from '@supabase/supabase-js';
 import { CATEGORIES, COUNTRIES } from '../../lib/constants.ts';
 import { areaText, formatPhone } from '../../lib/format.ts';
+import { CONTACT_EMAIL } from '../../lib/site.ts';
 import { testEnv } from '../support/env.ts';
 
 const { url, publishableKey, secretKey } = testEnv();
@@ -167,5 +168,67 @@ test('form page: ?country= changes the currency hint and the dialling code', asy
     const { html } = await get(`/new?country=${k.code}`);
     assert.ok(html.includes(`مثال: ٥٠ ${k.currency}`), k.code);
     assert.ok(html.includes(k.dialCode), k.code);
+  }
+});
+
+// ── The plain pages and the links to them ─────────────────────────────────────────
+
+/** Every href inside the page's <footer>, entities decoded. */
+function footerLinks(html: string): string[] {
+  const footer = html.match(/<footer[\s\S]*?<\/footer>/)?.[0] ?? '';
+  return [...footer.matchAll(/href="([^"]*)"/g)].map((m) => m[1].replaceAll('&amp;', '&'));
+}
+
+test('no dead links: every footer link on every kind of page answers 200, and its #section exists', async () => {
+  const pages = ['/', `/listing/${ids.withAll}`, '/new', '/about', '/privacy'];
+  const seen = new Set<string>();
+  for (const page of pages) {
+    const { html } = await get(page);
+    const links = footerLinks(html);
+    assert.ok(links.length > 0, `${page}: no footer links found`);
+    for (const href of links) {
+      assert.ok(!href.startsWith('#'), `${page}: a link that goes nowhere (${href})`);
+      if (seen.has(href)) continue;
+      seen.add(href);
+      const [path, hash] = href.split('#');
+      const target = await get(path);
+      assert.equal(target.status, 200, `${page} → ${href}`);
+      if (hash) assert.ok(target.html.includes(`id="${hash}"`), `${page} → ${href}: no #${hash} on the page`);
+    }
+  }
+});
+
+test('the page links keep the board context she came with', async () => {
+  const { html } = await get(`/about?country=${COUNTRIES[1].code}`);
+  const contact = footerLinks(html).find((h) => h.endsWith('#contact'));
+  assert.equal(contact, `/about?country=${COUNTRIES[1].code}#contact`);
+});
+
+test('/about: the steps in order, and #contact gives the address as a mail link and says where removal requests go', async () => {
+  const { status, html } = await get('/about');
+  assert.equal(status, 200);
+  const steps = ['اعرضي خدمتك', 'تظهر لكل سيدة', 'تتواصل معك مباشرة', 'بلا وسيط ولا عمولة'].map((t) => html.indexOf(`>${t}</h3>`));
+  assert.ok(steps.every((i, n) => i > 0 && (n === 0 || i > steps[n - 1])), 'the four steps, in order');
+  assert.ok(html.includes(`href="mailto:${CONTACT_EMAIL}"`));
+  assert.ok(html.includes('طلبات حذف الإعلانات'));
+});
+
+test('an unknown address is a 404 with the Arabic page in the server HTML', async () => {
+  const { status, html } = await get(`/no-such-page-${RUN}`);
+  assert.equal(status, 404);
+  assert.ok(html.includes('هذه الصفحة غير موجودة'));
+  assert.ok(html.includes('العودة إلى اللوحة'));
+});
+
+test('terms and privacy are drafts: marked, kept out of search engines, and linked from nowhere', async () => {
+  for (const path of ['/terms', '/privacy']) {
+    const { status, html } = await get(path);
+    assert.equal(status, 200, path);
+    assert.ok(html.includes('مسودة للمراجعة'), `${path}: draft banner missing`);
+    assert.match(html, /<meta name="robots" content="noindex, nofollow"\/>/, path);
+  }
+  for (const page of ['/', '/new', '/about']) {
+    const links = footerLinks((await get(page)).html);
+    assert.ok(!links.some((h) => h.startsWith('/terms') || h.startsWith('/privacy')), `${page} links a draft`);
   }
 });

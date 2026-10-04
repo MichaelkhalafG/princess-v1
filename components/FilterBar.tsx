@@ -29,14 +29,17 @@ export function FilterSummary({
 }) {
   return (
     <div role="region" aria-label="الفلتر الحالي" className={styles.summary}>
-      <button type="button" className={styles.part} onClick={onCountryClick}>
+      <button type="button" className={`tap-area ${styles.part} ${styles.country}`} onClick={onCountryClick}>
         <span className={styles.dot} aria-hidden="true" />
-        {/* small phones show the flag instead of the name; the name stays for screen readers */}
-        <img className={styles.flag} src={countryFlag} alt="" aria-hidden="true" />
-        <span className={styles.countryName}>{countryName}</span>
+        {countryName}
       </button>
       <span className={styles.divider} aria-hidden="true" />
-      <button type="button" className={`${styles.part} ${styles.category}`} onClick={onCategoryClick}>
+      {/* Small phones: one button — flag and category — because a 15px flag button cannot
+          be given a 44px tap area without covering its neighbours. The country name
+          stays in its label for screen readers. */}
+      <button type="button" className={`tap-area ${styles.part} ${styles.category}`} onClick={onCategoryClick}>
+        <img className={styles.flag} src={countryFlag} alt="" aria-hidden="true" />
+        <span className={styles.countryName}>{countryName}</span>
         <CategoryIcon path={categoryIcon} />
         <span className={styles.categoryLabel}>{categoryLabel}</span>
       </button>

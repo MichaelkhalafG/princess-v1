@@ -12,7 +12,9 @@
   white-space: nowrap;
   background: var(--color-surface);
   color: var(--color-ink);
-  position: relative;
+  /* one drawn height for every chip (hero, bar, form); the .tap-area layer takes the tap
+     area to 44px */
+  min-height: var(--size-control-sm);
   /* every visitor is on a phone: no double-tap-zoom delay, and no grey rectangle flashed
      over a pill — the chip turns ink the moment it is tapped, which is the feedback */
   touch-action: manipulation;
@@ -20,18 +22,6 @@
   /* selecting a chip eases its colour instead of snapping */
   transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out),
     box-shadow var(--duration-fast) var(--ease-out);
-}
-
-/* The tap target is at least --size-hit-min tall while the chip keeps its drawn height
-   (34–36px): an invisible layer, centred on the chip, as wide as the chip. Rows of chips
-   leave enough gap that these layers never overlap (CategoryBar, Board). */
-.chip::before {
-  content: '';
-  position: absolute;
-  inset-inline: 0;
-  top: 50%;
-  height: max(100%, var(--size-hit-min));
-  translate: 0 -50%;
 }
 
 /* the icon carries the category's tone, as on the card badge */
@@ -78,7 +68,7 @@
 
 /* hero chips */
 .raised {
-  padding: var(--space-5) var(--space-8);
+  padding: 0 var(--space-8);
   box-shadow: var(--shadow-chip);
 }
 
@@ -93,7 +83,7 @@
 
 /* category bar chips */
 .bar {
-  padding: var(--space-6) var(--space-9);
+  padding: 0 var(--space-9);
   background: transparent;
 }
 
@@ -108,7 +98,7 @@
 
 /* form category choice (the design's min-height:38px is dropped: landing chip height) */
 .inset {
-  padding: var(--space-6) var(--space-9);
+  padding: 0 var(--space-9);
   background: var(--color-canvas);
 }
 

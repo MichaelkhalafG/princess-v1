@@ -24,7 +24,7 @@ export function NotFoundView({ ctx }: { ctx: BoardContext }) {
     <div className={styles.page}>
       {/* no post button in the header: the panel offers it right below */}
       <SiteHeader homeHref={home} backHref={home} />
-      <main className={styles.main}>
+      <main id="main" tabIndex={-1} className={styles.main}>
         <span className={styles.blob} aria-hidden="true" />
         <StatusPanel
           title="هذا الإعلان لم يعد على اللوحة"
@@ -34,7 +34,7 @@ export function NotFoundView({ ctx }: { ctx: BoardContext }) {
           <Button variant="soft" href={withBoardContext('/new', ctx)}>اعرضي خدمتك</Button>
         </StatusPanel>
       </main>
-      <SiteFooter withDisclaimer />
+      <SiteFooter ctx={ctx} />
     </div>
   );
 }

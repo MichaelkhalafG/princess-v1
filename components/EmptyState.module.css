@@ -23,3 +23,10 @@
   color: var(--color-text-secondary);
   line-height: var(--leading-body);
 }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-8);
+}

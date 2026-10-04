@@ -1,23 +1,25 @@
 import { Button } from './Button.tsx';
 import styles from './EmptyState.module.css';
 
-/** The panel shown when a filter combination has no listings. */
-export function EmptyState({
-  title,
-  body,
-  actionLabel,
-  actionHref,
-}: {
-  title: string;
-  body: string;
-  actionLabel: string;
-  actionHref: string;
-}) {
+export type EmptyAction = { label: string; href?: string; onClick?: () => void };
+
+/**
+ * The panel shown when the board has nothing to list. The first action is the main way
+ * out (accent); a second, if given, is the other one (soft) — e.g. "clear the search"
+ * and "see all of the country", or "post" and "see every category".
+ */
+export function EmptyState({ title, body, actions }: { title: string; body: string; actions: [EmptyAction, EmptyAction?] }) {
   return (
-    <div className={styles.panel}>
+    <div className={styles.panel} role="status">
       <div className={styles.title}>{title}</div>
       <p className={styles.body}>{body}</p>
-      <Button variant="accent" href={actionHref}>{actionLabel}</Button>
+      <div className={styles.actions}>
+        {actions.filter((a): a is EmptyAction => Boolean(a)).map((a, i) => (
+          a.href
+            ? <Button key={a.label} variant={i === 0 ? 'accent' : 'soft'} href={a.href}>{a.label}</Button>
+            : <Button key={a.label} variant={i === 0 ? 'accent' : 'soft'} onClick={a.onClick}>{a.label}</Button>
+        ))}
+      </div>
     </div>
   );
 }

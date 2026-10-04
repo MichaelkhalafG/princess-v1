@@ -125,6 +125,7 @@
 }
 
 .contactsTitle {
+  margin: 0;
   font-family: var(--font-heading), sans-serif;
   font-weight: var(--weight-bold);
   font-size: var(--text-body);

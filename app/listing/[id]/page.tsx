@@ -54,7 +54,7 @@ export default async function ListingPage({ params, searchParams }: Props) {
       {/* the board's own header: someone arriving from a WhatsApp link lands on the site,
           not on a dead-end page */}
       <SiteHeader homeHref={home} backHref={home} postHref={withBoardContext('/new', fromCtx)} />
-      <main className={styles.main}>
+      <main id="main" tabIndex={-1} className={styles.main}>
         <span className={styles.blob} aria-hidden="true" />
 
         {posted === '1' && <PostedBanner countryName={country.name} boardHref={home} />}
@@ -141,7 +141,7 @@ export default async function ListingPage({ params, searchParams }: Props) {
           </div>
         )}
       </main>
-      <SiteFooter variant="full" ctx={fromCtx} />
+      <SiteFooter ctx={fromCtx} />
     </div>
   );
 }

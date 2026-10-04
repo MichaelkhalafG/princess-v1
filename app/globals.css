@@ -54,8 +54,6 @@
 
   --color-footer-text: #E9D3DC;
   --color-footer-muted: #B899A8;
-  --color-footer-chip: #2E1A26;
-  --color-footer-chip-hover: #46333E; /* design: turned pink */
   --color-footer-divider: #3A2532;
 
   --color-bar-bg: rgba(252, 248, 246, .94);     /* sticky filter bar: the canvas at 94% */
@@ -63,7 +61,6 @@
   --color-divider: rgba(28, 10, 20, .2);        /* short vertical dividers */
   --color-dropzone-border: rgb(208 58 115 / .45);   /* accent */
 
-  --opacity-placeholder: .5;          /* placeholder text is ink at half opacity */
 
   /* Category tones (badge + monogram panel) and the collage disc: large areas, so soft
      tints of each hue with a deep ink of the same hue for the text on them. */
@@ -178,7 +175,6 @@
   /* One-offs: used in exactly one place, kept out of the scale. */
   --space-hairline-gap: 3px;          /* contacts heading → its two lines */
   --space-selector-pad: 5px;          /* large country selector inner padding */
-  --space-selector-pad-y-sm: 11px;    /* inset country selector under 480px (form) */
   --space-badge-lg-pad-x: 15px;       /* detail page badge */
   --space-dropzone-pad-top: 26px;     /* photo picker */
   --space-carousel-pad-bottom: 36px;  /* room for the cards' shadow under the "others" row */
@@ -199,7 +195,6 @@
   --pad-section-bottom: clamp(48px, 6vw, 72px);
   --pad-hero-bottom: clamp(40px, 6vw, 64px);
   --pad-footer-top: clamp(40px, 6vw, 56px);
-  --pad-footer-compact: 28px;                   /* form and detail footers */
   --pad-form-card: 30px 28px 28px;              /* breakpoint-scoped below */
   --width-content: 1400px;
   --width-detail: 1200px;
@@ -208,6 +203,7 @@
   --width-area-min: 72px;             /* the card's "city، district" never shrinks below this */
   --width-card-compact: 280px;
   --width-measure: 520px;             /* empty state, lead paragraphs */
+  --width-reading: 640px;             /* terms, privacy: a column for reading */
   --width-status: 560px;              /* not-found panel */
   --width-status-text: 400px;
   --width-footer-text: 620px;
@@ -216,8 +212,13 @@
   --width-banner-text-min: 200px;
 
   /* ── Sizes ──────────────────────────────────────────────────────────────── */
-  --size-control: 46px;               /* every control's height (landing value; the form's
-                                         48/44/40/38 and the detail's 54 resolve to it) */
+  /* Control heights: three steps, set by touch. Nothing a finger uses responds over less
+     than --size-hit-min in either direction; anything drawn smaller gets the invisible
+     .tap-area layer (below), and its neighbours stay at least --space-5 apart so those
+     layers never overlap. */
+  --size-control-sm: 36px;            /* chips, header buttons — drawn small, tap layer to 44 */
+  --size-control: 48px;               /* every standard button, field and country option */
+  --size-control-lg: 58px;            /* the main action on a page: hero CTA, form submit */
   --size-bar: 40px;                   /* sticky filter bar height */
   --size-header: 64px;                /* sticky header (logo file: 1200 × 64); 56 on phones */
   --stroke-back: 2;                   /* back arrow */
@@ -249,10 +250,15 @@
   --blur-bar: 10px;
 
   --size-status-mark: 64px;           /* the built P on the status panel (not-found) */
+  --size-about-tile-w: 180px;         /* /about: the arch tile holding the built P */
+  --size-about-tile-h: 220px;
+  --size-about-mark: 96px;
+  --size-about-tile-w-sm: 96px;       /* … on a phone, beside the title */
+  --size-about-tile-h-sm: 116px;
+  --size-about-mark-sm: 50px;
 
   /* Touch */
-  --size-hit-min: 44px;               /* smallest tap target; chips reach it with an
-                                         invisible hit area, not by growing */
+  --size-hit-min: 44px;               /* smallest tap target in either direction */
   --size-fade: 32px;                  /* trailing fade on a row of chips that scrolls */
   --color-mask-opaque: #000;          /* mask-image only reads alpha: this is "fully shown" */
 
@@ -260,7 +266,6 @@
   --width-hero-controls: 640px;       /* country selector + search row */
   --width-hero-chips: 600px;
   --width-collage-mobile: 440px;
-  --width-footer-chips: 440px;
   --ratio-collage: 1 / 1.08;
   --blob-hero-lg: 560px;
   --blob-hero-lg-inset-x: -160px;
@@ -421,10 +426,55 @@ textarea {
   font: inherit;
 }
 
+/* placeholders carry examples and instructions ("اسم الحساب فقط، بلا رابط"), so they
+   meet text contrast: --color-text-subtle is 5.17 on white, 4.9 on the field ground
+   (ink at half opacity was 3.75) */
 input::placeholder,
 textarea::placeholder {
-  color: var(--color-ink);
-  opacity: var(--opacity-placeholder);
+  color: var(--color-text-subtle);
+  opacity: 1;
+}
+
+/* Tap area: an invisible layer, centred on a control drawn smaller than a finger, at
+   least --size-hit-min in both directions. Add the class to the control itself. */
+.tap-area {
+  position: relative;
+}
+
+.tap-area::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, var(--size-hit-min));
+  height: max(100%, var(--size-hit-min));
+  translate: -50% -50%;
+}
+
+/* A skip link's target (a <main> or the listings section, tabindex -1) takes focus only
+   so the next Tab continues from there; it is not a control and draws no ring. */
+[tabindex='-1']:focus {
+  outline: none;
+}
+
+/* Skip link: the first stop on every page, hidden until a keyboard reaches it */
+.skip-link {
+  position: absolute;
+  top: var(--space-5);
+  inset-inline-start: var(--space-5);
+  z-index: calc(var(--z-bar) + 1);
+  padding: var(--space-6) var(--space-11);
+  border-radius: var(--radius-pill);
+  background: var(--color-ink);
+  color: var(--color-on-ink);
+  font-weight: var(--weight-semibold);
+  translate: 0 calc(-100% - var(--space-11));
+}
+
+.skip-link:focus-visible {
+  translate: 0 0;
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
 }
 
 .visually-hidden {

@@ -72,6 +72,12 @@
   flex: none;
 }
 
+/* inside the category button the country name is for small phones only (visually hidden
+   there); above 480px the country button shows it */
+.category .countryName {
+  display: none;
+}
+
 /* the flag replaces the country name on small phones only */
 .flag {
   display: none;
@@ -92,12 +98,13 @@
     display: none;
   }
 
-  .flag {
-    display: block;
+  .country {
+    display: none;
   }
 
   /* the flag never gives way; only the category label does, with its ellipsis */
-  .part:first-child {
+  .flag {
+    display: block;
     flex: none;
   }
 
@@ -110,7 +117,8 @@
     gap: var(--space-2);
   }
 
-  .countryName {
+  .category .countryName {
+    display: block;
     position: absolute;
     width: var(--size-hairline);
     height: var(--size-hairline);

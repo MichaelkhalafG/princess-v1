@@ -25,7 +25,8 @@ type AsButton = Common & { href?: undefined } & Omit<ComponentPropsWithoutRef<'b
 
 export function Button(props: AsLink | AsButton) {
   const { variant, size = 'default', value, className, children, ...rest } = props;
-  const cls = [styles.button, styles[variant], size === 'compact' && styles.compact, className].filter(Boolean).join(' ');
+  // tap-area: the header's 36px button still answers a 44px finger (globals.css)
+  const cls = ['tap-area', styles.button, styles[variant], size === 'compact' && styles.compact, className].filter(Boolean).join(' ');
   const content = (
     <>
       {variant === 'contact' && <span className={styles.dot} aria-hidden="true" />}

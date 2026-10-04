@@ -56,7 +56,9 @@
   font-size: var(--text-body-sm);
   font-weight: var(--weight-medium);
   color: var(--color-ink);
-  padding: var(--space-3) var(--space-8) var(--space-3) var(--space-7);
+  /* the same drawn height as the post button beside it; .tap-area makes it 44 to a finger */
+  min-height: var(--size-control-sm);
+  padding: 0 var(--space-8) 0 var(--space-7);
   border-radius: var(--radius-pill);
   background: var(--color-surface);
   box-shadow: var(--shadow-control-compact);
@@ -101,7 +103,10 @@
     display: none;
   }
 
+  /* the arrow alone: a 36px circle (44 to a finger) — it is the main way home */
   .back {
-    padding: var(--space-3);
+    width: var(--size-control-sm);
+    justify-content: center;
+    padding: 0;
   }
 }

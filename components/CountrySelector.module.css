@@ -63,7 +63,9 @@
 .large .option {
   gap: var(--space-4);
   font-size: var(--text-control);
-  padding: var(--space-8) var(--space-11);
+  /* a standard control height: the country is chosen with a thumb */
+  min-height: var(--size-control);
+  padding: 0 var(--space-11);
 }
 
 .large .flag {
@@ -87,7 +89,7 @@
   /* Three countries in one row on a small phone: the form design's override. Applied to
      the hero selector too — with the landing's 12×16 padding it is clipped at 380px. */
   .large .option {
-    padding: var(--space-selector-pad-y-sm) var(--space-5);
+    padding: 0 var(--space-5);
     font-size: var(--text-body-sm);
   }
 }

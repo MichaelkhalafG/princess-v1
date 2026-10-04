@@ -146,7 +146,7 @@ export type ContactLink = { kind: ContactKind; href: string; label: string; shor
 const CONTACT_LABELS: Record<ContactKind, { label: string; shortLabel: string }> = {
   whatsapp: { label: 'واتساب', shortLabel: 'واتساب' },
   phone: { label: 'اتصال', shortLabel: 'اتصال' },
-  social: { label: 'إنستغرام', shortLabel: 'إنستا' },
+  social: { label: 'إنستغرام', shortLabel: 'إنستغرام' },
 };
 
 export function contactHref(kind: ContactKind, value: string): string {

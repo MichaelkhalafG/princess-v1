@@ -30,9 +30,8 @@ export type Category = (typeof CATEGORIES)[number];
 
 // The "all categories" entry exists only in the filters, never in the data.
 export const ALL_CATEGORIES = {
-  label: 'الكل',
-  // what the sticky filter bar says when no category is picked
-  barLabel: 'كل الفئات',
+  // one name everywhere: the bar's chip, the header summary, the grid heading
+  label: 'كل الفئات',
   icon: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z',
 } as const;
 

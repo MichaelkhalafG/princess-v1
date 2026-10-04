@@ -1,0 +1,208 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: clip;
+}
+
+.main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--width-detail);
+  margin: 0 auto;
+  padding: var(--space-5) var(--gutter-page) var(--pad-section-bottom);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-17);
+}
+
+.blob {
+  position: absolute;
+  right: var(--blob-lg-inset-x);
+  top: var(--blob-lg-inset-y-form);
+  width: var(--blob-lg);
+  height: var(--blob-lg);
+  border-radius: var(--radius-circle);
+  background: var(--color-tint);
+  z-index: 0;
+}
+
+/* title and line at the start; the built P in its arch tile at the end */
+.hero {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-17);
+  padding-top: var(--space-15);
+}
+
+.heroText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
+
+.title {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-heavy);
+  font-size: var(--text-form-title);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  margin: 0;
+}
+
+.lead {
+  margin: 0;
+  font-size: var(--text-lead);
+  line-height: var(--leading-body);
+  color: var(--color-text-secondary);
+}
+
+/* the arch: the listing photo's sweeping leading corner, at tile size */
+.tile {
+  flex: none;
+  width: var(--size-about-tile-w);
+  height: var(--size-about-tile-h);
+  display: grid;
+  place-items: center;
+  background: var(--color-surface);
+  border-radius: var(--radius-card) var(--radius-banner-shoulder) var(--radius-card) var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.mark {
+  font-size: var(--size-about-mark);
+}
+
+/* ── how it works ─────────────────────────────────────────────────────────── */
+.how {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-11);
+}
+
+/* each step: a white card with the arch corner, its number large in the accent */
+.step {
+  background: var(--color-surface);
+  border-radius: var(--radius-card) var(--radius-banner-shoulder) var(--radius-card) var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-15) var(--space-14) var(--space-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.number {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-heavy);
+  font-size: var(--text-h2);
+  line-height: var(--leading-none);
+  color: var(--color-accent);
+}
+
+.stepTitle {
+  margin: var(--space-5) 0 0;
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-cta);
+  line-height: var(--leading-card-title);
+  color: var(--color-ink);
+}
+
+.stepBody {
+  margin: 0;
+  line-height: var(--leading-body);
+  color: var(--color-text-secondary);
+  text-wrap: pretty;
+}
+
+.cta {
+  display: flex;
+  justify-content: center;
+}
+
+/* ── contact: one wide card with the panel's sweeping corner ─────────────── */
+.contact {
+  position: relative;
+  z-index: 1;
+  scroll-margin-top: calc(var(--size-header) + var(--space-11));
+  background: var(--color-surface);
+  border-radius: var(--radius-panel) var(--radius-panel-shoulder) var(--radius-panel) var(--radius-panel);
+  box-shadow: var(--shadow-panel);
+  padding: var(--space-17) var(--space-17);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-15);
+}
+
+.how {
+  scroll-margin-top: calc(var(--size-header) + var(--space-11));
+}
+
+.contactText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.contactTitle {
+  margin: 0;
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-heavy);
+  font-size: var(--text-h2-sm);
+  color: var(--color-ink);
+}
+
+.contactBody {
+  margin: 0;
+  line-height: var(--leading-body);
+  color: var(--color-text-secondary);
+}
+
+/* tablet: steps two by two */
+@media (max-width: 1024px) {
+  .steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* phone: everything in one column; the tile shrinks beside the title */
+@media (max-width: 640px) {
+  .steps {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    gap: var(--space-11);
+  }
+
+  .tile {
+    width: var(--size-about-tile-w-sm);
+    height: var(--size-about-tile-h-sm);
+  }
+
+  .mark {
+    font-size: var(--size-about-mark-sm);
+  }
+
+  .contact {
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--space-16) var(--space-13);
+  }
+}
