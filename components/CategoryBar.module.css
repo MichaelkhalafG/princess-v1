@@ -11,12 +11,13 @@
   box-shadow: var(--shadow-catbar);
 }
 
-/* Wide screens: every category in view, wrapping onto a second row — nothing hidden
-   behind a scroll, no chip cut at the edge. The row gap leaves room for each chip's
-   44px tap layer (36px chips: 4px above and below). */
+/* Wide screens: every category in view, in two even rows of six ("all" and the eleven).
+   Flex wrapping left one chip alone on the second row; a six-column grid cannot. Each
+   column takes its widest chip and the chips fill their cells, so the rows line up. The
+   row gap leaves room for each chip's 44px tap layer (36px chips: 4px above and below). */
 .scroll {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(var(--catbar-columns), auto);
   justify-content: center;
   gap: var(--space-5) var(--space-1);
   scrollbar-width: none;
@@ -36,11 +37,12 @@
     padding: var(--space-2) var(--gutter-page);
   }
 
-  /* Phones and tablets: one row that scrolls. The trailing (left) edge fades out so it
+  /* Phones and tablets: one row that scrolls (a flex row, not the wide grid). The trailing (left) edge fades out so it
      reads as "more this way", and end padding lets the last chip scroll clear of the
      fade. The block padding keeps each chip's 44px tap layer inside the scroller, which
      would otherwise clip it. */
   .scroll {
+    display: flex;
     flex-wrap: nowrap;
     justify-content: flex-start;
     overflow-x: auto;

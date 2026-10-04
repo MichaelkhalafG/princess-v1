@@ -1,6 +1,5 @@
 import type { CategorySlug } from '@/lib/constants.ts';
 import { getCategory } from '@/lib/constants.ts';
-import { toArabicDigits } from '@/lib/format.ts';
 import { CategoryIcon } from './CategoryIcon.tsx';
 import styles from './CategoryChip.module.css';
 
@@ -12,15 +11,13 @@ import styles from './CategoryChip.module.css';
  *   bar    — inside the category bar: transparent until selected
  *   inset  — the form's category choice: page-colour pill on the white form card
  *
- * The count sits in its own small pill so it reads as a number belonging to the chip
- * (the design's 11px faint digit read as a stray speck).
+ * No count: the number of listings belongs in the results heading, not in the chip.
  * As a filter it toggles (aria-pressed); in the form it is one radio of a radiogroup.
  */
 export function CategoryChip({
   category,
   label,
   icon,
-  count,
   selected,
   variant,
   role = 'toggle',
@@ -31,7 +28,6 @@ export function CategoryChip({
   category: CategorySlug | null;
   label: string;
   icon: string;
-  count?: number;
   selected: boolean;
   variant: 'raised' | 'bar' | 'inset';
   role?: 'toggle' | 'radio';
@@ -52,7 +48,6 @@ export function CategoryChip({
     >
       <span className={styles.icon}><CategoryIcon path={icon} /></span>
       <span>{label}</span>
-      {count !== undefined && <span className={styles.count}>{toArabicDigits(count)}</span>}
     </button>
   );
 }

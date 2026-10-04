@@ -79,8 +79,17 @@ export function formatPhone(e164: string): string {
 }
 
 /** "١٫٨ ميغابايت" */
+/** "١٫٨ ميغابايت", or "٤٥ كيلوبايت" under 1 MB — a small photo never reads "٠٫٠ ميغابايت". */
 export function megabytesLabel(bytes: number): string {
+  if (bytes < 1048576) return `${toArabicDigits(Math.max(1, Math.round(bytes / 1024)))} كيلوبايت`;
   return `${toArabicDigits((bytes / 1048576).toFixed(1)).replace('.', '٫')} ميغابايت`;
+}
+
+/** An empty phone field's hint: the rule in words ("١٠ أرقام تبدأ بـ ١"), never a sample
+    number — a full number in grey read as one already typed in. */
+export function phonePlaceholder(country: CountryCode): string {
+  const { phone } = getCountry(country);
+  return `${digitsLabel(phone.length)} تبدأ بـ ${toArabicDigits(phone.lead)}`;
 }
 
 // Intl gives the design's wording from 2 upwards ("قبل ساعتين", "قبل ٣ ساعات",

@@ -1,7 +1,7 @@
 import { Board } from '@/components/board/Board.tsx';
 import { readBoardContext, shownOf } from '@/lib/board-url.ts';
 import { COUNTRIES } from '@/lib/constants.ts';
-import { countListings, fetchCategoryCounts, fetchListings, photoUrl } from '@/lib/listings.ts';
+import { countListings, fetchListings, photoUrl } from '@/lib/listings.ts';
 import { getSupabase } from '@/lib/supabase.ts';
 
 export const dynamic = 'force-dynamic';
@@ -20,10 +20,9 @@ export default async function BoardPage({ searchParams }: Props) {
   const shown = shownOf(ctx);
 
   const db = getSupabase();
-  const [listings, total, counts] = await Promise.all([
+  const [listings, total] = await Promise.all([
     fetchListings(db, { ...filters, limit: shown }),
     countListings(db, filters),
-    fetchCategoryCounts(db, country),
   ]);
 
   return (
@@ -33,7 +32,6 @@ export default async function BoardPage({ searchParams }: Props) {
       q={ctx.q}
       shown={shown}
       total={total}
-      counts={counts}
       now={new Date().toISOString()}
       listings={listings.map((l) => ({ listing: l, photoSrc: l.photo ? photoUrl(db, l.photo) : null }))}
     />

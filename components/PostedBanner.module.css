@@ -3,12 +3,14 @@
   z-index: 1;
   display: flex;
   align-items: center;
-  gap: var(--space-10);
+  gap: var(--space-15) var(--space-17);
   flex-wrap: wrap;
   background: var(--color-secondary);
   color: var(--color-on-accent);
-  border-radius: var(--radius-banner) var(--radius-banner-shoulder) var(--radius-banner) var(--radius-banner);
-  padding: var(--space-11) var(--space-13);
+  /* a wide short strip: a plain radius, not the arch (the arch is for shapes about as
+     tall as they are wide — cards, photos, panels) */
+  border-radius: var(--radius-panel);
+  padding: var(--space-16) var(--space-17);
   margin-top: var(--space-5);
   /* the one load moment on this page: confirming that her listing is live.
      Opacity and scale only — its space is reserved from the first paint. */
@@ -27,13 +29,16 @@
   min-width: var(--width-banner-text-min);
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-3);
 }
 
 .title {
   font-family: var(--font-heading), sans-serif;
   font-weight: var(--weight-heavy);
   font-size: var(--text-banner-title);
+  line-height: var(--leading-title);
+  /* the news; everything under it is detail */
+  margin-bottom: var(--space-5);
 }
 
 .body {
@@ -41,14 +46,17 @@
   line-height: var(--leading-snug);
 }
 
-/* the honest part: what she cannot do later, and the one way to remove it */
+/* the honest part: what she cannot do later, and the one way to remove it. Detail, at
+   the body line's size and weight — set apart by space, not by weight */
 .keep {
-  margin-top: var(--space-5);
-  padding-top: var(--space-5);
-  border-top: var(--size-hairline) solid var(--color-on-accent-divider);
   font-size: var(--text-body-sm);
-  font-weight: var(--weight-semibold);
   line-height: var(--leading-snug);
+}
+
+@media (max-width: 480px) {
+  .banner {
+    padding: var(--space-15) var(--space-13);
+  }
 }
 
 /* on the teal fill the design rings focus in ink */

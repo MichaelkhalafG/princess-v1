@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { createListing } from '@/app/new/actions.ts';
 import { CATEGORIES, getCountry, type CategorySlug, type CountryCode } from '@/lib/constants.ts';
-import { pricePlaceholder } from '@/lib/format.ts';
+import { phonePlaceholder, pricePlaceholder } from '@/lib/format.ts';
 import { nextRadioIndex, radioTabIndex } from '@/lib/radio.ts';
 import { UPLOAD_FAILED_MESSAGE, uploadPhoto } from '@/lib/upload.ts';
 import {
@@ -267,10 +267,10 @@ export function ListingForm({ initialCountry, contextQuery = '' }: { initialCoun
           {errors.contacts && <FieldError id="e-contacts" size="lg" alert>{errors.contacts}</FieldError>}
 
           <div className={styles.two}>
-            {/* "مثال:" like every other example in the form: a bare number in an empty
-                field read as a number already filled in */}
-            {prefixed('whatsapp', country.dialCode, 'واتساب', { inputMode: 'tel', autoComplete: 'tel-national', placeholder: `مثال: ${country.phone.example}` })}
-            {prefixed('phone', country.dialCode, 'هاتف', { inputMode: 'tel', placeholder: `مثال: ${country.phone.example}` })}
+            {/* the rule in words, not a sample number: a full number in grey — even after
+                "مثال:" — read as one already typed in */}
+            {prefixed('whatsapp', country.dialCode, 'واتساب', { inputMode: 'tel', autoComplete: 'tel-national', placeholder: phonePlaceholder(values.country) })}
+            {prefixed('phone', country.dialCode, 'هاتف', { inputMode: 'tel', placeholder: phonePlaceholder(values.country) })}
           </div>
           {prefixed('social', '@', 'إنستغرام', { autoComplete: 'off', placeholder: 'اسم الحساب فقط، بلا رابط' })}
         </fieldset>

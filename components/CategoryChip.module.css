@@ -35,22 +35,6 @@
 .chip[data-tone='highlight'] .icon { color: var(--tone-highlight-ink); }
 .chip[data-tone='ink'] .icon { color: var(--tone-ink-ink); }
 
-/* the count: a small number pill belonging to the chip */
-.count {
-  display: inline-grid;
-  place-items: center;
-  min-width: var(--size-count);
-  height: var(--size-count);
-  padding: 0 var(--space-2);
-  border-radius: var(--radius-pill);
-  background: var(--color-tint-soft);
-  color: var(--color-text-muted);
-  font-size: var(--text-caption);
-  font-weight: var(--weight-semibold);
-  line-height: var(--leading-none);
-  font-variant-numeric: tabular-nums;
-}
-
 .selected {
   background: var(--color-ink);
   color: var(--color-on-ink);
@@ -58,11 +42,6 @@
 
 .selected .icon,
 .chip.selected[data-tone] .icon {
-  color: var(--color-on-ink);
-}
-
-.selected .count {
-  background: var(--color-count-on-ink-bg);
   color: var(--color-on-ink);
 }
 

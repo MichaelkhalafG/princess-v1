@@ -135,13 +135,13 @@
   justify-content: center;
 }
 
-/* ── contact: one wide card with the panel's sweeping corner ─────────────── */
+/* ── contact: one wide short card — a plain radius, not the arch ────────── */
 .contact {
   position: relative;
   z-index: 1;
   scroll-margin-top: calc(var(--size-header) + var(--space-11));
   background: var(--color-surface);
-  border-radius: var(--radius-panel) var(--radius-panel-shoulder) var(--radius-panel) var(--radius-panel);
+  border-radius: var(--radius-panel);
   box-shadow: var(--shadow-panel);
   padding: var(--space-17) var(--space-17);
   display: flex;
@@ -185,6 +185,11 @@
 @media (max-width: 640px) {
   .steps {
     grid-template-columns: 1fr;
+  }
+
+  /* one column makes each step wide and short (348×180 at 380): no arch */
+  .step {
+    border-radius: var(--radius-panel);
   }
 
   .hero {

@@ -39,10 +39,11 @@
   color: var(--color-text-subtle);
 }
 
-/* "باختصار": the part most people will read — the strongest box on the page */
+/* "باختصار": the part most people will read — the strongest box on the page. Twice as
+   wide as it is tall on wide screens, so a plain radius, not the arch */
 .summary {
   background: var(--tone-accent-bg);
-  border-radius: var(--radius-card) var(--radius-banner-shoulder) var(--radius-card) var(--radius-card);
+  border-radius: var(--radius-panel);
   padding: var(--space-15) var(--space-16);
   color: var(--color-ink);
   line-height: var(--leading-body);

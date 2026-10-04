@@ -8,7 +8,7 @@ import { randomUUID } from 'node:crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { CATEGORIES, COUNTRIES, LIMITS, PHOTO_BUCKET, PHOTO_MAX_BYTES } from '../../lib/constants.ts';
 import { createSupabaseClient } from '../../lib/supabase.ts';
-import { countListings, fetchCategoryCounts, fetchListings, insertListing } from '../../lib/listings.ts';
+import { countListings, fetchListings, insertListing } from '../../lib/listings.ts';
 import { categoriesNamedIn } from '../../lib/search.ts';
 import { testEnv } from '../support/env.ts';
 
@@ -231,13 +231,6 @@ test('a limit returns the newest N; the count is all that match the same filters
   assert.deepEqual(firstTwo.map((l) => l.id), all.slice(0, 2).map((l) => l.id), 'the limit takes the newest, in the same order');
   assert.equal(await countListings(anon, f), 5, 'the count ignores the limit');
   assert.equal(await countListings(anon, { ...f, category: CAT_B }), 0, 'the count applies the same filters');
-});
-
-test('category counts move by exactly the rows inserted', async () => {
-  const before_ = (await fetchCategoryCounts(anon, COUNTRY_B))[CAT_B] ?? 0;
-  for (let i = 0; i < 2; i++) assert.ok((await insertListing(anon, payload({ country: COUNTRY_B, category: CAT_B }))).ok);
-  const after_ = (await fetchCategoryCounts(anon, COUNTRY_B))[CAT_B] ?? 0;
-  assert.equal(after_ - before_, 2);
 });
 
 test('insertListing never sends an invalid payload', async () => {

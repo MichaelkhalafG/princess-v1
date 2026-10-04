@@ -16,16 +16,13 @@ import styles from './CategoryBar.module.css';
  */
 export function CategoryBar({
   selected,
-  counts,
   onSelect,
   ref,
 }: {
   selected: CategorySlug | null;
-  counts: Partial<Record<CategorySlug, number>>;
   onSelect: (category: CategorySlug | null) => void;
   ref?: Ref<HTMLDivElement>;
 }) {
-  const total = CATEGORIES.reduce((sum, c) => sum + (counts[c.slug] ?? 0), 0);
   const scroller = useRef<HTMLDivElement>(null);
   const firstRun = useRef(true);
 
@@ -52,7 +49,6 @@ export function CategoryBar({
             variant="bar"
             label={ALL_CATEGORIES.label}
             icon={ALL_CATEGORIES.icon}
-            count={total}
             selected={selected === null}
             onSelect={() => onSelect(null)}
           />
@@ -63,7 +59,6 @@ export function CategoryBar({
               variant="bar"
               label={c.label}
               icon={c.icon}
-              count={counts[c.slug] ?? 0}
               selected={selected === c.slug}
               onSelect={() => onSelect(c.slug)}
             />

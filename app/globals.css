@@ -51,7 +51,6 @@
   --color-text-subtle: #7B6872;       /* dates, counts, counters: 5.17 on white, 4.65 on soft tint (was 3.83 at worst) */
   --color-text-muted-on-ink: #D9B8C8; /* muted text on a dark surface: the number on the
                                          contact button */
-  --color-count-on-ink-bg: rgb(252 248 246 / .16); /* count pill on a selected (ink) chip */
 
   --color-footer-text: #E9D3DC;
   --color-footer-muted: #B899A8;
@@ -106,7 +105,7 @@
   --text-body-sm: 14px;               /* card description, field labels, back link */
   --text-control: 15px;               /* buttons, country options, compact card name */
   --text-body: 16px;                  /* inputs, card name, detail description */
-  --text-banner-title: 17px;          /* ONE-OFF: "posted" banner title */
+  --text-banner-title: clamp(22px, 2.4vw, 28px); /* ONE-OFF: "posted" banner title — the news */
   --text-cta: 18px;                   /* large CTA, submit */
   --text-name-lg: 18px;               /* detail page: her name */
   --text-card-title-sm: 18px;         /* compact card title ("others" row) */
@@ -224,7 +223,6 @@
   --size-header: 64px;                /* sticky header (logo file: 1200 × 64); 56 on phones */
   --stroke-back: 2;                   /* back arrow */
   --size-icon: 15px;                  /* category line icons */
-  --size-count: 18px;                 /* the count pill on a chip */
   --stroke-icon: 1.75;
   --size-dot: 9px;                    /* contact-button dot */
   --size-dot-sm: 8px;                 /* sticky bar, back link, detail meta */
@@ -258,6 +256,7 @@
 
   /* Touch */
   --size-hit-min: 44px;               /* smallest tap target in either direction */
+  --catbar-columns: 6;                /* the category bar on wide screens: 12 chips, 2 rows of 6 */
   --size-fade: 32px;                  /* trailing fade on a row of chips that scrolls */
   --color-mask-opaque: #000;          /* mask-image only reads alpha: this is "fully shown" */
 

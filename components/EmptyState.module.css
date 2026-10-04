@@ -1,7 +1,7 @@
 .panel {
   background: var(--color-surface);
-  /* physical, as in the design: the sweeping corner is top-right — the leading corner in RTL */
-  border-radius: var(--radius-panel) var(--radius-panel-shoulder) var(--radius-panel) var(--radius-panel);
+  /* about twice as wide as it is tall on wide screens: a plain radius, not the arch */
+  border-radius: var(--radius-panel);
   padding: var(--space-empty-pad-top) var(--space-16) var(--space-empty-pad-bottom);
   text-align: center;
   max-width: var(--width-measure);

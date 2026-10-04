@@ -264,7 +264,7 @@
   gap: var(--space-11);
   flex-wrap: wrap;
   background: var(--color-surface);
-  border-radius: var(--radius-banner) var(--radius-banner-shoulder) var(--radius-banner) var(--radius-banner);
+  border-radius: var(--radius-panel); /* wide and short: no arch */
   padding: var(--space-12) var(--space-14);
   box-shadow: var(--shadow-catbar);
 }

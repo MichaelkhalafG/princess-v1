@@ -2,8 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { COUNTRIES } from '../../lib/constants.ts';
 import {
-  areaText, charsLabel, charsOverLabel, contactLinks, digitsLabel, formatPhone, listingCountLabel,
-  pricePlaceholder, relativeDate, toArabicDigits,
+  areaText, charsLabel, charsOverLabel, contactLinks, digitsLabel, formatPhone, listingCountLabel, pricePlaceholder, relativeDate, toArabicDigits, megabytesLabel, phonePlaceholder,
 } from '../../lib/format.ts';
 
 test('listingCountLabel: the decided boundaries', () => {
@@ -102,4 +101,19 @@ test('contactLinks: WhatsApp first; without it the first given method leads', ()
 
   const instaOnly = contactLinks({ whatsapp: null, phone: null, social: 'reem' });
   assert.deepEqual(instaOnly.map((c) => c.kind), ['social']);
+});
+
+test('an empty phone field says the rule in words, never a number that could look typed in', () => {
+  for (const k of COUNTRIES) {
+    const p = phonePlaceholder(k.code);
+    assert.ok(!/[0-9]{3,}/.test(p), `${k.code}: no Latin digits run: ${p}`);
+    assert.ok(p.includes(toArabicDigits(k.phone.length)) && p.endsWith(toArabicDigits(k.phone.lead)), `${k.code}: ${p}`);
+  }
+  assert.equal(phonePlaceholder('EG'), '١٠ أرقام تبدأ بـ ١');
+});
+
+test('a small file is labelled in kilobytes, so it never reads "٠٫٠ ميغابايت"', () => {
+  assert.equal(megabytesLabel(45 * 1024), '٤٥ كيلوبايت');
+  assert.equal(megabytesLabel(300), '١ كيلوبايت');
+  assert.equal(megabytesLabel(Math.round(1.8 * 1048576)), '١٫٨ ميغابايت');
 });

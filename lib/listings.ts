@@ -98,15 +98,6 @@ export async function fetchOthers(db: SupabaseClient, l: Pick<Listing, 'id' | 'c
   return data as unknown as Listing[];
 }
 
-/** Number of listings per category in one country. Categories with none are absent. */
-export async function fetchCategoryCounts(db: SupabaseClient, country: CountryCode): Promise<Partial<Record<CategorySlug, number>>> {
-  const { data, error } = await db.rpc('listing_category_counts', { p_country: country });
-  if (error) throw error;
-  const out: Partial<Record<CategorySlug, number>> = {};
-  for (const row of data as { category: CategorySlug; total: number }[]) out[row.category] = Number(row.total);
-  return out;
-}
-
 export type InsertResult = { ok: true; listing: Listing } | { ok: false; errors: ValidationErrors } | { ok: false; dbError: string };
 
 /** Validates, then inserts. The database re-checks everything independently. */

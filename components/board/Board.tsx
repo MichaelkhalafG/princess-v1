@@ -41,7 +41,6 @@ export function Board({
   shown,
   total,
   listings,
-  counts,
   now,
 }: {
   country: CountryCode;
@@ -52,7 +51,6 @@ export function Board({
   /** how many match in all */
   total: number;
   listings: BoardListing[];
-  counts: Partial<Record<CategorySlug, number>>;
   /** ISO time the server rendered at, so server and browser agree on "قبل ٣ ساعات". */
   now: string;
 }) {
@@ -212,7 +210,6 @@ export function Board({
                     category={slug}
                     label={c.label}
                     icon={c.icon}
-                    count={counts[slug] ?? 0}
                     selected={selected.category === slug}
                     onSelect={() => navigate({ category: slug })}
                   />
@@ -230,7 +227,7 @@ export function Board({
         </section>
       </div>
 
-      <CategoryBar ref={categoryBar} selected={selected.category} counts={counts} onSelect={(c) => navigate({ category: c })} />
+      <CategoryBar ref={categoryBar} selected={selected.category} onSelect={(c) => navigate({ category: c })} />
 
       {/* tabIndex -1: the skip link's target takes focus, so the next Tab is the first card */}
       <section id="listings" tabIndex={-1} className={styles.grid} ref={grid} aria-busy={pending} aria-labelledby="listings-title">
