@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { COUNTRIES } from '../../lib/constants.ts';
 import {
-  areaText, charsLabel, charsOverLabel, contactLinks, digitsLabel, formatPhone, listingCountLabel, monogram,
+  areaText, charsLabel, charsOverLabel, contactLinks, digitsLabel, formatPhone, listingCountLabel,
   pricePlaceholder, relativeDate, toArabicDigits,
 } from '../../lib/format.ts';
 
@@ -88,10 +88,6 @@ test('pricePlaceholder follows the country currency and differs per country', ()
     assert.ok(placeholders[i].endsWith(c.currency));
   });
   assert.equal(new Set(placeholders).size, COUNTRIES.length);
-});
-
-test('monogram is the first letter, by code point', () => {
-  assert.equal(monogram('  منى عبد الرحمن'), 'م');
 });
 
 test('contactLinks: WhatsApp first; without it the first given method leads', () => {

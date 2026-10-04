@@ -8,7 +8,8 @@ import { randomUUID } from 'node:crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { CATEGORIES, COUNTRIES, LIMITS, PHOTO_BUCKET, PHOTO_MAX_BYTES } from '../../lib/constants.ts';
 import { createSupabaseClient } from '../../lib/supabase.ts';
-import { fetchCategoryCounts, fetchListings, insertListing } from '../../lib/listings.ts';
+import { countListings, fetchCategoryCounts, fetchListings, insertListing } from '../../lib/listings.ts';
+import { categoriesNamedIn } from '../../lib/search.ts';
 import { testEnv } from '../support/env.ts';
 
 const { url, publishableKey, secretKey } = testEnv();
@@ -201,6 +202,35 @@ test('country, category and search each narrow the result set, and every row mat
   // order: newest first
   const times = inA.map((l) => Date.parse(l.created_at));
   assert.ok(times.every((t, i) => i === 0 || times[i - 1] >= t));
+});
+
+test('a search that names a category finds its listings, whatever their words', async () => {
+  // a category whose name has a hamza, so the "typed without it" case is real
+  const cat = CATEGORIES.find((c) => /[أإآ]/.test(c.label))!;
+  const r = await insertListing(anon, payload({ category: cat.slug, title: `عنوان ${RUN}`, description: `وصف ${RUN}` }));
+  assert.ok(r.ok, JSON.stringify(r));
+  const id = r.ok ? r.listing.id : '';
+  assert.ok(!`${r.ok && r.listing.title} ${r.ok && r.listing.description}`.includes(cat.label), 'the listing text must not contain the name');
+
+  const has = async (q: string) => (await fetchListings(anon, { country: COUNTRY_A, q })).some((l) => l.id === id);
+  assert.ok(await has(cat.label), 'its category name');
+  assert.ok(await has(cat.label.replace(/[أإآ]/g, 'ا')), 'its category name without the hamza');
+  const other = CATEGORIES.find((c) => c.slug !== cat.slug && !categoriesNamedIn(c.label).includes(cat.slug))!;
+  assert.ok(!(await has(other.label)), 'another category name does not find it');
+  // what she types goes into the filter quoted: quotes, commas and brackets cannot break it
+  assert.ok(await has(`${cat.label}",x)(`), 'odd characters around a category name');
+});
+
+test('a limit returns the newest N; the count is all that match the same filters', async () => {
+  const tag = `${RUN}page`;
+  for (let i = 0; i < 5; i++) assert.ok((await insertListing(anon, payload({ title: `عنوان ${tag} ${i}` }))).ok);
+  const f = { country: COUNTRY_A, q: tag };
+  const all = await fetchListings(anon, f);
+  assert.equal(all.length, 5);
+  const firstTwo = await fetchListings(anon, { ...f, limit: 2 });
+  assert.deepEqual(firstTwo.map((l) => l.id), all.slice(0, 2).map((l) => l.id), 'the limit takes the newest, in the same order');
+  assert.equal(await countListings(anon, f), 5, 'the count ignores the limit');
+  assert.equal(await countListings(anon, { ...f, category: CAT_B }), 0, 'the count applies the same filters');
 });
 
 test('category counts move by exactly the rows inserted', async () => {

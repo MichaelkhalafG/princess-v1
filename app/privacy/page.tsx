@@ -3,10 +3,16 @@ import { Flag, ReadingPage } from '@/components/ReadingPage.tsx';
 import { readBoardContext } from '@/lib/board-url.ts';
 import { CONTACT_EMAIL } from '@/lib/site.ts';
 
-// DRAFT. Not linked from the site until its text is rewritten and approved; kept out of
-// search engines meanwhile. The "باختصار" points are built only from facts checked in the
-// code: every listing field is public (lib/listing.ts LISTING_COLUMNS), the board needs no
-// account, the site sets no cookie, and there is no way to delete a listing on the site.
+// DRAFT. Not linked from the site until its text is approved; kept out of search engines
+// meanwhile. It states only what is fact about the site today, each checked in the code:
+// every listing field is public (lib/listing.ts LISTING_COLUMNS), the board needs no
+// account and verifies nothing, the site sets no cookie, a listing cannot be edited or
+// deleted on the site, and removal is by email.
+//
+// Deliberately absent, by the owner's decision (do not fill these in later): any claim
+// about the law in the three countries, and any sentence that assigns or disclaims legal
+// responsibility for the data. Leaving them out defers those questions; it does not
+// settle them.
 export const metadata: Metadata = { title: 'الخصوصية (مسودة) — برينسيس', robots: { index: false, follow: false } };
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
@@ -25,7 +31,7 @@ export default async function PrivacyPage({ searchParams }: Props) {
         <>كل ما تكتبينه في إعلانك يظهر للجميع، ومنه اسمك ومدينتك وصورتك، و<strong>أرقام واتساب والهاتف وحساب إنستغرام</strong>.</>,
         <>أي شخص يستطيع رؤية إعلانك ونسخ أرقامك، دون حساب أو تسجيل.</>,
         <>لا نطلب منكِ حسابًا ولا بريدًا إلكترونيًا ولا كلمة مرور، ولا يستخدم الموقع ملفات الكوكيز.</>,
-        <>لا يمكن حذف الإعلان من الموقع نفسه. لحذفه راسلينا على {email} مع رابط الإعلان.</>,
+        <>لا يمكن تعديل الإعلان بعد نشره ولا حذفه من الموقع نفسه. لحذفه راسلينا على {email} مع رابط الإعلان.</>,
       ]}
       sections={[
         {
@@ -50,64 +56,29 @@ export default async function PrivacyPage({ searchParams }: Props) {
           id: 'who',
           title: 'من يستطيع رؤيته',
           body: (
-            <>
-              <p>
-                أي شخص يزور الموقع، دون حساب أو تسجيل. ويمكن لأي شخص أن ينسخ ما يراه، ومنه أرقام الهاتف، أو أن تقرأه برامج آلية.
-                {' '}<Flag why="صياغة قانونية: هل نذكر صراحة أن الموقع لا يستطيع منع النسخ بعد النشر؟">لا يستطيع الموقع التحكم في نسخة أُخذت من إعلان بعد نشره.</Flag>
-              </p>
-              <p>
-                <Flag why="صفحات الإعلانات اليوم غير ممنوعة من محركات البحث؛ قرار: هل نسمح بذلك أم نمنعه؟">قد تظهر الإعلانات في نتائج محركات البحث.</Flag>
-                {' '}وعند مشاركة رابط إعلان على واتساب أو غيره، تظهر معاينة فيها عنوانه وصورته.
-              </p>
-            </>
+            <p>
+              أي شخص يزور الموقع، دون حساب أو تسجيل. ويمكن لأي شخص أن ينسخ ما يراه، ومنه أرقام الهاتف، أو أن تقرأه برامج آلية.
+              وعند مشاركة رابط إعلان على واتساب أو غيره، تظهر معاينة فيها عنوانه وصورته.
+            </p>
           ),
         },
         {
-          id: 'not-asked',
-          title: 'ما الذي لا نطلبه',
-          body: (
-            <>
-              <p>لا حساب، ولا بريد إلكتروني، ولا كلمة مرور. الموقع لا يستخدم ملفات تعريف الارتباط (الكوكيز) ولا أدوات تتبّع.</p>
-              <p>
-                <Flag why="لم يُتحقق: سجلات الاستضافة (مثل عناوين IP) لدى مزوّد الاستضافة وSupabase — ما الذي يُسجَّل، وكم يُحفظ؟ مزوّد الاستضافة لم يُحدَّد بعد">قد يسجّل مزوّد الاستضافة وقاعدة البيانات بيانات تقنية عن الزيارات، مثل عنوان IP.</Flag>
-              </p>
-            </>
-          ),
-        },
-        {
-          id: 'where',
-          title: 'أين تُحفظ البيانات',
+          id: 'no-account',
+          title: 'بلا حساب وبلا تحقق',
           body: (
             <p>
-              <Flag why="تحديد الدولة/المنطقة التي يستضيف فيها Supabase المشروع، ومزوّد استضافة الموقع">تُحفظ الإعلانات والصور لدى Supabase، وهي خدمة قواعد بيانات واستضافة ملفات.</Flag>
+              لا حساب، ولا بريد إلكتروني، ولا كلمة مرور. ولا يتحقق الموقع من هوية من تنشر، ولا من عمرها، ولا من صحة ما تكتبه.
+              ولا يستخدم الموقع ملفات تعريف الارتباط (الكوكيز) ولا أدوات تتبّع.
             </p>
           ),
         },
         {
           id: 'removal',
-          title: 'حذف إعلانك',
+          title: 'التعديل والحذف',
           body: (
-            <>
-              <p>
-                لا يمكن تعديل الإعلان أو حذفه من الموقع نفسه. لحذفه، راسلينا على {email} مع رابط الإعلان، وتُراجَع الطلبات يدويًا.
-                {' '}<Flag why="مدة الرد غير محددة">نحذف الإعلان خلال … أيام.</Flag>
-                {' '}<Flag why="كيف نتأكد أن صاحبة الطلب هي صاحبة الإعلان؟ (مثلًا رسالة من رقم واتساب الإعلان)">قد نطلب ما يثبت أن الإعلان لكِ.</Flag>
-              </p>
-              <p>
-                <Flag why="هل تُحذف الصورة من التخزين أيضًا، وهل تبقى نسخ احتياطية؟ ولا يمكن حذف نسخ أخذها آخرون">عند الحذف يُزال الإعلان وصورته من الموقع.</Flag>
-              </p>
-            </>
-          ),
-        },
-        {
-          id: 'open',
-          title: 'أسئلة لم تُحسم',
-          body: (
-            <ul>
-              <li><Flag why="قانون حماية البيانات في مصر (١٥١ لسنة ٢٠٢٠) والسعودية والإمارات: هل يلزم نص أو إجراء معيّن؟">الالتزامات القانونية في الدول الثلاث.</Flag></li>
-              <li><Flag why="لا يتحقق الموقع من العمر">ماذا عن الإعلانات التي تنشرها قاصرات؟</Flag></li>
-              <li><Flag why="من هو المسؤول عن البيانات قانونيًا: MDN؟ باسم وعنوان؟">الجهة المسؤولة عن البيانات.</Flag></li>
-            </ul>
+            <p>
+              لا يمكن تعديل الإعلان بعد نشره، ولا حذفه من الموقع نفسه. لحذفه، راسلينا على {email} مع رابط الإعلان، وتُراجَع الطلبات يدويًا.
+            </p>
           ),
         },
         {

@@ -134,11 +134,6 @@ export function searchPlaceholder(country: CountryCode): string {
   return `عمّ تبحثين في ${getCountry(country).name}؟`;
 }
 
-/** First letter of her name, for the no-photo monogram panel. */
-export function monogram(name: string): string {
-  return [...name.trim()][0] ?? '';
-}
-
 export type ContactKind = 'whatsapp' | 'phone' | 'social';
 /** display: what the detail page prints beside the label ("+20 101 234 5678", "@mona.nails"). */
 export type ContactLink = { kind: ContactKind; href: string; label: string; shortLabel: string; display: string };

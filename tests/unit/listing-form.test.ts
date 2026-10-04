@@ -4,7 +4,7 @@ import { CATEGORIES, COUNTRIES, LIMITS, PHOTO_MAX_BYTES } from '../../lib/consta
 import { toArabicDigits } from '../../lib/format.ts';
 import { validateListing } from '../../lib/listing.ts';
 import {
-  CONTACTS_MISSING_MESSAGE, counter, emptyForm, hasAnyContact, parsePhone, submitGate, toPayload, validateForm,
+  CONTACTS_MISSING_MESSAGE, counter, emptyForm, hasAnyContact, hasValidContact, parsePhone, submitGate, toPayload, validateForm,
   type FormValues,
 } from '../../lib/listing-form.ts';
 import { checkPhoto } from '../../lib/upload.ts';
@@ -23,28 +23,31 @@ function filled(over: Partial<FormValues> = {}): FormValues {
 
 test('submit is blocked, with the reason on it, while all three contacts are blank', () => {
   const blank = filled({ whatsapp: '', phone: '', social: '' });
-  const g = submitGate(blank, 'idle', false);
+  const g = submitGate(blank, 'idle', null);
   assert.equal(g.blocked, true);
   assert.equal(g.reason, 'contacts');
   assert.match(g.label, /طريقة تواصل/);
   // whitespace is still blank
-  assert.equal(submitGate(filled({ whatsapp: '  ', phone: '\t', social: ' ' }), 'idle', false).reason, 'contacts');
+  assert.equal(submitGate(filled({ whatsapp: '  ', phone: '\t', social: ' ' }), 'idle', null).reason, 'contacts');
 });
 
 test('any one contact unblocks submit — each of the three on its own', () => {
   for (const only of [{ whatsapp: K.phone.example }, { phone: K.phone.example }, { social: 'mona.nails' }]) {
     const v = filled({ whatsapp: '', phone: '', social: '', ...only });
     assert.ok(hasAnyContact(v));
-    const g = submitGate(v, 'idle', false);
+    const g = submitGate(v, 'idle', null);
     assert.equal(g.blocked, false, JSON.stringify(only));
     assert.equal(g.label, 'انشري الإعلان');
   }
 });
 
-test('submit is blocked while the photo is uploading and while publishing', () => {
-  assert.equal(submitGate(filled(), 'uploading', false).reason, 'uploading');
-  assert.equal(submitGate(filled(), 'chosen', false).blocked, false);
-  assert.equal(submitGate(filled(), 'idle', true).reason, 'submitting');
+test('submit is blocked while the photo is prepared, while it uploads (with its progress) and while publishing', () => {
+  assert.equal(submitGate(filled(), 'preparing', null).reason, 'preparing');
+  assert.equal(submitGate(filled(), 'chosen', null).blocked, false);
+  const up = submitGate(filled(), 'chosen', { uploading: 46 });
+  assert.equal(up.reason, 'uploading');
+  assert.ok(up.label.includes('٤٦٪'), up.label);
+  assert.equal(submitGate(filled(), 'chosen', 'publishing').reason, 'submitting');
 });
 
 test('the form and the server agree: a blocked-contacts form is refused by the server too', () => {
@@ -112,4 +115,20 @@ test('checkPhoto: the design refusals, before any upload', () => {
   assert.match(!gif.ok ? gif.reason : '', /من نوع GIF/);
   const none = checkPhoto({ type: '', size: 10 });
   assert.match(!none.ok ? none.reason : '', /ليس صورة/);
+});
+
+test('the contacts pill is green only for a contact that will be accepted', () => {
+  for (const k of COUNTRIES) {
+    const base = { ...emptyForm(k.code) };
+    assert.equal(hasValidContact(base), false, `${k.code}: nothing typed`);
+    assert.equal(hasValidContact({ ...base, whatsapp: k.phone.example.slice(0, -2) }), false, `${k.code}: half a number`);
+    assert.equal(hasValidContact({ ...base, whatsapp: k.phone.example }), true, `${k.code}: a complete WhatsApp number`);
+    assert.equal(hasValidContact({ ...base, phone: k.phone.example }), true, `${k.code}: a complete phone number`);
+  }
+  const eg = emptyForm(COUNTRIES[0].code);
+  assert.equal(hasValidContact({ ...eg, social: 'mona.nails' }), true);
+  assert.equal(hasValidContact({ ...eg, social: '@mona.nails' }), true);
+  assert.equal(hasValidContact({ ...eg, social: 'instagram.com/mona' }), false, 'a link is not a handle');
+  // a half number beside a valid handle: the handle counts
+  assert.equal(hasValidContact({ ...eg, whatsapp: '10', social: 'mona.nails' }), true);
 });

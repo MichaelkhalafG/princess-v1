@@ -89,6 +89,22 @@ export function hasAnyContact(v: Pick<FormValues, 'whatsapp' | 'phone' | 'social
   return [v.whatsapp, v.phone, v.social].some((s) => s.trim() !== '');
 }
 
+/** Instagram handle as the form accepts it: an optional leading @, then the handle. */
+export function isInstagramHandle(raw: string): boolean {
+  return /^[A-Za-z0-9._]{1,30}$/.test(raw.trim().replace(/^@/, ''));
+}
+
+/**
+ * At least one contact that will be accepted as typed — a complete number for the
+ * country, or a valid Instagram handle. The contacts pill turns green only on this:
+ * a half-typed number next to its own error is not "added".
+ */
+export function hasValidContact(v: Pick<FormValues, 'whatsapp' | 'phone' | 'social' | 'country'>): boolean {
+  return parsePhone(v.whatsapp, v.country, 'whatsapp').kind === 'ok'
+    || parsePhone(v.phone, v.country, 'phone').kind === 'ok'
+    || (v.social.trim() !== '' && isInstagramHandle(v.social));
+}
+
 /** Every message the form would show for these values. Empty object = ready to send. */
 export function validateForm(v: FormValues): FormErrors {
   const e: FormErrors = {};
@@ -109,24 +125,29 @@ export function validateForm(v: FormValues): FormErrors {
     const p = parsePhone(v[f], v.country, f);
     if (p.kind === 'error') e[f] = p.message;
   }
-  if (v.social.trim() && !/^[A-Za-z0-9._]{1,30}$/.test(v.social.trim().replace(/^@/, ''))) e.social = INSTAGRAM_MESSAGE;
+  if (v.social.trim() && !isInstagramHandle(v.social)) e.social = INSTAGRAM_MESSAGE;
   if (!hasAnyContact(v)) e.contacts = CONTACTS_MISSING_MESSAGE;
   return e;
 }
 
-export type UploadState = 'idle' | 'uploading' | 'chosen' | 'rejected';
+/** The photo in the picker: nothing is uploaded until she publishes (PhotoPicker). */
+export type UploadState = 'idle' | 'preparing' | 'chosen' | 'rejected';
 
-export type SubmitGate = { blocked: boolean; label: string; reason: 'contacts' | 'uploading' | 'submitting' | null };
+/** Where publishing is: uploading her photo (with its progress), then saving the listing. */
+export type SubmitPhase = null | { uploading: number } | 'publishing';
+
+export type SubmitGate = { blocked: boolean; label: string; reason: 'contacts' | 'preparing' | 'uploading' | 'submitting' | null };
 
 /**
  * Whether submit is available, and the reason written on it when it is not.
  * Presentation only: the server refuses the same cases on its own.
  */
-export function submitGate(v: FormValues, upload: UploadState, submitting: boolean): SubmitGate {
-  if (submitting) return { blocked: true, label: 'جارٍ النشر، لحظات…', reason: 'submitting' };
+export function submitGate(v: FormValues, photo: UploadState, phase: SubmitPhase): SubmitGate {
+  if (phase === 'publishing') return { blocked: true, label: 'جارٍ النشر، لحظات…', reason: 'submitting' };
+  if (phase) return { blocked: true, label: `جارٍ رفع الصورة… ${toArabicDigits(phase.uploading)}٪`, reason: 'uploading' };
   // short enough to stay on one line at 380px
   if (!hasAnyContact(v)) return { blocked: true, label: 'أضيفي طريقة تواصل أولًا', reason: 'contacts' };
-  if (upload === 'uploading') return { blocked: true, label: 'انتظري اكتمال رفع الصورة', reason: 'uploading' };
+  if (photo === 'preparing') return { blocked: true, label: 'انتظري تجهيز الصورة', reason: 'preparing' };
   return { blocked: false, label: 'انشري الإعلان', reason: null };
 }
 

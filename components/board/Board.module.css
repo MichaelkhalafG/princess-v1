@@ -155,9 +155,30 @@
   transition: opacity var(--duration-fast) var(--ease-out);
 }
 
+/* phones: two cards per row (the card's phone layout is in ListingCard.module.css) */
+@media (max-width: 480px) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-8) var(--space-7);
+  }
+}
+
 /* filtering: the current results dim while the new ones load … */
 .cardsPending {
   opacity: var(--opacity-pending);
+}
+
+/* "عرض المزيد": centred under the last row; full width on a phone, like the card buttons */
+.more {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-16);
+}
+
+@media (max-width: 480px) {
+  .more > * {
+    flex: 1;
+  }
 }
 
 /* … and the new ones fade in one after another (opacity only — nothing moves) */
@@ -236,14 +257,15 @@
   }
 }
 
-/* small phones: two even columns of three rows, each chip filling its cell */
+/* Phones: the hero is the collage, the country selector and the search — nothing else.
+   The collage says what the site is better than the headline and paragraph did; the hero
+   chips repeated the category bar a few hundred pixels below; the header carries
+   "اعرضي خدمتك" on every screen. Desktop keeps all of them. */
 @media (max-width: 480px) {
-  .chips {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    justify-items: stretch;
-  }
-
-  .chips > * {
-    justify-content: center;
+  .title,
+  .lead,
+  .chips,
+  .ctaRow {
+    display: none;
   }
 }

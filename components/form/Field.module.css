@@ -67,7 +67,7 @@
 }
 
 /* ── Controls ──────────────────────────────────────────────────────────────── */
-/* Height resolves to the landing control height (the design's 48px → 46px). */
+/* Height: the standard control height (--size-control). */
 .input,
 .textarea {
   width: 100%;
@@ -150,4 +150,13 @@
   min-height: var(--size-control);
   direction: ltr;
   text-align: left;
+}
+
+/* Small phones: 12px side padding instead of 16 gives a 40-character name its full width
+   (at 380 the field is 314px and such a name about 321px: its start scrolled out of view
+   while she typed). The font stays at 16px — smaller makes iPhones zoom into the field. */
+@media (max-width: 480px) {
+  .input {
+    padding-inline: var(--space-8);
+  }
 }

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { CATEGORIES, COUNTRIES } from '../../lib/constants.ts';
-import { MAX_QUERY, boardHref, readBoardContext, withBoardContext } from '../../lib/board-url.ts';
+import { MAX_QUERY, MAX_SHOWN, PAGE_SIZE, boardHref, boardHrefAt, readBoardContext, shownOf, withBoardContext } from '../../lib/board-url.ts';
 
 const K = COUNTRIES[1];
 const C = CATEGORIES[2];
@@ -36,4 +36,29 @@ test('extra params are added without losing the context', () => {
   assert.equal(url.searchParams.get('country'), K.code);
   assert.equal(url.searchParams.get('posted'), '1');
   assert.equal(url.searchParams.has('category'), false);
+});
+
+test('n (how many are shown) is read only as a whole number of pages beyond the first, within the maximum', () => {
+  const read = (n: string) => readBoardContext({ country: K.code, n }).shown;
+  assert.equal(read(String(PAGE_SIZE * 2)), PAGE_SIZE * 2);
+  assert.equal(read(String(MAX_SHOWN)), MAX_SHOWN);
+  for (const bad of [String(PAGE_SIZE), String(PAGE_SIZE + 1), String(MAX_SHOWN + PAGE_SIZE), '0', '-48', '48.0', 'abc', '']) {
+    assert.equal(read(bad), undefined, `n=${bad}`);
+  }
+});
+
+test('the first page leaves n out of the URL; more pages keep it on every link', () => {
+  const ctx = { country: K.code, category: null, q: '' };
+  assert.equal(new URL(boardHref({ ...ctx, shown: PAGE_SIZE }), 'http://x').searchParams.has('n'), false);
+  const more = { ...ctx, shown: PAGE_SIZE * 3 };
+  assert.equal(new URL(boardHref(more), 'http://x').searchParams.get('n'), String(PAGE_SIZE * 3));
+  assert.equal(readBoardContext(new URL(withBoardContext('/listing/abc', more), 'http://x').searchParams).shown, PAGE_SIZE * 3);
+  assert.equal(shownOf(ctx), PAGE_SIZE);
+});
+
+test('"back" from a listing returns to its card, with as many loaded as before', () => {
+  const ctx = { country: K.code, category: null, q: '', shown: PAGE_SIZE * 2 };
+  const url = new URL(boardHrefAt(ctx, 'abc-123'), 'http://x');
+  assert.equal(url.hash, '#l-abc-123');
+  assert.equal(url.searchParams.get('n'), String(PAGE_SIZE * 2));
 });

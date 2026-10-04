@@ -41,6 +41,16 @@
   line-height: var(--leading-snug);
 }
 
+/* the honest part: what she cannot do later, and the one way to remove it */
+.keep {
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: var(--size-hairline) solid var(--color-on-accent-divider);
+  font-size: var(--text-body-sm);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+}
+
 /* on the teal fill the design rings focus in ink */
 .link:focus-visible {
   outline: var(--focus-ring-on-accent);

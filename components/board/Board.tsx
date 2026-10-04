@@ -3,7 +3,7 @@
 import { useEffect, useOptimistic, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ALL_CATEGORIES, getCategory, getCountry, type CategorySlug, type CountryCode } from '@/lib/constants.ts';
-import { boardHref, boardQuery, withBoardContext } from '@/lib/board-url.ts';
+import { PAGE_SIZE, boardHref, boardQuery, withBoardContext } from '@/lib/board-url.ts';
 import { listingCountLabel, searchPlaceholder } from '@/lib/format.ts';
 import type { Listing } from '@/lib/listing.ts';
 import { Button } from '../Button.tsx';
@@ -30,13 +30,16 @@ const LOADING_LABEL = 'جارٍ التحديث…';
 export type BoardListing = { listing: Listing; photoSrc: string | null };
 
 /**
- * The board. Country, category and search live in the URL (/?country=EG&category=nails&q=…):
- * the server filters, this component only changes the URL.
+ * The board. Country, category, search and how many are shown live in the URL
+ * (/?country=EG&category=nails&q=…&n=48): the server filters, this component only changes
+ * the URL. "عرض المزيد" asks for PAGE_SIZE more; any filter change starts at the first page.
  */
 export function Board({
   country,
   category,
   q,
+  shown,
+  total,
   listings,
   counts,
   now,
@@ -44,6 +47,10 @@ export function Board({
   country: CountryCode;
   category: CategorySlug | null;
   q: string;
+  /** how many she has asked for (PAGE_SIZE, then +PAGE_SIZE per "عرض المزيد") */
+  shown: number;
+  /** how many match in all */
+  total: number;
   listings: BoardListing[];
   counts: Partial<Record<CategorySlug, number>>;
   /** ISO time the server rendered at, so server and browser agree on "قبل ٣ ساعات". */
@@ -66,12 +73,12 @@ export function Board({
   const k = getCountry(country);
   const nowDate = new Date(now);
   const n = listings.length;
-  const countLabel = listingCountLabel(n);
+  const countLabel = listingCountLabel(total);
   const activeLabel = category ? getCategory(category).label : ALL_CATEGORIES.label;
 
   // Where she is now — carried by every link that leaves the board, so coming back
   // (by the logo, a back link, or the form) returns her here.
-  const ctx = { country, category, q };
+  const ctx = { country, category, q, shown };
   const listingQuery = boardQuery(ctx);
 
   // The controls answer the click at once; the URL (and the results) follow from the
@@ -107,6 +114,25 @@ export function Board({
     // so the dim-and-fade answering her click is where she is looking.
     if (reveal) revealResults();
   };
+
+  // "عرض المزيد": the next PAGE_SIZE, in place. Its own transition, so the cards already
+  // on screen do not dim while the new ones load; replace, so Back is not filled with
+  // one entry per page. Focus then moves to the first new card — the button it was on now
+  // sits after them, and a keyboard would skip them.
+  const [morePending, startMore] = useTransition();
+  const firstNew = useRef<number | null>(null);
+  const showMore = () => {
+    if (morePending) return;
+    const p = new URLSearchParams(boardQuery({ country, category, q, shown: shown + PAGE_SIZE }));
+    firstNew.current = n;
+    startMore(() => router.replace(`/?${p.toString()}`, { scroll: false }));
+  };
+  useEffect(() => {
+    const i = firstNew.current;
+    if (i === null || n <= i) return;
+    firstNew.current = null;
+    grid.current?.querySelectorAll<HTMLElement>('article a[class*="cardLink"]')[i]?.focus({ preventScroll: true });
+  }, [n]);
 
   // Search as she types, once she pauses — without moving the page under her typing.
   useEffect(() => {
@@ -250,6 +276,13 @@ export function Board({
             {listings.map(({ listing, photoSrc }) => (
               <ListingCard key={listing.id} listing={listing} photoSrc={photoSrc} now={nowDate} contextQuery={listingQuery} />
             ))}
+          </div>
+        )}
+        {n > 0 && n < total && (
+          <div className={styles.more}>
+            <Button variant="soft" onClick={showMore} aria-disabled={morePending}>
+              {morePending ? 'جارٍ التحميل…' : 'عرض المزيد'}
+            </Button>
           </div>
         )}
       </section>

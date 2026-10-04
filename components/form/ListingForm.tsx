@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, type FormEvent, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { createListing } from '@/app/new/actions.ts';
 import { CATEGORIES, getCountry, type CategorySlug, type CountryCode } from '@/lib/constants.ts';
 import { pricePlaceholder } from '@/lib/format.ts';
 import { nextRadioIndex, radioTabIndex } from '@/lib/radio.ts';
+import { UPLOAD_FAILED_MESSAGE, uploadPhoto } from '@/lib/upload.ts';
 import {
-  CONTACTS_REQUIREMENT, PUBLISH_FAILED_MESSAGE, counter, emptyForm, hasAnyContact, submitGate, toPayload, validateForm,
-  type FormErrors, type FormField, type FormValues, type UploadState,
+  CONTACTS_REQUIREMENT, PUBLISH_FAILED_MESSAGE, counter, emptyForm, hasValidContact, submitGate, toPayload, validateForm,
+  type FormErrors, type FormField, type FormValues, type SubmitPhase, type UploadState,
 } from '@/lib/listing-form.ts';
 import { Button } from '../Button.tsx';
 import { CategoryChip } from '../CategoryChip.tsx';
@@ -32,12 +33,17 @@ export function ListingForm({ initialCountry, contextQuery = '' }: { initialCoun
   const [values, setValues] = useState<FormValues>(() => emptyForm(initialCountry));
   const [errors, setErrors] = useState<FormErrors>({});
   const [formMessage, setFormMessage] = useState<string | null>(null);
-  const [upload, setUpload] = useState<{ state: UploadState; path: string | null }>({ state: 'idle', path: null });
-  const [submitting, setSubmitting] = useState(false);
+  const [photo, setPhoto] = useState<{ state: UploadState; file: File | null }>({ state: 'idle', file: null });
+  const [phase, setPhase] = useState<SubmitPhase>(null);
+  // The photo goes up only when she publishes. If it went up but the listing was then not
+  // saved, the next attempt reuses it rather than uploading (and orphaning) a second copy.
+  const uploaded = useRef<{ file: File; path: string } | null>(null);
+  const abortUpload = useRef<(() => void) | null>(null);
+  useEffect(() => () => abortUpload.current?.(), []);
 
   const country = getCountry(values.country);
-  const contactsOk = hasAnyContact(values);
-  const gate = submitGate(values, upload.state, submitting);
+  const contactsOk = hasValidContact(values);
+  const gate = submitGate(values, photo.state, phase);
 
   const set = <K extends keyof FormValues>(field: K, value: FormValues[K]) => {
     setValues((v) => ({ ...v, [field]: value }));
@@ -58,24 +64,55 @@ export function ListingForm({ initialCountry, contextQuery = '' }: { initialCoun
       : FOCUS_ORDER.map(([f, sel]) => (errs[f] ? document.querySelector<HTMLElement>(sel) : null)).find(Boolean) ?? null;
     const focus = onlyContacts ? document.getElementById('f-whatsapp') : target;
     if (!target) return;
-    window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 24, behavior: reduced ? 'auto' : 'smooth' });
+    // bring the whole field — its label too — into view below the sticky header, which
+    // used to cover a field near the top of the page (the name)
+    const block = target.closest<HTMLElement>(`.${fs.field}, fieldset`) ?? target;
+    const header = document.querySelector('header')?.getBoundingClientRect().height ?? 0;
+    window.scrollTo({ top: block.getBoundingClientRect().top + window.scrollY - header - 16, behavior: reduced ? 'auto' : 'smooth' });
     setTimeout(() => focus?.focus({ preventScroll: true }), reduced ? 0 : 400);
   };
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (submitting || gate.reason === 'uploading') return;
+    if (phase || gate.reason === 'preparing') return;
+    // every field is checked BEFORE the photo is sent, so a form with a mistake in it
+    // never uploads anything
     const errs = validateForm(values);
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       focusFirst(errs);
       return;
     }
-    setSubmitting(true);
     setFormMessage(null);
+
+    // 1. her photo, if she chose one (and it is not already up from a failed attempt)
+    let path: string | null = null;
+    if (photo.file) {
+      if (uploaded.current?.file === photo.file) {
+        path = uploaded.current.path;
+      } else {
+        setPhase({ uploading: 0 });
+        const job = uploadPhoto(photo.file, (p) => setPhase({ uploading: p }));
+        abortUpload.current = job.abort;
+        try {
+          path = await job.promise;
+          uploaded.current = { file: photo.file, path };
+        } catch {
+          // nothing she typed is lost: the form and the photo are still here
+          setPhase(null);
+          setFormMessage(UPLOAD_FAILED_MESSAGE);
+          return;
+        } finally {
+          abortUpload.current = null;
+        }
+      }
+    }
+
+    // 2. the listing itself
+    setPhase('publishing');
     try {
       // On success the action redirects to the new listing's page.
-      const res = await createListing(toPayload(values, upload.path), contextQuery);
+      const res = await createListing(toPayload(values, path), contextQuery);
       setErrors(res.errors);
       setFormMessage(res.message);
       focusFirst(res.errors);
@@ -83,7 +120,7 @@ export function ListingForm({ initialCountry, contextQuery = '' }: { initialCoun
       if (isRedirect(err)) throw err;
       setFormMessage(PUBLISH_FAILED_MESSAGE);
     }
-    setSubmitting(false);
+    setPhase(null);
   };
 
   // the category radios: one Tab stop, the arrows move the choice (lib/radio.ts)
@@ -115,7 +152,8 @@ export function ListingForm({ initialCountry, contextQuery = '' }: { initialCoun
           id={`f-${field}`}
           className={fs.groupInput}
           value={values[field]}
-          onChange={(e) => set(field, e.target.value)}
+          // the @ is already printed before the field: a typed or pasted one is dropped
+          onChange={(e) => set(field, field === 'social' ? e.target.value.replace(/^\s*@+/, '') : e.target.value)}
           {...describedBy(`f-${field}`, { error: errors[field] })}
           {...extra}
         />
@@ -211,7 +249,7 @@ export function ListingForm({ initialCountry, contextQuery = '' }: { initialCoun
           <input {...text('price', { placeholder: pricePlaceholder(values.country) })} />
         </Field>
 
-        <PhotoPicker onChange={(state, path) => setUpload({ state, path })} />
+        <PhotoPicker onChange={(state, file) => setPhoto({ state, file })} />
         </section>
 
         <fieldset id="contacts" className={`${styles.contacts} ${errors.contacts ? styles.contactsInvalid : ''}`} aria-describedby="contacts-rule">
@@ -229,8 +267,10 @@ export function ListingForm({ initialCountry, contextQuery = '' }: { initialCoun
           {errors.contacts && <FieldError id="e-contacts" size="lg" alert>{errors.contacts}</FieldError>}
 
           <div className={styles.two}>
-            {prefixed('whatsapp', country.dialCode, 'واتساب', { inputMode: 'tel', autoComplete: 'tel-national', placeholder: country.phone.example })}
-            {prefixed('phone', country.dialCode, 'هاتف', { inputMode: 'tel', placeholder: country.phone.example })}
+            {/* "مثال:" like every other example in the form: a bare number in an empty
+                field read as a number already filled in */}
+            {prefixed('whatsapp', country.dialCode, 'واتساب', { inputMode: 'tel', autoComplete: 'tel-national', placeholder: `مثال: ${country.phone.example}` })}
+            {prefixed('phone', country.dialCode, 'هاتف', { inputMode: 'tel', placeholder: `مثال: ${country.phone.example}` })}
           </div>
           {prefixed('social', '@', 'إنستغرام', { autoComplete: 'off', placeholder: 'اسم الحساب فقط، بلا رابط' })}
         </fieldset>

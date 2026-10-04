@@ -1,8 +1,9 @@
 import type { Listing } from '@/lib/listing.ts';
 import { getCategory } from '@/lib/constants.ts';
-import { areaText, contactLinks, monogram, relativeDate } from '@/lib/format.ts';
+import { areaText, contactLinks, relativeDate } from '@/lib/format.ts';
 import { Button } from './Button.tsx';
 import { CategoryBadge } from './CategoryBadge.tsx';
+import { CategoryIcon } from './CategoryIcon.tsx';
 import styles from './ListingCard.module.css';
 import tones from './tones.module.css';
 
@@ -18,7 +19,8 @@ const PRICE_LONG_CHARS = 20;
  * States:
  *   - price or no price: the price is her own free text, shown exactly as typed; with no
  *     price the line is simply absent (the common case);
- *   - photo or no photo: without one, a monogram panel in the category's tone;
+ *   - photo or no photo: without one, a panel in the category's tone with its icon
+ *     (not her initial: «ه» is the digit ٥ and «ا» the digit ١ in this font);
  *   - contact (full only): the first method she gave (WhatsApp → call → Instagram) is the
  *     main button, styled identically whichever it is; the rest are round buttons.
  */
@@ -41,7 +43,7 @@ export function ListingCard({
       listing link so the listing page can offer a real way back. */
   contextQuery?: string;
 }) {
-  const tone = getCategory(listing.category).tone;
+  const { tone, icon } = getCategory(listing.category);
   const priceLong = listing.price !== null && [...listing.price].length > PRICE_LONG_CHARS ? true : undefined;
   const compact = variant === 'compact';
   const target = href ?? `/listing/${listing.id}${contextQuery ? `?${contextQuery}` : ''}`;
@@ -54,7 +56,7 @@ export function ListingCard({
         </div>
       ) : (
         <div className={`${styles.monogramPanel} ${tones[tone]}`} aria-hidden="true">
-          <span className={styles.monogram}>{monogram(listing.name)}</span>
+          <CategoryIcon path={icon} className={styles.monogram} />
         </div>
       )}
       <CategoryBadge category={listing.category} className={styles.badge} />
@@ -98,7 +100,8 @@ export function ListingCard({
     // The whole card opens the listing through ONE real link — the title — whose ::after is
     // stretched over the card ("stretched link"). The contact buttons are sibling links
     // layered above it, never nested inside it, so each does only its own thing.
-    <article className={`${styles.card} ${styles.linked}`}>
+    // id: "back to the board" from the listing page lands on this card (lib/board-url.ts boardHrefAt)
+    <article id={`l-${listing.id}`} className={`${styles.card} ${styles.linked}`}>
       {media}
       <div className={styles.body}>
         {meta}

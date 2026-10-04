@@ -1,34 +1,35 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { megabytesLabel, toArabicDigits } from '@/lib/format.ts';
+import { megabytesLabel } from '@/lib/format.ts';
 import type { UploadState } from '@/lib/listing-form.ts';
 import { PHOTO_MIME_TYPES } from '@/lib/constants.ts';
-import { UPLOAD_FAILED_MESSAGE, checkPhoto, uploadPhoto } from '@/lib/upload.ts';
+import { preparePhoto } from '@/lib/photo-resize.ts';
+import { UNREADABLE_PHOTO_MESSAGE, checkPhoto, checkPhotoType } from '@/lib/upload.ts';
 import { Button } from '../Button.tsx';
 import { FieldError } from './Field.tsx';
 import styles from './PhotoPicker.module.css';
 
 type State =
   | { status: 'idle' }
-  | { status: 'uploading'; name: string; preview: string; progress: number }
-  | { status: 'chosen'; name: string; preview: string; size: string; path: string }
+  | { status: 'preparing' }
+  | { status: 'chosen'; name: string; preview: string; size: string; file: File }
   | { status: 'rejected'; reason: string };
 
 /**
- * "صورة من عملك" — optional. The photo uploads as soon as she picks it, so the listing
- * insert only carries its object path. Removing it here does not delete the uploaded
- * object (orphan photos — docs/SECURITY-NOTES.md).
+ * "صورة من عملك" — optional. Picking a photo uploads NOTHING: it is shrunk on her phone
+ * (lib/photo-resize.ts — at most 1600px, a JPEG with no metadata) and previewed, and the
+ * form uploads it only when she publishes. Changing or removing it, or leaving the form,
+ * therefore leaves no file behind in the bucket.
  */
-export function PhotoPicker({ onChange }: { onChange: (state: UploadState, path: string | null) => void }) {
+export function PhotoPicker({ onChange }: { onChange: (state: UploadState, file: File | null) => void }) {
   const [state, setState] = useState<State>({ status: 'idle' });
   const input = useRef<HTMLInputElement>(null);
-  const abort = useRef<(() => void) | null>(null);
   const preview = useRef<string | null>(null);
 
   const report = (s: State) => {
     setState(s);
-    onChange(s.status, s.status === 'chosen' ? s.path : null);
+    onChange(s.status, s.status === 'chosen' ? s.file : null);
   };
 
   const releasePreview = () => {
@@ -36,37 +37,31 @@ export function PhotoPicker({ onChange }: { onChange: (state: UploadState, path:
     preview.current = null;
   };
 
-  useEffect(() => () => {
-    abort.current?.();
-    releasePreview();
-  }, []);
+  useEffect(() => () => releasePreview(), []);
 
   const pick = () => input.current?.click();
 
-  const onFile = (file: File | undefined) => {
-    if (!file) return;
-    abort.current?.();
+  const onFile = async (picked: File | undefined) => {
+    if (!picked) return;
     releasePreview();
+    const type = checkPhotoType(picked);
+    if (!type.ok) return report({ status: 'rejected', reason: type.reason });
+    report({ status: 'preparing' });
+    // shrunk and stripped of its metadata (GPS included) before anything is sent
+    let file: File;
+    try {
+      file = await preparePhoto(picked);
+    } catch {
+      return report({ status: 'rejected', reason: UNREADABLE_PHOTO_MESSAGE });
+    }
     const check = checkPhoto(file);
     if (!check.ok) return report({ status: 'rejected', reason: check.reason });
-
     const url = URL.createObjectURL(file);
     preview.current = url;
-    report({ status: 'uploading', name: file.name, preview: url, progress: 0 });
-    const job = uploadPhoto(file, (progress) => setState((s) => (s.status === 'uploading' ? { ...s, progress } : s)));
-    abort.current = job.abort;
-    job.promise.then(
-      (path) => report({ status: 'chosen', name: file.name, preview: url, size: megabytesLabel(file.size), path }),
-      (err: Error) => {
-        if (err.message === 'upload aborted') return;
-        releasePreview();
-        report({ status: 'rejected', reason: UPLOAD_FAILED_MESSAGE });
-      },
-    );
+    report({ status: 'chosen', name: picked.name, preview: url, size: megabytesLabel(file.size), file });
   };
 
   const remove = () => {
-    abort.current?.();
     releasePreview();
     report({ status: 'idle' });
   };
@@ -99,29 +94,25 @@ export function PhotoPicker({ onChange }: { onChange: (state: UploadState, path:
         >
           <span className={styles.dropTitle}>{state.status === 'rejected' ? 'اختاري صورة أخرى' : 'اختاري صورة لعملك'}</span>
           <span className={styles.dropHint}>
-            {state.status === 'rejected' ? 'JPEG أو PNG أو WebP حتى ٥ ميغابايت.' : 'صورة واحدة لنتيجة أو منتج، لا لوجهك. JPEG أو PNG أو WebP حتى ٥ ميغابايت.'}
+            {state.status === 'rejected' ? 'JPEG أو PNG أو WebP.' : 'صورة واحدة لنتيجة أو منتج، لا لوجهك. JPEG أو PNG أو WebP.'}
           </span>
         </button>
       )}
       {state.status === 'rejected' && <FieldError id="e-photo" alert>{state.reason}</FieldError>}
 
-      {state.status === 'uploading' && (
+      {state.status === 'preparing' && (
         <div className={styles.row} role="status" aria-live="polite">
-          <span className={styles.thumb}><img src={state.preview} alt="" /></span>
-          <div className={styles.info}>
-            <span className={styles.name}>{state.name}</span>
-            <progress className={styles.progress} value={state.progress} max={100} aria-label="تقدم رفع الصورة" />
-            <span className={styles.meta}>جارٍ الرفع… {toArabicDigits(state.progress)}٪</span>
-          </div>
+          <span className={styles.meta}>جارٍ تجهيز الصورة…</span>
         </div>
       )}
 
       {state.status === 'chosen' && (
-        <div className={styles.row}>
+        <div className={styles.row} role="status" aria-live="polite">
           <span className={styles.thumb}><img src={state.preview} alt="معاينة الصورة المختارة" /></span>
           <div className={`${styles.info} ${styles.infoTight}`}>
             <span className={styles.name}>{state.name}</span>
-            <span className={styles.done}>تم رفعها، {state.size}</span>
+            {/* it is uploaded when she publishes — "uploaded" would be untrue here */}
+            <span className={styles.done}>جاهزة للنشر، {state.size}</span>
           </div>
           <div className={styles.actions}>
             <Button variant="surface" size="compact" onClick={pick}>تغيير</Button>

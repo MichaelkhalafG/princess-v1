@@ -85,12 +85,11 @@
   container-type: inline-size;
 }
 
+/* the category's icon, as on the card (never a letter: «ه» reads as ٥, «ا» as ١) */
 .monogram {
-  font-family: var(--font-heading), sans-serif;
-  font-weight: var(--weight-heavy);
-  font-size: var(--text-monogram-lg);
-  line-height: var(--leading-none);
-  margin-top: var(--offset-monogram-lg);
+  width: var(--size-monogram-lg);
+  height: var(--size-monogram-lg);
+  stroke-width: var(--stroke-monogram);
 }
 
 .badge {

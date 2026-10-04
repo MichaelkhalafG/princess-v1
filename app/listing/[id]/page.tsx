@@ -2,13 +2,14 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/Button.tsx';
 import { CategoryBadge } from '@/components/CategoryBadge.tsx';
+import { CategoryIcon } from '@/components/CategoryIcon.tsx';
 import { ListingCard } from '@/components/ListingCard.tsx';
 import { PostedBanner } from '@/components/PostedBanner.tsx';
 import { SiteFooter } from '@/components/SiteFooter.tsx';
 import { SiteHeader } from '@/components/SiteHeader.tsx';
-import { boardHref, readBoardContext, withBoardContext } from '@/lib/board-url.ts';
+import { boardHref, boardHrefAt, readBoardContext, withBoardContext } from '@/lib/board-url.ts';
 import { getCategory, getCountry } from '@/lib/constants.ts';
-import { areaText, contactLinks, listingCountLabel, monogram, relativeDate } from '@/lib/format.ts';
+import { areaText, contactLinks, listingCountLabel, relativeDate } from '@/lib/format.ts';
 import { fetchListing, fetchOthers, photoUrl } from '@/lib/listings.ts';
 import { getSupabase } from '@/lib/supabase.ts';
 import tones from '@/components/tones.module.css';
@@ -45,6 +46,8 @@ export default async function ListingPage({ params, searchParams }: Props) {
   const category = getCategory(listing.category);
   // every route home returns her to that place; with no context, the listing's country
   const home = boardHref(ctx, country.code);
+  // "back" returns her to this listing's card on the board, with as many loaded as before
+  const back = boardHrefAt(ctx, listing.id, country.code);
   const fromCtx = { ...ctx, country: ctx.country ?? country.code };
   const [primary, ...secondary] = contactLinks(listing);
   const external = (href: string) => (href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {});
@@ -53,7 +56,7 @@ export default async function ListingPage({ params, searchParams }: Props) {
     <div className={styles.page}>
       {/* the board's own header: someone arriving from a WhatsApp link lands on the site,
           not on a dead-end page */}
-      <SiteHeader homeHref={home} backHref={home} postHref={withBoardContext('/new', fromCtx)} />
+      <SiteHeader homeHref={home} backHref={back} postHref={withBoardContext('/new', fromCtx)} />
       <main id="main" tabIndex={-1} className={styles.main}>
         <span className={styles.blob} aria-hidden="true" />
 
@@ -67,7 +70,7 @@ export default async function ListingPage({ params, searchParams }: Props) {
               </div>
             ) : (
               <div className={`${styles.monogramPanel} ${tones[category.tone]}`} aria-hidden="true">
-                <span className={styles.monogram}>{monogram(listing.name)}</span>
+                <CategoryIcon path={category.icon} className={styles.monogram} />
               </div>
             )}
             <CategoryBadge category={listing.category} size="lg" className={styles.badge} />
