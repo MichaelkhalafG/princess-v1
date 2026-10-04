@@ -5,23 +5,72 @@
   overflow-x: clip;
 }
 
-/* one column for reading: 640px, centred */
 .main {
   flex: 1;
   width: 100%;
-  max-width: calc(var(--width-reading) + var(--gutter-page) * 2);
+}
+
+/* ── the band: the title on the board hero's ground and orbs ─────────────── */
+.band {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-tint-soft);
+  /* the layout below is lifted onto the band by --reading-lift */
+  padding: var(--space-17) var(--gutter-page) calc(var(--reading-lift) + var(--space-17));
+}
+
+.blob {
+  position: absolute;
+  border-radius: var(--radius-circle);
+  pointer-events: none;
+}
+
+.blobTint {
+  left: var(--blob-lg-inset-x);
+  top: var(--blob-lg-inset-y-form);
+  width: var(--blob-lg);
+  height: var(--blob-lg);
+  background: var(--color-tint);
+}
+
+.blobAmber {
+  right: var(--blob-md-inset-x);
+  bottom: calc(var(--blob-md) * -0.6);
+  width: var(--blob-md);
+  height: var(--blob-md);
+  background: var(--color-tint-amber);
+}
+
+.bandInner {
+  position: relative;
+  max-width: calc(var(--width-contents) + var(--space-17) + var(--width-reading));
   margin: 0 auto;
-  padding: var(--space-5) var(--gutter-page) var(--pad-section-bottom);
   display: flex;
   flex-direction: column;
-  gap: var(--space-15);
+  align-items: flex-start;
+  gap: var(--space-11);
 }
 
 .intro {
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
-  padding-top: var(--space-11);
+}
+
+/* ── the layout: contents beside the text, both lifted onto the band ─────── */
+.layout {
+  position: relative;
+  max-width: calc(var(--width-contents) + var(--space-17) + var(--width-reading) + var(--gutter-page) * 2);
+  margin: calc(var(--reading-lift) * -1) auto 0;
+  padding: 0 var(--gutter-page) var(--pad-section-bottom);
+  display: grid;
+  grid-template-columns: var(--width-contents) minmax(0, var(--width-reading));
+  grid-template-areas:
+    'contents summary'
+    'contents card';
+  justify-content: center;
+  align-items: start;
+  gap: var(--space-15) var(--space-17);
 }
 
 .title {
@@ -42,6 +91,7 @@
 /* "باختصار": the part most people will read — the strongest box on the page. Twice as
    wide as it is tall on wide screens, so a plain radius, not the arch */
 .summary {
+  grid-area: summary;
   background: var(--tone-accent-bg);
   border-radius: var(--radius-panel);
   padding: var(--space-15) var(--space-16);
@@ -65,7 +115,15 @@
   gap: var(--space-7);
 }
 
+/* the contents: a white card, in view while the text scrolls past it */
 .contents {
+  grid-area: contents;
+  position: sticky;
+  top: calc(var(--size-header) + var(--space-11));
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-13) var(--space-14);
   font-size: var(--text-body-sm);
 }
 
@@ -80,9 +138,10 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  /* two columns of full-height rows: every entry is a 44px tap target, none overlap */
+  /* full-height rows: every entry is a 44px tap target, none overlap. One column beside
+     the text; two when the list sits above it (below) */
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   column-gap: var(--space-11);
   counter-reset: contents;
 }
@@ -119,6 +178,7 @@
 
 /* the text: one white card with the sweeping corner */
 .card {
+  grid-area: card;
   background: var(--color-surface);
   border-radius: var(--radius-panel) var(--radius-panel-shoulder) var(--radius-panel) var(--radius-panel);
   box-shadow: var(--shadow-card);
@@ -174,7 +234,7 @@
 
 /* ── draft only: delete with the text's last <Flag> ─────────────────────── */
 .draft {
-  margin: var(--space-8) 0 0;
+  margin: 0;
   padding: var(--space-8) var(--space-11);
   border-radius: var(--radius-card);
   background: var(--tone-highlight-bg);
@@ -195,6 +255,30 @@
   color: var(--tone-highlight-ink);
   font-weight: var(--weight-semibold);
   font-size: var(--text-small);
+}
+
+/* one column: summary, contents, text — the source order */
+@media (max-width: 1024px) {
+  .bandInner {
+    max-width: var(--width-reading);
+  }
+
+  .layout {
+    max-width: calc(var(--width-reading) + var(--gutter-page) * 2);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'summary'
+      'contents'
+      'card';
+  }
+
+  .contents {
+    position: static;
+  }
+
+  .contents ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 480px) {
