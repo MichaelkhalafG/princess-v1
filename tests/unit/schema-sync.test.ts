@@ -7,6 +7,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { CATEGORY_SLUGS, COUNTRY_CODES, LIMITS, PHOTO_BUCKET, PHOTO_MAX_BYTES, PHOTO_MIME_TYPES, phonePatternSource } from '../../lib/constants.ts';
 import { INSTAGRAM_PATTERN, PHONE_PATTERN, PHOTO_PATH_PATTERN, WRITABLE_COLUMNS } from '../../lib/listing.ts';
+import { FOLD_FROM, FOLD_MARKS, FOLD_TO } from '../../lib/search.ts';
 
 const dir = join(import.meta.dirname, '../../supabase/migrations');
 const sql = readdirSync(dir).filter((f) => f.endsWith('.sql')).sort().map((f) => readFileSync(join(dir, f), 'utf8')).join('\n')
@@ -85,4 +86,23 @@ test('photo bucket settings match constants.ts', () => {
   assert.equal(m[1], PHOTO_BUCKET);
   assert.equal(Number(m[2]), PHOTO_MAX_BYTES);
   assert.deepEqual(quoted(m[3]), [...PHOTO_MIME_TYPES]);
+});
+
+test('the stored search text is folded with exactly the characters foldArabic uses', () => {
+  // the migrations run in order: the last definition of the column is the one in force
+  const defs = [...sql.matchAll(/search_text text generated always as \(([\s\S]*?)\) stored/g)];
+  assert.ok(defs.length > 0, 'search_text not found in the migrations');
+  const last = defs.at(-1)![1];
+  // the SQL writes each character as \uXXXX inside E'…'
+  const escaped = (chars: string) => [...chars].map((c) => '\\u' + c.codePointAt(0)!.toString(16).toUpperCase().padStart(4, '0')).join('');
+  assert.ok(last.includes("E'" + escaped(FOLD_FROM) + "'"), 'the letters replaced');
+  assert.ok(last.includes("E'" + escaped(FOLD_TO) + "'"), 'what replaces them');
+  assert.ok(last.includes("E'" + FOLD_MARKS + "'"), 'the marks removed');
+  assert.match(last, /^\s*lower\(/, 'Latin in lower case');
+  // inside E'…' a backslash is an escape: only \uXXXX is meant. "\s" there is read as a
+  // plain "s" — that turned every Latin s in the stored text into a space once.
+  for (const [, body] of last.matchAll(/E'((?:[^']|'')*)'/g)) {
+    assert.doesNotMatch(body.replace(/\\u[0-9A-F]{4}/g, ''), /\\/, `a backslash that is not \\uXXXX in E'${body}'`);
+  }
+  assert.ok(last.includes("'[[:space:]]+'"), 'runs of white space collapse to one space, with no escape');
 });

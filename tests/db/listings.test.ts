@@ -9,7 +9,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { CATEGORIES, COUNTRIES, LIMITS, PHOTO_BUCKET, PHOTO_MAX_BYTES } from '../../lib/constants.ts';
 import { createSupabaseClient } from '../../lib/supabase.ts';
 import { countListings, fetchListings, insertListing } from '../../lib/listings.ts';
-import { categoriesNamedIn } from '../../lib/search.ts';
+import { categoriesNamedIn, foldArabic } from '../../lib/search.ts';
 import { testEnv } from '../support/env.ts';
 
 const { url, publishableKey, secretKey } = testEnv();
@@ -219,6 +219,23 @@ test('a search that names a category finds its listings, whatever their words', 
   assert.ok(!(await has(other.label)), 'another category name does not find it');
   // what she types goes into the filter quoted: quotes, commas and brackets cannot break it
   assert.ok(await has(`${cat.label}",x)(`), 'odd characters around a category name');
+});
+
+test('a search finds a listing however its words are spelled (the fold migration)', async () => {
+  // written with the spellings a search often does not repeat: ة, a hamza on the alef
+  const written = { city: 'القاهرة', district: 'مدينة نصر', title: `إطلالة ${RUN}` };
+  const r = await insertListing(anon, payload(written));
+  assert.ok(r.ok, JSON.stringify(r));
+  const id = r.ok ? r.listing.id : '';
+  const has = async (q: string) => (await fetchListings(anon, { country: COUNTRY_A, q })).some((l) => l.id === id);
+
+  for (const word of [written.city, written.district, 'إطلالة']) {
+    const typed = foldArabic(word);
+    assert.notEqual(typed, word, `the folded form of ${word} must differ, or this proves nothing`);
+    assert.deepEqual(categoriesNamedIn(typed), [], `${typed} must not name a category, or a category match could pass it`);
+    assert.ok(await has(word), `as written: ${word}`);
+    assert.ok(await has(typed), `folded: ${typed}`);
+  }
 });
 
 test('a limit returns the newest N; the count is all that match the same filters', async () => {

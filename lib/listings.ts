@@ -7,7 +7,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { PHOTO_BUCKET, type CategorySlug, type CountryCode } from './constants.ts';
 import { LISTING_COLUMNS, validateListing, type Listing, type ValidationErrors } from './listing.ts';
-import { categoriesNamedIn } from './search.ts';
+import { categoriesNamedIn, foldArabic } from './search.ts';
 
 export type ListingFilters = {
   country: CountryCode;
@@ -28,14 +28,19 @@ function applyFilters<Q>(query: Q, f: ListingFilters): Q {
   if (f.category) out = out.eq('category', f.category);
   const q = f.q?.trim();
   if (q) {
-    // search_text is a generated column: name, title, description, city and district.
+    // search_text is a generated column: name, title, description, city and district,
+    // stored folded (lib/search.ts foldArabic), so the search is folded too: "مدينه نصر"
+    // finds "مدينة نصر". Until the fold migration (20261005000000) has run on a database
+    // its stored text is not folded, so the text as typed is tried as well — drop that
+    // once every database has it.
     // A search that names a category ("أظافر", "اظافر") also finds that category's
     // listings, whatever words they use (lib/search.ts).
-    const pattern = `%${escapeLike(q)}%`;
+    const texts = [...new Set([foldArabic(q), q])];
     const named = categoriesNamedIn(q);
-    out = named.length
-      ? out.or(`search_text.ilike.${postgrestQuote(pattern)},category.in.(${named.join(',')})`)
-      : out.ilike('search_text', pattern);
+    out = out.or([
+      ...texts.map((t) => `search_text.ilike.${postgrestQuote(`%${escapeLike(t)}%`)}`),
+      ...(named.length ? [`category.in.(${named.join(',')})`] : []),
+    ].join(','));
   }
   return out as unknown as Q;
 }

@@ -3,6 +3,19 @@
 // uses the word.
 import { CATEGORIES, type CategorySlug } from './constants.ts';
 
+// The fold, as data, because the database applies the same one to the stored text
+// (search_text, supabase/migrations/20261005000000_fold_search_text.sql) and
+// tests/unit/schema-sync.test.ts holds the two together.
+/** Letters replaced, each by the letter at the same place in FOLD_TO: آ أ إ ٱ → ا, ى → ي, ة → ه. */
+export const FOLD_FROM = '\u0622\u0623\u0625\u0671\u0649\u0629';
+export const FOLD_TO = '\u0627\u0627\u0627\u0627\u064A\u0647';
+/** Marks removed — tashkeel, superscript alef, tatweel — as a regular-expression class. */
+export const FOLD_MARKS = '[\\u064B-\\u065F\\u0670\\u0640]';
+
+const FOLD_MAP = new Map([...FOLD_FROM].map((c, i) => [c, FOLD_TO[i]]));
+const FOLD_LETTERS = new RegExp(`[${FOLD_FROM}]`, 'g');
+const MARKS = new RegExp(FOLD_MARKS, 'g');
+
 /**
  * Arabic spelling, folded so the same word typed differently compares equal: no
  * diacritics or tatweel, every alef form as ا, ى as ي, ة as ه, lower case for Latin.
@@ -10,10 +23,8 @@ import { CATEGORIES, type CategorySlug } from './constants.ts';
 export function foldArabic(s: string): string {
   return s
     .normalize('NFC')
-    .replace(/[\u064B-\u065F\u0670\u0640]/g, '') // tashkeel, superscript alef, tatweel
-    .replace(/[\u0622\u0623\u0625\u0671]/g, '\u0627') // آ أ إ ٱ → ا
-    .replace(/\u0649/g, '\u064A') // ى → ي
-    .replace(/\u0629/g, '\u0647') // ة → ه
+    .replace(MARKS, '')
+    .replace(FOLD_LETTERS, (c) => FOLD_MAP.get(c)!)
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase();
