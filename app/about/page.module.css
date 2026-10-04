@@ -95,8 +95,10 @@
   gap: var(--space-11);
 }
 
-/* each step: a white card with the arch corner, its number large in the accent */
+/* each step: a white card with the arch corner (top right). Its number sits in the other
+   top corner, in a filled accent circle, the numeral in the card's own white. */
 .step {
+  position: relative;
   background: var(--color-surface);
   border-radius: var(--radius-card) var(--radius-banner-shoulder) var(--radius-card) var(--radius-card);
   box-shadow: var(--shadow-card);
@@ -107,15 +109,28 @@
 }
 
 .number {
+  position: absolute;
+  /* physical, like the arch it answers: the arch is top-right, so this is top-left */
+  top: var(--space-13);
+  left: var(--space-13);
+  display: grid;
+  place-items: center;
+  width: var(--size-step-number);
+  height: var(--size-step-number);
+  border-radius: var(--radius-circle);
+  background: var(--color-accent);
+  color: var(--color-surface);
   font-family: var(--font-heading), sans-serif;
   font-weight: var(--weight-heavy);
-  font-size: var(--text-h2);
+  font-size: var(--text-step-number);
   line-height: var(--leading-none);
-  color: var(--color-accent);
 }
 
+/* the title keeps clear of the number's corner, however long it runs */
 .stepTitle {
-  margin: var(--space-5) 0 0;
+  margin: 0;
+  min-height: var(--size-step-number);
+  padding-inline-end: calc(var(--size-step-number) + var(--space-8));
   font-family: var(--font-heading), sans-serif;
   font-weight: var(--weight-bold);
   font-size: var(--text-cta);
