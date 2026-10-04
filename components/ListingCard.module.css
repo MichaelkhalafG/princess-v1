@@ -176,7 +176,7 @@
 }
 
 /* the focus ring belongs to the whole card, not to the title text */
-.cardLink:focus {
+.cardLink:focus-visible {
   outline: none;
 }
 
@@ -202,7 +202,7 @@
   color: var(--color-ink);
 }
 
-.compact:focus {
+.compact:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset-lg);
 }
@@ -221,6 +221,12 @@
 
 .compact .price {
   font-size: var(--text-price-sm);
+}
+
+/* a long price (over PRICE_LONG_CHARS) steps down so it never outweighs the title */
+.price[data-long] {
+  font-size: var(--text-price-long);
+  font-weight: var(--weight-bold);
 }
 
 /* cards in a row share one height; the date sits at the bottom of each, like the board

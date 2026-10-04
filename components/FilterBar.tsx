@@ -12,6 +12,7 @@ import styles from './FilterBar.module.css';
  */
 export function FilterSummary({
   countryName,
+  countryFlag,
   categoryLabel,
   categoryIcon,
   countLabel,
@@ -19,6 +20,7 @@ export function FilterSummary({
   onCategoryClick,
 }: {
   countryName: string;
+  countryFlag: string;
   categoryLabel: string;
   categoryIcon: string;
   countLabel: string;
@@ -29,7 +31,9 @@ export function FilterSummary({
     <div role="region" aria-label="الفلتر الحالي" className={styles.summary}>
       <button type="button" className={styles.part} onClick={onCountryClick}>
         <span className={styles.dot} aria-hidden="true" />
-        {countryName}
+        {/* small phones show the flag instead of the name; the name stays for screen readers */}
+        <img className={styles.flag} src={countryFlag} alt="" aria-hidden="true" />
+        <span className={styles.countryName}>{countryName}</span>
       </button>
       <span className={styles.divider} aria-hidden="true" />
       <button type="button" className={`${styles.part} ${styles.category}`} onClick={onCategoryClick}>

@@ -51,7 +51,7 @@
   color: var(--color-ink);
 }
 
-.dropzone:focus {
+.dropzone:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
 }

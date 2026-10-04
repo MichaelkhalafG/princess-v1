@@ -136,6 +136,7 @@ export function Board({
         center={summaryVisible ? (
           <FilterSummary
             countryName={getCountry(selected.country).name}
+            countryFlag={getCountry(selected.country).flag}
             categoryLabel={currentCategory ? currentCategory.label : ALL_CATEGORIES.barLabel}
             categoryIcon={currentCategory ? currentCategory.icon : ALL_CATEGORIES.icon}
             countLabel={pending ? LOADING_LABEL : countLabel}

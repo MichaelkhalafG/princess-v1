@@ -6,15 +6,19 @@
 
 .inner {
   background: var(--color-surface);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-card);
   padding: var(--space-3);
   box-shadow: var(--shadow-catbar);
 }
 
+/* Wide screens: every category in view, wrapping onto a second row — nothing hidden
+   behind a scroll, no chip cut at the edge. The row gap leaves room for each chip's
+   44px tap layer (36px chips: 4px above and below). */
 .scroll {
   display: flex;
-  gap: var(--space-1);
-  overflow-x: auto;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-5) var(--space-1);
   scrollbar-width: none;
 }
 
@@ -29,6 +33,19 @@
 
   .inner {
     border-radius: 0;
-    padding: var(--space-5) var(--gutter-page);
+    padding: var(--space-2) var(--gutter-page);
+  }
+
+  /* Phones and tablets: one row that scrolls. The trailing (left) edge fades out so it
+     reads as "more this way", and end padding lets the last chip scroll clear of the
+     fade. The block padding keeps each chip's 44px tap layer inside the scroller, which
+     would otherwise clip it. */
+  .scroll {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-block: var(--space-2);
+    padding-inline-end: calc(var(--size-fade) + var(--space-1));
+    mask-image: linear-gradient(to right, transparent, var(--color-mask-opaque) var(--size-fade));
   }
 }

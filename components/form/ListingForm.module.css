@@ -176,3 +176,13 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* small phones: the title wrapped to two lines beside the status pill; the pill goes
+   under it instead, so the title keeps one line */
+@media (max-width: 480px) {
+  .contactsHead {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+}

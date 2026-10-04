@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
+import { SITE_URL } from '@/lib/site.ts';
 import { bodyFont, headingFont, logoFont } from './fonts.ts';
 import './globals.css';
 
 export const metadata: Metadata = {
+  metadataBase: SITE_URL,
   title: 'برينسيس',
   description: 'اعرضي خدمتك أو ملابسك، وتتواصل معك من تحتاجها عبر واتساب مباشرة. بلا وسيط وبلا عمولة.',
 };

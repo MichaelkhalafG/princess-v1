@@ -92,13 +92,14 @@
 }
 
 /* six hero chips in two even rows of three — the design's wrapping row left one chip
-   alone on the second line */
+   alone on the second line. The row gap leaves room for each chip's 44px tap layer
+   (34px chips: 5px above and below), touch screens wider than 860px included. */
 .chips {
   display: grid;
   grid-template-columns: repeat(3, auto);
   justify-content: start;
   justify-items: start;
-  gap: var(--space-5);
+  gap: var(--space-7) var(--space-5);
   max-width: var(--width-hero-chips);
 }
 
@@ -219,19 +220,10 @@
     font-size: var(--text-h1-mobile);
   }
 
-  /* the hero chips become one swipeable row that runs to the screen edges */
+  /* the six hero chips stay a grid: all six in view, none behind a scroll */
   .chips {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
     max-width: none;
-    margin: 0 calc(var(--gutter-page) * -1);
-    padding: var(--space-2) var(--gutter-page) var(--space-7);
-    scrollbar-width: none;
-  }
-
-  .chips::-webkit-scrollbar {
-    display: none;
+    padding-bottom: var(--space-5);
   }
 
   .ctaRow {
@@ -241,5 +233,17 @@
 
   .ctaRow > a {
     text-align: center;
+  }
+}
+
+/* small phones: two even columns of three rows, each chip filling its cell */
+@media (max-width: 480px) {
+  .chips {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-items: stretch;
+  }
+
+  .chips > * {
+    justify-content: center;
   }
 }

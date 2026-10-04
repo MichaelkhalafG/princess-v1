@@ -19,8 +19,15 @@ export const dynamic = 'force-dynamic';
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const listing = await fetchListing(getSupabase(), (await params).id);
-  return { title: listing ? `${listing.title} — برينسيس` : 'برينسيس' };
+  const db = getSupabase();
+  const listing = await fetchListing(db, (await params).id);
+  if (!listing) return { title: 'برينسيس' };
+  const title = `${listing.title} — برينسيس`;
+  // Shared on WhatsApp, her own photo is the preview. Without one, nothing is set here and
+  // the site image (app/opengraph-image.png) stands.
+  if (!listing.photo) return { title };
+  const images = [{ url: photoUrl(db, listing.photo), alt: listing.title }];
+  return { title, openGraph: { title, images }, twitter: { card: 'summary_large_image', title, images } };
 }
 
 export default async function ListingPage({ params, searchParams }: Props) {

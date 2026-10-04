@@ -32,7 +32,7 @@
   white-space: nowrap;
 }
 
-.part:focus {
+.part:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
   border-radius: var(--radius-focus);
@@ -72,9 +72,50 @@
   flex: none;
 }
 
-/* small phones: country and category only — the count is in the grid heading */
+/* the flag replaces the country name on small phones only */
+.flag {
+  display: none;
+  width: var(--size-flag);
+  height: auto;
+  border-radius: var(--radius-flag);
+  box-shadow: var(--shadow-flag);
+}
+
+/* small phones: the header's middle is about 125px beside the logo and the post button
+   (which stays — the hero's own button is long gone by the time the summary shows), so
+   the summary is a flag and the category: no dot, no divider, no count (the count is in
+   the grid heading). */
 @media (max-width: 480px) {
-  .count {
+  .count,
+  .dot,
+  .divider {
     display: none;
+  }
+
+  .flag {
+    display: block;
+  }
+
+  /* the flag never gives way; only the category label does, with its ellipsis */
+  .part:first-child {
+    flex: none;
+  }
+
+  /* tight enough that the longest labels ("خياطة وتفصيل", "رعاية كبار السن") fit at 380 */
+  .summary {
+    gap: var(--space-3);
+  }
+
+  .part {
+    gap: var(--space-2);
+  }
+
+  .countryName {
+    position: absolute;
+    width: var(--size-hairline);
+    height: var(--size-hairline);
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 }

@@ -36,7 +36,7 @@
   gap: var(--space-13);
 }
 
-.links a:focus {
+.links a:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset-lg);
   border-radius: var(--radius-focus);
@@ -112,7 +112,7 @@
 .cat[data-tone='highlight'] .catIcon { color: var(--tone-highlight-bg); }
 .cat[data-tone='ink'] .catIcon { color: var(--tone-ink-bg); }
 
-.cat:focus {
+.cat:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
 }

@@ -19,7 +19,7 @@
   transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
 }
 
-.option:focus {
+.option:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
 }

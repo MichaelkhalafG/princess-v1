@@ -6,7 +6,7 @@ import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { CATEGORIES, COUNTRIES, PHOTO_BUCKET, PHOTO_MAX_BYTES } from '../../lib/constants.ts';
+import { CATEGORIES, COUNTRIES, LIMITS, PHOTO_BUCKET, PHOTO_MAX_BYTES } from '../../lib/constants.ts';
 import { createSupabaseClient } from '../../lib/supabase.ts';
 import { fetchCategoryCounts, fetchListings, insertListing } from '../../lib/listings.ts';
 import { testEnv } from '../support/env.ts';
@@ -104,8 +104,20 @@ test('phone CHECK refuses a number from another country', async () => {
 });
 
 test('text limit CHECKs hold even without the validator', async () => {
-  const { error } = await anon.from('listings').insert(payload({ price: 'ب'.repeat(41) }));
-  assertCheckViolation(error, 'listings_price_check');
+  // every limit in LIMITS, one over; a title or description over the limit loses the run
+  // tag, but the other one still carries it, so after() can still find a stray row
+  for (const [field, max] of Object.entries(LIMITS)) {
+    const { error } = await anon.from('listings').insert(payload({ [field]: 'ب'.repeat(max + 1) }));
+    assertCheckViolation(error, `listings_${field}_check`);
+  }
+  assert.equal((await rowsForRun()).length, 0);
+});
+
+test('a name of exactly LIMITS.name characters is accepted', async () => {
+  const { error } = await anon.from('listings').insert(payload({ name: 'ب'.repeat(LIMITS.name) }));
+  assert.equal(error, null, error?.message ?? '');
+  assert.equal((await rowsForRun()).length, 1);
+  await cleanup(); // later tests count this run's rows from zero
 });
 
 // ── Column grants ─────────────────────────────────────────────────────────────────

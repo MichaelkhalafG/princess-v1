@@ -89,6 +89,7 @@
   --logo-word-gap: .03em;
   --text-logo-header: 32px;           /* file: desktop header 1200 × 64 */
   --text-logo-header-sm: 22px;        /* file: mobile header 380 × 56 */
+  --size-logo-mark-only: 26px;        /* mark-only header, ≤ 375px (the file said ≤ 340) */
   --text-logo-footer: 28px;           /* file: dark footer, reversed */
   --text-logo-hero: 44px;
 
@@ -115,6 +116,7 @@
   --text-logo-sm: 20px;               /* logo under 480px */
   --text-card-title: 21px;            /* ONE-OFF */
   --text-price: 22px;                 /* ONE-OFF */
+  --text-price-long: 17px;            /* card price over 20 characters (ListingCard) */
   --text-logo: 24px;
   --text-heading-sm: 26px;            /* empty-state title, footer logo */
   --text-lead: clamp(16px, 1.4vw, 19px);
@@ -246,21 +248,13 @@
   --offset-monogram-lg: 8%;
   --blur-bar: 10px;
 
-  /* Arch marks (logo, banner, status). Each mark's foot radius is the same proportion
-     of its width in every design (34→9, 28→7.3, 26→7, 22→6, 56→14), so one ratio
-     replaces the four separate radii. */
-  --ratio-mark-foot: .26;
-  --size-logo-w: 34px;
-  --size-logo-h: 42px;
-  --size-logo-w-sm: 28px;
-  --size-logo-h-sm: 34px;
-  --size-mark-banner-w: 22px;
-  --size-mark-banner-h: 28px;
-  --size-mark-status-w: 56px;
-  --size-mark-status-h: 68px;
+  --size-status-mark: 64px;           /* the built P on the status panel (not-found) */
 
-  --size-mark-footer-w: 26px;         /* landing footer logo mark */
-  --size-mark-footer-h: 32px;
+  /* Touch */
+  --size-hit-min: 44px;               /* smallest tap target; chips reach it with an
+                                         invisible hit area, not by growing */
+  --size-fade: 32px;                  /* trailing fade on a row of chips that scrolls */
+  --color-mask-opaque: #000;          /* mask-image only reads alpha: this is "fully shown" */
 
   /* Landing hero */
   --width-hero-controls: 640px;       /* country selector + search row */
@@ -343,7 +337,6 @@
   --shadow-panel: 0 24px 50px -24px rgb(var(--rgb-shadow) / .2);
   --shadow-cta: 0 20px 40px -18px rgb(var(--rgb-ink) / .45);
   --shadow-cta-accent: 0 20px 40px -18px rgb(var(--rgb-accent) / .45);   /* submit: an action keeps its hue */
-  --shadow-logo: 0 10px 20px -8px rgb(var(--rgb-accent) / .4);
   /* hero collage — one each, in Option A's softened hues */
   --shadow-photo-accent: 0 40px 70px -30px rgb(var(--rgb-accent) / .32), 0 8px 20px -8px rgb(var(--rgb-ink) / .12);
   --shadow-photo-highlight: 0 30px 60px -26px rgb(var(--rgb-highlight) / .38), 0 6px 16px -6px rgb(var(--rgb-ink) / .12);

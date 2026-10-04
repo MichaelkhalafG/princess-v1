@@ -12,6 +12,7 @@
 }
 
 .mark {
+  font-size: var(--size-status-mark);   /* the mark is 1em tall */
   margin: 0 auto var(--space-13);
 }
 

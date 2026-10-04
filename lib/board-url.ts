@@ -6,6 +6,9 @@ import { COUNTRIES, isCategorySlug, isCountryCode, type CategorySlug, type Count
 
 export type BoardContext = { country: CountryCode | null; category: CategorySlug | null; q: string };
 
+/** No context: the board's defaults (first country, all categories, no search). */
+export const NO_BOARD_CONTEXT: BoardContext = { country: null, category: null, q: '' };
+
 /** Long enough for any real search; stops a pasted essay becoming a query. */
 export const MAX_QUERY = 100;
 

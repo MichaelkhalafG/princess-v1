@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { CATEGORIES, COUNTRIES, LIMITS, PHOTO_MAX_BYTES } from '../../lib/constants.ts';
+import { toArabicDigits } from '../../lib/format.ts';
 import { validateListing } from '../../lib/listing.ts';
 import {
   CONTACTS_MISSING_MESSAGE, counter, emptyForm, hasAnyContact, parsePhone, submitGate, toPayload, validateForm,
@@ -80,14 +81,16 @@ test('parsePhone follows the country: length and first digit, Arabic-Indic digit
 });
 
 test('counter text and over-limit flag', () => {
-  assert.deepEqual(counter('name', ''), { text: `٠ / ${'٦٠'}`, over: false });
+  assert.deepEqual(counter('name', ''), { text: `٠ / ${toArabicDigits(LIMITS.name)}`, over: false });
   assert.equal(counter('price', 'ب'.repeat(LIMITS.price)).over, false);
   assert.equal(counter('price', 'ب'.repeat(LIMITS.price + 1)).over, true);
 });
 
 test('too-long messages use correct Arabic agreement', () => {
   const e = validateForm(filled({ name: 'ب'.repeat(LIMITS.name + 1), description: 'ب'.repeat(LIMITS.description + 11) }));
-  assert.equal(e.name, 'الاسم أطول من المسموح بحرف واحد. اختصريه إلى ٦٠ حرفًا.');
+  // 11–99 takes the singular accusative (حرفًا); the limit must stay in that range for this wording
+  assert.ok(LIMITS.name >= 11 && LIMITS.name <= 99);
+  assert.equal(e.name, `الاسم أطول من المسموح بحرف واحد. اختصريه إلى ${toArabicDigits(LIMITS.name)} حرفًا.`);
   assert.equal(e.description, 'الوصف أطول من المسموح بـ ١١ حرفًا. اختصريه إلى ٦٠٠ حرف.');
 });
 

@@ -135,11 +135,19 @@ test('a listing alone in its category shows the "only one" note instead', async 
   assert.ok(!html.includes('إعلانات أخرى في'));
 });
 
-test('unknown and malformed ids are 404 with the not-found panel', async () => {
+// What the server actually sends for a missing listing. Next 16.3 does not server-render
+// not-found.tsx after notFound(): it sends a 404 with an empty __next_error__ document and
+// the panel is drawn in the browser (vercel/next.js#99287, open). The panel itself — its
+// words and its links back with the board context — is checked in a browser, not here.
+test('unknown and malformed ids are 404, noindex, and (Next bug #99287) an empty error shell', async () => {
   for (const id of [randomUUID(), 'not-a-uuid']) {
     const { status, html } = await get(`/listing/${id}`);
     assert.equal(status, 404, id);
-    assert.ok(html.includes('هذا الإعلان لم يعد على اللوحة'), id);
+    assert.match(html, /<meta name="robots" content="noindex"\/>/, id);
+    assert.ok(html.includes('NEXT_HTTP_ERROR_FALLBACK;404'), id);
+    // Tripwire: when a Next release fixes #99287 this fails — then assert the panel's
+    // title ("هذا الإعلان لم يعد على اللوحة") in the HTML again instead.
+    assert.match(html, /<html id="__next_error__">/, `${id}: the server rendered the page — #99287 is fixed, update this test`);
   }
 });
 

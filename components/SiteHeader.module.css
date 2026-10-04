@@ -43,7 +43,7 @@
   color: var(--color-ink);
 }
 
-.logo:focus {
+.logo:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset-lg);
   border-radius: var(--radius-focus);
@@ -63,7 +63,7 @@
   white-space: nowrap;
 }
 
-.back:focus {
+.back:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
 }
@@ -91,6 +91,12 @@
 
 /* small phones: the back control keeps its arrow (its label stays as aria-label) */
 @media (max-width: 480px) {
+  /* tighter gaps leave the filter summary room between the logo and the post button */
+  .header,
+  .start {
+    gap: var(--space-5);
+  }
+
   .backText {
     display: none;
   }

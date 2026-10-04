@@ -45,9 +45,19 @@
   box-shadow: var(--shadow-card);
 }
 
-/* photo / monogram: the card's shoulder, grown */
+/* photo / monogram: the card's shoulder, grown. Side by side, it stays in view under
+   the header while a long description scrolls past (it used to stop halfway down and
+   leave an empty white block). */
 .media {
-  position: relative;
+  position: sticky;
+  top: calc(var(--size-header) + var(--space-8));
+}
+
+/* capped to the viewport so the stuck photo can never be taller than the screen and fight
+   the scroll; object-fit: cover crops a tall photo instead of squashing it */
+.photo,
+.monogramPanel {
+  max-height: calc(100svh - var(--size-header) - var(--space-8) * 2);
 }
 
 .photo,
@@ -270,6 +280,12 @@
   .detail {
     grid-template-columns: 1fr;
     gap: 0;
+  }
+
+  /* one column: the photo is above the text, nothing to stay beside */
+  .media {
+    position: relative;
+    top: auto;
   }
 
   /* single column: the details sit under the photo like a board card's body */

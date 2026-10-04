@@ -6,6 +6,10 @@ import { CategoryBadge } from './CategoryBadge.tsx';
 import styles from './ListingCard.module.css';
 import tones from './tones.module.css';
 
+/** A price longer than this (in characters) is set smaller: at full size a 40-character
+    price filled two lines in large pink and outweighed the title. */
+const PRICE_LONG_CHARS = 20;
+
 /**
  * One listing.
  *   full    — the board's card: description and contact buttons
@@ -38,6 +42,7 @@ export function ListingCard({
   contextQuery?: string;
 }) {
   const tone = getCategory(listing.category).tone;
+  const priceLong = listing.price !== null && [...listing.price].length > PRICE_LONG_CHARS ? true : undefined;
   const compact = variant === 'compact';
   const target = href ?? `/listing/${listing.id}${contextQuery ? `?${contextQuery}` : ''}`;
 
@@ -79,7 +84,7 @@ export function ListingCard({
         <div className={styles.body}>
           {meta}
           <span className={styles.title}>{listing.title}</span>
-          {listing.price && <span className={styles.price}>{listing.price}</span>}
+          {listing.price && <span className={styles.price} data-long={priceLong}>{listing.price}</span>}
           {date}
         </div>
       </a>
@@ -101,7 +106,7 @@ export function ListingCard({
           <a href={target} className={styles.cardLink}>{listing.title}</a>
         </h3>
         <p className={styles.description}>{listing.description}</p>
-        {listing.price && <div className={styles.price}>{listing.price}</div>}
+        {listing.price && <div className={styles.price} data-long={priceLong}>{listing.price}</div>}
 
         <div className={styles.actions}>
           {primary && (

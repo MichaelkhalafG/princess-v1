@@ -79,7 +79,7 @@ export function phonePatternSource(code: CountryCode): string {
 // Text limits — the validator and the database CHECK constraints both read these values
 // (the sync test compares them with the migration).
 export const LIMITS = {
-  name: 60,
+  name: 40,
   title: 80,
   description: 600,
   price: 40,

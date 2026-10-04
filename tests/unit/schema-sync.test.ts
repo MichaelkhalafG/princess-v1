@@ -12,10 +12,12 @@ const dir = join(import.meta.dirname, '../../supabase/migrations');
 const sql = readdirSync(dir).filter((f) => f.endsWith('.sql')).sort().map((f) => readFileSync(join(dir, f), 'utf8')).join('\n')
   .replace(/--.*$/gm, ''); // ignore comments: only executable SQL counts
 
+// The migrations run in order, so a constraint redefined later (alter table … add
+// constraint) is the one in force: the last definition wins.
 function constraintBody(name: string): string {
-  const m = sql.match(new RegExp(`constraint ${name}\\s+check \\(([\\s\\S]*?)\\)\\s*(?:,|\\n\\);)`));
-  assert.ok(m, `constraint ${name} not found in the migration`);
-  return m[1];
+  const all = [...sql.matchAll(new RegExp(`constraint ${name}\\s+check \\(([\\s\\S]*?)\\)\\s*(?:,|;|\\n\\);)`, 'g'))];
+  assert.ok(all.length > 0, `constraint ${name} not found in the migrations`);
+  return all.at(-1)![1];
 }
 
 function quoted(s: string): string[] {

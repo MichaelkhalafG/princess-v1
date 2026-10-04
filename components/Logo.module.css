@@ -57,3 +57,15 @@
 @media (max-width: 480px) {
   .header { font-size: var(--text-logo-header-sm); }
 }
+
+/* the mark alone (26px), no word, up to 375px: the file put this fallback at 340, but at
+   360 (common Android) the filter summary still cut the longest categories. Screen
+   readers still get "Princess" from the hidden label. */
+@media (max-width: 375px) {
+  .header .word { display: none; }
+
+  .header .lockupMark {
+    height: var(--size-logo-mark-only);
+    margin-bottom: 0;
+  }
+}

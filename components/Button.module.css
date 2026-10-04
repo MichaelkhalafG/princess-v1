@@ -26,7 +26,7 @@
   font-size: var(--text-control);
 }
 
-.ink:focus {
+.ink:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset-lg);
 }
@@ -36,6 +36,12 @@
   padding: var(--space-6) var(--space-11);
   font-size: var(--text-body-sm);
   white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .ink.compact {
+    padding-inline: var(--space-7);
+  }
 }
 
 /* large hero CTA */
@@ -51,7 +57,7 @@
   box-shadow: var(--shadow-cta);
 }
 
-.cta:focus {
+.cta:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset-lg);
 }
@@ -68,7 +74,7 @@
   font-size: var(--text-body);
 }
 
-.accent:focus {
+.accent:focus-visible {
   outline: var(--focus-ring-on-accent);
   outline-offset: var(--focus-offset-lg);
 }
@@ -79,7 +85,7 @@
   font-size: var(--text-control);
 }
 
-.accent.compact:focus {
+.accent.compact:focus-visible {
   outline-offset: var(--focus-offset);
 }
 
@@ -100,7 +106,7 @@
   min-height: var(--size-control);
 }
 
-.contact:focus {
+.contact:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
 }
@@ -127,7 +133,7 @@
   color: var(--color-ink);
 }
 
-.round:focus {
+.round:focus-visible {
   outline: var(--focus-ring);
 }
 
@@ -161,7 +167,7 @@
   box-shadow: var(--shadow-cta-accent);
 }
 
-.submit:focus {
+.submit:focus-visible {
   outline: var(--focus-ring-on-accent);
   outline-offset: var(--focus-offset-lg);
 }
@@ -185,7 +191,7 @@
   font-size: var(--text-body);
 }
 
-.soft:focus {
+.soft:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset-lg);
 }
@@ -203,7 +209,7 @@
   white-space: nowrap;
 }
 
-.soft.compact:focus {
+.soft.compact:focus-visible {
   outline-offset: var(--focus-offset);
 }
 
@@ -222,7 +228,7 @@
   white-space: nowrap;
 }
 
-.surface:focus {
+.surface:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
 }
@@ -240,7 +246,7 @@
   padding: var(--space-3) 0;
 }
 
-.text:focus {
+.text:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
   border-radius: var(--radius-focus);

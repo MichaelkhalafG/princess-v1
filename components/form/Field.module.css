@@ -89,8 +89,8 @@
   min-height: var(--size-textarea-min);
 }
 
-.input:focus,
-.textarea:focus {
+.input:focus-visible,
+.textarea:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
 }

@@ -12,9 +12,26 @@
   white-space: nowrap;
   background: var(--color-surface);
   color: var(--color-ink);
+  position: relative;
+  /* every visitor is on a phone: no double-tap-zoom delay, and no grey rectangle flashed
+     over a pill — the chip turns ink the moment it is tapped, which is the feedback */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   /* selecting a chip eases its colour instead of snapping */
   transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out),
     box-shadow var(--duration-fast) var(--ease-out);
+}
+
+/* The tap target is at least --size-hit-min tall while the chip keeps its drawn height
+   (34–36px): an invisible layer, centred on the chip, as wide as the chip. Rows of chips
+   leave enough gap that these layers never overlap (CategoryBar, Board). */
+.chip::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: max(100%, var(--size-hit-min));
+  translate: 0 -50%;
 }
 
 /* the icon carries the category's tone, as on the card badge */
@@ -69,7 +86,7 @@
   box-shadow: var(--shadow-chip-selected);
 }
 
-.raised:focus {
+.raised:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
 }
@@ -84,7 +101,7 @@
   background: var(--color-ink);
 }
 
-.bar:focus {
+.bar:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset-inset);
 }
@@ -100,7 +117,7 @@
   box-shadow: var(--shadow-chip-selected);
 }
 
-.inset:focus {
+.inset:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
 }

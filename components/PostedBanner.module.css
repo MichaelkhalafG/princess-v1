@@ -42,6 +42,6 @@
 }
 
 /* on the teal fill the design rings focus in ink */
-.link:focus {
+.link:focus-visible {
   outline: var(--focus-ring-on-accent);
 }
