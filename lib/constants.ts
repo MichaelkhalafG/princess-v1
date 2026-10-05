@@ -13,16 +13,16 @@ export type CategoryTone = 'accent' | 'secondary' | 'highlight' | 'ink';
 
 export const CATEGORIES = [
   { slug: 'hairdressing', label: 'كوافير وتجميل', tone: 'accent', icon: 'M6 3.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5M6 15.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5M20 4L8.1 15.6M14.5 14.5L20 20M8.1 8.4L12 12' },
-  { slug: 'makeup', label: 'مكياج', tone: 'accent', icon: 'M3 21l8.5-8.5M10.5 11.5l6-7.5a2.1 2.1 0 0 1 3 3l-7.5 6z' },
-  { slug: 'nails', label: 'أظافر', tone: 'accent', icon: 'M9.5 3h5v4h-5zM9.5 7h5l1.5 3.5V20a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-9.5zM8 14h8' },
-  { slug: 'henna', label: 'حنّة', tone: 'ink', icon: 'M19 5l-2.5 9.5L11 20l-7-7 5.5-5.5zM19 5l-6 6M9 16l2-2' },
-  { slug: 'tailoring', label: 'خياطة وتفصيل', tone: 'secondary', icon: 'M6 4h10M6 20h10M7 4v16M15 4v16M7 8h8M7 12h8M7 16h8M21 3l-4 6M20.3 3.7a1 1 0 1 1 .7.7' },
+  { slug: 'makeup', label: 'مكياج', tone: 'accent', icon: 'M9 21h6a1 1 0 0 0 1-1v-7H8v7a1 1 0 0 0 1 1zM9.5 13V9h5v4M10 9V5.5L14 3v6' },
+  { slug: 'nails', label: 'أظافر', tone: 'accent', icon: 'M10 3h4v6h-4zM7 9h10v10.5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 7 19.5zM7 14h10' },
+  { slug: 'henna', label: 'حنّة', tone: 'ink', icon: 'M8 21c-2.5-1.5-4-4-4-6.5V10a1.5 1.5 0 0 1 3 0v3M7 12V5.5a1.5 1.5 0 0 1 3 0V11M10 10.5V4.5a1.5 1.5 0 0 1 3 0v6M13 10.5V6a1.5 1.5 0 0 1 3 0v8c0 4-2.5 7-6 7zM10 15.5h.01M12.5 17.5h.01M8.5 18h.01' },
+  { slug: 'tailoring', label: 'خياطة وتفصيل', tone: 'secondary', icon: 'M5 19L17 7M17 7l2-2a1.4 1.4 0 0 0-2-2l-2 2zM15.5 5.5L18.5 8.5M5 19c-2 1-2.5-1.5-.5-2.5 3-1.5 6 .5 9 2.5 2 1.3 4 1.5 6 .5' },
   { slug: 'clothes-for-sale', label: 'بيع ملابس', tone: 'secondary', icon: 'M12 3a2 2 0 0 1 2 2c0 1.5-2 2-2 3.5V10M12 10L3 16.5A1.5 1.5 0 0 0 4 19h16a1.5 1.5 0 0 0 1-2.5z' },
   { slug: 'cooking-and-desserts', label: 'طبخ وحلويات', tone: 'highlight', icon: 'M3 12h18a9 9 0 0 1-18 0zM13 11l5-8M15.5 11l3-8M18 3l.5 0' },
   { slug: 'private-tutoring', label: 'دروس خصوصية', tone: 'highlight', icon: 'M12 6c-2-1.5-5-2-9-2v14c4 0 7 .5 9 2 2-1.5 5-2 9-2V4c-4 0-7 .5-9 2zM12 6v14' },
-  { slug: 'cleaning', label: 'تنظيف منازل', tone: 'secondary', icon: 'M9 9h6l1 12H8zM10 9V6a2 2 0 0 1 2-2h5M17 4h2M17 4v2M14 4l1 2' },
-  { slug: 'childcare', label: 'رعاية أطفال', tone: 'highlight', icon: 'M12 3a4.5 4.5 0 1 0 0 9a4.5 4.5 0 1 0 0-9M12 12v5M12 17a2 2 0 1 0 0 4a2 2 0 1 0 0-4' },
-  { slug: 'elderly-care', label: 'رعاية كبار السن', tone: 'ink', icon: 'M14 21V7a3 3 0 0 0-6 0v1M12 21h4' },
+  { slug: 'cleaning', label: 'تنظيف منازل', tone: 'secondary', icon: 'M8 10h6l1 10a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1zM9 10V7h4v3M9 7V4h6l2 2h-4v1M17 9l2-1M17 11h2.5M17 13l2 1' },
+  { slug: 'childcare', label: 'رعاية أطفال', tone: 'highlight', icon: 'M4 11h11V4a7 7 0 0 0-7 7M4 11a7 7 0 0 0 7 6 7 7 0 0 0 7-6V4l2.5-1M7.5 20.5a1.5 1.5 0 1 0 0-.01M15.5 20.5a1.5 1.5 0 1 0 0-.01' },
+  { slug: 'elderly-care', label: 'رعاية كبار السن', tone: 'ink', icon: 'M9 3a2 2 0 1 0 0 4a2 2 0 1 0 0-4M9 8.5c-1.5 1.5-2 4-1.5 6.5L6 21M8 15l3 2 1 4M8.5 10l4 2.5M14 21V12.5a1.5 1.5 0 0 1 3 0' },
 ] as const satisfies readonly { slug: string; label: string; tone: CategoryTone; icon: string }[];
 
 export type CategorySlug = (typeof CATEGORIES)[number]['slug'];

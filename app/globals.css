@@ -79,6 +79,8 @@
   --color-logo-disc: #EE6F9C;         /* the file's coral (its "softer" palette). Not the
                                          button pink #D03A73: the disc is a mark, not text,
                                          so the contrast fix does not apply to it. */
+  --color-arch-echo: #F4BCD0;         /* the short stroke echoing a listing photo's corner: light enough to
+                                         repeat on every card without competing with the photo */
   --color-logo-blush: #FFF6F1;        /* reversed variant; also the icon tile ground */
   --tracking-logo-word: -.02em;
   --logo-mark-height: .75em;          /* the P at 0.75 em … */
@@ -99,7 +101,6 @@
   --weight-bold: 700;
   --weight-heavy: 800;
 
-  --text-micro: 11px;                 /* chip counts */
   --text-caption: 12px;               /* category badge, date, character counter */
   --text-small: 13px;                 /* chips, hints, errors, sticky bar */
   --text-body-sm: 14px;               /* card description, field labels, back link */
@@ -107,6 +108,7 @@
   --text-body: 16px;                  /* inputs, card name, detail description */
   --text-banner-title: clamp(22px, 2.4vw, 28px); /* ONE-OFF: "posted" banner title — the news */
   --text-cta: 18px;                   /* large CTA, submit */
+  --text-step-number: 20px;           /* /about: the numeral inside a step's circle */
   --text-name-lg: 18px;               /* detail page: her name */
   --text-card-title-sm: 18px;         /* compact card title ("others" row) */
   --text-price-sm: 19px;              /* ONE-OFF: compact card price */
@@ -204,6 +206,8 @@
   --width-card-compact: 280px;
   --width-measure: 520px;             /* empty state, lead paragraphs */
   --width-reading: 640px;             /* terms, privacy: a column for reading */
+  --width-contents: 260px;            /* … and their contents list beside it on wide screens */
+  --reading-lift: 64px;               /* … how far the text and contents rise onto the header band */
   --width-status: 560px;              /* not-found panel */
   --width-status-text: 400px;
   --width-footer-text: 620px;
@@ -223,7 +227,13 @@
   --size-header: 64px;                /* sticky header (logo file: 1200 × 64); 56 on phones */
   --stroke-back: 2;                   /* back arrow */
   --size-icon: 15px;                  /* category line icons */
+  --size-step-number: 44px;           /* /about: a step's number, in a filled circle in the card's free corner */
+  --size-icon-tile: 26px;             /* the icon on a category tile: above the name, large enough to read */
+  --size-tile: 80px;                  /* a category tile (hero, bar, form): icon above name */
+  --size-tile-sm: 72px;               /* … in the category bar's scrolling row */
+  --size-tile-scroll: 96px;           /* … its narrowest width there */
   --stroke-icon: 1.75;
+  --stroke-arch-echo: 2.5px;          /* fixed at every card size (vector-effect: non-scaling-stroke) */
   --size-dot: 9px;                    /* contact-button dot */
   --size-dot-sm: 8px;                 /* sticky bar, back link, detail meta */
   --size-dot-xs: 7px;                 /* error bullet */
@@ -256,13 +266,13 @@
 
   /* Touch */
   --size-hit-min: 44px;               /* smallest tap target in either direction */
-  --catbar-columns: 6;                /* the category bar on wide screens: 12 chips, 2 rows of 6 */
+  --catbar-columns: 6;                /* the category bar on wide screens: 12 tiles, 2 rows of 6 */
+  --form-tile-columns: 4;             /* the form's category picker on wide screens */
   --size-fade: 32px;                  /* trailing fade on a row of chips that scrolls */
   --color-mask-opaque: #000;          /* mask-image only reads alpha: this is "fully shown" */
 
   /* Landing hero */
   --width-hero-controls: 640px;       /* country selector + search row */
-  --width-hero-chips: 600px;
   --width-collage-mobile: 440px;
   --ratio-collage: 1 / 1.08;
   --blob-hero-lg: 560px;
@@ -335,8 +345,6 @@
   --shadow-badge-on-canvas: 0 0 0 4px var(--color-canvas), 0 10px 20px -10px rgba(28, 10, 20, .3);
   /* the design's 22% suited solid fills; on the soft category tints it reads as a smudge */
   --shadow-monogram: inset -40px -40px 90px -50px rgba(28, 10, 20, .08);
-  --shadow-chip: 0 6px 16px -8px rgb(var(--rgb-shadow) / .16);
-  --shadow-chip-selected: 0 10px 20px -10px rgb(var(--rgb-ink) / .45);
   --shadow-control: 0 18px 40px -16px rgb(var(--rgb-shadow) / .16), 0 2px 6px rgb(var(--rgb-ink) / .05);
   --shadow-control-compact: 0 10px 24px -12px rgb(var(--rgb-shadow) / .16), 0 0 0 1px rgb(var(--rgb-shadow) / .07);
   --shadow-catbar: 0 14px 34px -16px rgb(var(--rgb-shadow) / .14);

@@ -1,27 +1,30 @@
+/* A category tile: its line icon above its name. The tile is the main way anyone picks a
+   category, so it is drawn as a control with room — every tile in a set the same width
+   (the set's grid decides), the icon large enough to recognise rather than decorate. */
 .chip {
-  display: inline-flex;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: var(--space-3);
-  flex: 0 0 auto;
+  min-width: 0;
+  min-height: var(--size-tile);
+  padding: var(--space-5) var(--space-5);
   border: 0;
+  border-radius: var(--radius-field);
   cursor: pointer;
   font: inherit;
-  font-size: var(--text-small);
-  font-weight: var(--weight-medium);
-  border-radius: var(--radius-pill);
+  font-size: var(--text-control);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-card-title);
   white-space: nowrap;
-  background: var(--color-surface);
   color: var(--color-ink);
-  /* one drawn height for every chip (hero, bar, form); the .tap-area layer takes the tap
-     area to 44px */
-  min-height: var(--size-control-sm);
   /* every visitor is on a phone: no double-tap-zoom delay, and no grey rectangle flashed
-     over a pill — the chip turns ink the moment it is tapped, which is the feedback */
+     over a tile — the tile turns ink the moment it is tapped, which is the feedback */
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  /* selecting a chip eases its colour instead of snapping */
-  transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out),
-    box-shadow var(--duration-fast) var(--ease-out);
+  /* selecting a tile eases its colour instead of snapping */
+  transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
 }
 
 /* the icon carries the category's tone, as on the card badge */
@@ -30,12 +33,18 @@
   color: var(--color-ink);
 }
 
+.icon svg {
+  width: var(--size-icon-tile);
+  height: var(--size-icon-tile);
+}
+
 .chip[data-tone='accent'] .icon { color: var(--tone-accent-ink); }
 .chip[data-tone='secondary'] .icon { color: var(--tone-secondary-ink); }
 .chip[data-tone='highlight'] .icon { color: var(--tone-highlight-ink); }
 .chip[data-tone='ink'] .icon { color: var(--tone-ink-ink); }
 
-.selected {
+.selected,
+.chip.selected {
   background: var(--color-ink);
   color: var(--color-on-ink);
 }
@@ -45,62 +54,33 @@
   color: var(--color-on-ink);
 }
 
-/* hero chips */
-.raised {
-  padding: 0 var(--space-8);
-  box-shadow: var(--shadow-chip);
-}
-
-.raised.selected {
-  box-shadow: var(--shadow-chip-selected);
-}
-
-.raised:focus-visible {
+.chip:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
 }
 
-/* category bar chips */
-.bar {
-  padding: 0 var(--space-9);
-  background: transparent;
-}
-
-.bar.selected {
-  background: var(--color-ink);
-}
-
-.bar:focus-visible {
-  outline: var(--focus-ring);
-  outline-offset: var(--focus-offset-inset);
-}
-
-/* form category choice (the design's min-height:38px is dropped: landing chip height) */
+/* category bar and form tiles: on a white panel */
+.bar,
 .inset {
-  padding: 0 var(--space-9);
   background: var(--color-canvas);
 }
 
-.inset.selected {
-  background: var(--color-ink);
-  box-shadow: var(--shadow-chip-selected);
-}
-
-.inset:focus-visible {
-  outline: var(--focus-ring);
-  outline-offset: var(--focus-offset);
-}
-
-/* Hover — pointer devices only, so nothing sticks after a tap on a phone. A selected
-   chip never changes on hover: the design turned it pale (cream text on peach), so the
-   one thing under her cursor went the wrong way. */
+/* Hover — pointer devices only, so nothing sticks after a tap on a phone. A selected tile
+   never changes on hover. */
 @media (hover: hover) {
-  .raised:not(.selected):hover {
-    background: var(--color-tint-soft);
-  }
-
-  .bar:not(.selected):hover,
-  .inset:not(.selected):hover {
+  .chip:not(.selected):hover {
     background: var(--color-tint);
+  }
+}
+
+/* the category bar's scrolling row (tablets and phones): fixed-width tiles, a little
+   shorter so the row costs less of the first screen */
+@media (max-width: 860px) {
+  .bar {
+    flex: 0 0 auto;
+    min-width: var(--size-tile-scroll);
+    padding-inline: var(--space-10);
+    min-height: var(--size-tile-sm);
+    font-size: var(--text-body-sm);
   }
 }

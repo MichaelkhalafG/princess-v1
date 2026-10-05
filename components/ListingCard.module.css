@@ -37,6 +37,26 @@
   border-radius: var(--radius-media) calc(var(--ratio-media-shoulder) * 100cqi) var(--radius-media) var(--radius-media);
 }
 
+/* the arch echo (ListingCard.tsx): decoration only — no pointer events, under the badge */
+.echo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: calc(var(--ratio-media-shoulder) * 100cqi);
+  height: calc(var(--ratio-media-shoulder) * 100cqi);
+  overflow: visible;
+  pointer-events: none;
+  fill: none;
+  stroke: var(--color-arch-echo);
+  stroke-width: var(--stroke-arch-echo);
+  stroke-linecap: round;
+}
+
+.echo path {
+  /* the same weight on a 169px card and a 478px one */
+  vector-effect: non-scaling-stroke;
+}
+
 .photo {
   overflow: hidden;
   background: var(--color-tint);

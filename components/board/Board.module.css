@@ -91,18 +91,6 @@
   max-width: var(--width-hero-controls);
 }
 
-/* six hero chips in two even rows of three — the design's wrapping row left one chip
-   alone on the second line. The row gap leaves room for each chip's 44px tap layer
-   (34px chips: 5px above and below), touch screens wider than 860px included. */
-.chips {
-  display: grid;
-  grid-template-columns: repeat(3, auto);
-  justify-content: start;
-  justify-items: start;
-  gap: var(--space-7) var(--space-5);
-  max-width: var(--width-hero-chips);
-}
-
 .ctaRow {
   display: flex;
   align-items: center;
@@ -241,12 +229,6 @@
     font-size: var(--text-h1-mobile);
   }
 
-  /* the six hero chips stay a grid: all six in view, none behind a scroll */
-  .chips {
-    max-width: none;
-    padding-bottom: var(--space-5);
-  }
-
   .ctaRow {
     flex-direction: column;
     align-items: stretch;
@@ -258,13 +240,13 @@
 }
 
 /* Phones: the hero is the collage, the country selector and the search — nothing else.
-   The collage says what the site is better than the headline and paragraph did; the hero
-   chips repeated the category bar a few hundred pixels below; the header carries
-   "اعرضي خدمتك" on every screen. Desktop keeps all of them. */
+   The collage says what the site is better than the headline and paragraph did; the
+   header carries "اعرضي خدمتك" on every screen. Desktop keeps the headline, lead and CTA.
+   No width has category tiles in the hero: the category bar right under it already offers
+   every category, and the same eleven twice in one screen was the problem. */
 @media (max-width: 480px) {
   .title,
   .lead,
-  .chips,
   .ctaRow {
     display: none;
   }

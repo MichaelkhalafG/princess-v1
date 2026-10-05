@@ -8,7 +8,6 @@ import { listingCountLabel, searchPlaceholder } from '@/lib/format.ts';
 import type { Listing } from '@/lib/listing.ts';
 import { Button } from '../Button.tsx';
 import { CategoryBar } from '../CategoryBar.tsx';
-import { CategoryChip } from '../CategoryChip.tsx';
 import { CountrySelector } from '../CountrySelector.tsx';
 import { EmptyState } from '../EmptyState.tsx';
 import { FilterSummary, useFilterBarVisible } from '../FilterBar.tsx';
@@ -18,9 +17,6 @@ import { SiteFooter } from '../SiteFooter.tsx';
 import { SiteHeader } from '../SiteHeader.tsx';
 import { HeroCollage } from './HeroCollage.tsx';
 import styles from './Board.module.css';
-
-/** The six categories the hero offers as shortcuts, in the design's order. */
-const HERO_CATEGORIES: CategorySlug[] = ['nails', 'tailoring', 'cooking-and-desserts', 'makeup', 'henna', 'private-tutoring'];
 
 const SEARCH_DEBOUNCE_MS = 350;
 
@@ -198,23 +194,6 @@ export function Board({
                 onChange={setQuery}
                 onSubmit={() => navigate({ q: query })}
               />
-            </div>
-
-            <div className={styles.chips}>
-              {HERO_CATEGORIES.map((slug) => {
-                const c = getCategory(slug);
-                return (
-                  <CategoryChip
-                    key={slug}
-                    variant="raised"
-                    category={slug}
-                    label={c.label}
-                    icon={c.icon}
-                    selected={selected.category === slug}
-                    onSelect={() => navigate({ category: slug })}
-                  />
-                );
-              })}
             </div>
 
             <div className={styles.ctaRow}>

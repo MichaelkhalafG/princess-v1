@@ -7,6 +7,28 @@ import { CategoryIcon } from './CategoryIcon.tsx';
 import styles from './ListingCard.module.css';
 import tones from './tones.module.css';
 
+// The arch echo: a short stroke concentric with the photo's sweeping corner, set a little
+// outside it in the wedge the corner leaves. Drawn in a box the size of the corner's radius
+// (100 units = the radius), so it stays concentric at any card width. It stops short of
+// both ends — run the full quarter it reads as a second outline of the photo.
+const ECHO_GAP = 12; // distance outside the curve, in hundredths of the radius
+const ECHO_FROM = 30; // degrees from the top of the curve …
+const ECHO_TO = 60; // … to here
+const echoPoint = (deg: number) => {
+  const r = 100 + ECHO_GAP;
+  const a = (deg * Math.PI) / 180;
+  return `${(r * Math.sin(a)).toFixed(2)} ${(100 - r * Math.cos(a)).toFixed(2)}`;
+};
+const ECHO_PATH = `M${echoPoint(ECHO_FROM)}A${100 + ECHO_GAP} ${100 + ECHO_GAP} 0 0 1 ${echoPoint(ECHO_TO)}`;
+
+function ArchEcho() {
+  return (
+    <svg className={styles.echo} viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+      <path d={ECHO_PATH} />
+    </svg>
+  );
+}
+
 /** A price longer than this (in characters) is set smaller: at full size a 40-character
     price filled two lines in large pink and outweighed the title. */
 const PRICE_LONG_CHARS = 20;
@@ -50,6 +72,7 @@ export function ListingCard({
 
   const media = (
     <div className={styles.media}>
+      <ArchEcho />
       {photoSrc ? (
         <div className={styles.photo}>
           <img src={photoSrc} alt={listing.title} loading="lazy" decoding="async" />

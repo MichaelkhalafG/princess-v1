@@ -4,12 +4,11 @@ import { CategoryIcon } from './CategoryIcon.tsx';
 import styles from './CategoryChip.module.css';
 
 /**
- * A category chip. Every place a category appears uses the same anatomy — its line icon,
- * in the category's tone colour, beside its label — so a category looks like itself in
- * the hero, the category bar, the form, the card badge and the footer.
- *   raised — the hero chips: white pill with a soft shadow
- *   bar    — inside the category bar: transparent until selected
- *   inset  — the form's category choice: page-colour pill on the white form card
+ * A category tile: its line icon, in the category's tone colour, above its name. The same
+ * tile in the category bar and the form; the set's grid gives every tile in it the same
+ * width. (The hero has none: the bar under it already offers every category.)
+ *   bar    — inside the category bar's white panel
+ *   inset  — the form's category choice, on the white form card
  *
  * No count: the number of listings belongs in the results heading, not in the chip.
  * As a filter it toggles (aria-pressed); in the form it is one radio of a radiogroup.
@@ -29,7 +28,7 @@ export function CategoryChip({
   label: string;
   icon: string;
   selected: boolean;
-  variant: 'raised' | 'bar' | 'inset';
+  variant: 'bar' | 'inset';
   role?: 'toggle' | 'radio';
   /** in a radio group, only one chip takes Tab (lib/radio.ts) */
   tabIndex?: number;
