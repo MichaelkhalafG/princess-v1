@@ -36,6 +36,8 @@ export function Board({
   q,
   shown,
   total,
+  launch,
+  elsewhere,
   listings,
   now,
 }: {
@@ -46,6 +48,12 @@ export function Board({
   shown: number;
   /** how many match in all */
   total: number;
+  /** The country has no listing at all yet (app/page.tsx): nothing to search or filter,
+      so the board explains itself instead — headline on phones too, no search, no
+      category bar, and an empty panel for someone looking as well as someone posting. */
+  launch: boolean;
+  /** in the launch state, the other countries that do have listings */
+  elsewhere: CountryCode[];
   listings: BoardListing[];
   /** ISO time the server rendered at, so server and browser agree on "قبل ٣ ساعات". */
   now: string;
@@ -160,7 +168,7 @@ export function Board({
         homeHref={boardHref(ctx)}
         skip={{ href: '#listings', label: 'انتقلي إلى الإعلانات' }}
         postHref={postHref}
-        center={summaryVisible ? (
+        center={summaryVisible && !launch ? (
           <FilterSummary
             countryName={getCountry(selected.country).name}
             countryFlag={getCountry(selected.country).flag}
@@ -177,7 +185,7 @@ export function Board({
           (transparent) header so the orbs bleed off the top of the screen; they are
           clipped by the screen edges, never by a section boundary. */}
       <main id="main">
-      <div className={styles.top}>
+      <div className={launch ? `${styles.top} ${styles.launch}` : styles.top}>
         <span className={`${styles.blob} ${styles.blobTint}`} aria-hidden="true" />
         <span className={`${styles.blob} ${styles.blobAmber}`} aria-hidden="true" />
 
@@ -188,12 +196,14 @@ export function Board({
 
             <div className={styles.controls} ref={heroControls}>
               <CountrySelector size="large" value={selected.country} onChange={(c) => navigate({ country: c })} />
-              <SearchField
-                value={query}
-                placeholder={searchPlaceholder(country)}
-                onChange={setQuery}
-                onSubmit={() => navigate({ q: query })}
-              />
+              {!launch && (
+                <SearchField
+                  value={query}
+                  placeholder={searchPlaceholder(country)}
+                  onChange={setQuery}
+                  onSubmit={() => navigate({ q: query })}
+                />
+              )}
             </div>
 
             <div className={styles.ctaRow}>
@@ -206,21 +216,38 @@ export function Board({
         </section>
       </div>
 
-      <CategoryBar ref={categoryBar} selected={selected.category} onSelect={(c) => navigate({ category: c })} />
+      {!launch && <CategoryBar ref={categoryBar} selected={selected.category} onSelect={(c) => navigate({ category: c })} />}
 
       {/* tabIndex -1: the skip link's target takes focus, so the next Tab is the first card */}
       <section id="listings" tabIndex={-1} className={styles.grid} ref={grid} aria-busy={pending} aria-labelledby="listings-title">
-        <div className={styles.gridHead}>
-          <h2 id="listings-title" className={styles.gridTitle}>
-            {q
-              ? `نتائج «${q}»${category ? ` في «${activeLabel}»` : ''} في ${k.name}`
-              : category ? `${activeLabel} في ${k.name}` : `آخر الإعلانات في ${k.name}`}
-          </h2>
-          <span className={styles.count}>{pending ? LOADING_LABEL : countLabel}</span>
-          {pending && <span className={styles.loading} aria-hidden="true" />}
-        </div>
+        {launch ? (
+          // the panel's title says it; the section still needs its heading
+          <h2 id="listings-title" className="visually-hidden">لا توجد إعلانات في {k.name} بعد</h2>
+        ) : (
+          <div className={styles.gridHead}>
+            <h2 id="listings-title" className={styles.gridTitle}>
+              {q
+                ? `نتائج «${q}»${category ? ` في «${activeLabel}»` : ''} في ${k.name}`
+                : category ? `${activeLabel} في ${k.name}` : `آخر الإعلانات في ${k.name}`}
+            </h2>
+            <span className={styles.count}>{pending ? LOADING_LABEL : countLabel}</span>
+            {pending && <span className={styles.loading} aria-hidden="true" />}
+          </div>
+        )}
 
-        {n === 0 ? (
+        {launch ? (
+          <EmptyState
+            title={`اللوحة جديدة في ${k.name}`}
+            body={[
+              `هنا ستجدين سيدات من ${k.name} يعرضن خدماتهن وملابسهن، وتتواصلين معهن مباشرة على واتساب أو الهاتف، بلا وسيط.`,
+              'لم يُنشر أي إعلان بعد. إن كانت لديكِ خدمة أو ملابس تعرضينها، كوني أول من تنشر: الإعلان مجاني ويستغرق دقيقتين. وإن كنتِ تبحثين عن خدمة، فأرسلي الرابط لمن تعرفين ممن تقدّم واحدة.',
+            ]}
+            actions={[
+              { label: 'اعرضي خدمتك الآن', href: postHref },
+              elsewhere[0] ? { label: `تصفحي إعلانات ${getCountry(elsewhere[0]).name}`, onClick: () => navigate({ country: elsewhere[0], category: null, q: '' }) } : undefined,
+            ]}
+          />
+        ) : n === 0 ? (
           q ? (
             // A search that found nothing: say what she searched for, and the two ways out —
             // drop the search, or (inside a category) go back to the whole country.

@@ -8,11 +8,16 @@ export type EmptyAction = { label: string; href?: string; onClick?: () => void }
  * out (accent); a second, if given, is the other one (soft) — e.g. "clear the search"
  * and "see all of the country", or "post" and "see every category".
  */
-export function EmptyState({ title, body, actions }: { title: string; body: string; actions: [EmptyAction, EmptyAction?] }) {
+export function EmptyState({ title, body, actions }: {
+  title: string;
+  /** one paragraph, or several */
+  body: string | readonly string[];
+  actions: [EmptyAction, EmptyAction?];
+}) {
   return (
     <div className={styles.panel} role="status">
       <div className={styles.title}>{title}</div>
-      <p className={styles.body}>{body}</p>
+      {(typeof body === 'string' ? [body] : body).map((p) => <p key={p} className={styles.body}>{p}</p>)}
       <div className={styles.actions}>
         {actions.filter((a): a is EmptyAction => Boolean(a)).map((a, i) => (
           a.href

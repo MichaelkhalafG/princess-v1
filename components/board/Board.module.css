@@ -250,4 +250,11 @@
   .ctaRow {
     display: none;
   }
+
+  /* the launch state (a country with no listing yet): with no listings under it the
+     collage no longer explains the site, so the headline and lead come back */
+  .launch .title,
+  .launch .lead {
+    display: block;
+  }
 }

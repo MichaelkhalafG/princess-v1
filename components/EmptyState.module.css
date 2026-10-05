@@ -24,6 +24,11 @@
   line-height: var(--leading-body);
 }
 
+/* several paragraphs read as one message: the full gap only before the actions */
+.body:not(:last-of-type) {
+  margin-bottom: var(--space-8);
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;
