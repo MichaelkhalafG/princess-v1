@@ -11,7 +11,7 @@ import { createServer } from 'node:net';
 import { createClient } from '@supabase/supabase-js';
 import { CATEGORIES, COUNTRIES } from '../../lib/constants.ts';
 import { areaText, formatPhone } from '../../lib/format.ts';
-import { CONTACT_EMAIL } from '../../lib/site.ts';
+import { CONTACT_EMAIL, INDEXABLE } from '../../lib/site.ts';
 import { testEnv } from '../support/env.ts';
 
 const { url, publishableKey, secretKey } = testEnv();
@@ -220,15 +220,26 @@ test('an unknown address is a 404 with the Arabic page in the server HTML', asyn
   assert.ok(html.includes('العودة إلى اللوحة'));
 });
 
-test('terms and privacy are drafts: marked, kept out of search engines, and linked from nowhere', async () => {
+test('terms and privacy are published: nothing on them reads as a draft, and every footer links both', async () => {
   for (const path of ['/terms', '/privacy']) {
     const { status, html } = await get(path);
     assert.equal(status, 200, path);
-    assert.ok(html.includes('مسودة للمراجعة'), `${path}: draft banner missing`);
-    assert.match(html, /<meta name="robots" content="noindex, nofollow"\/>/, path);
+    const main = html.match(/<main[\s\S]*?<\/main>/)?.[0] ?? '';
+    assert.ok(main.length > 0, `${path}: no <main>`);
+    for (const mark of ['مسودة', 'للمراجعة', '[', ']']) assert.ok(!main.includes(mark), `${path}: "${mark}" on the page`);
+    assert.ok(!(html.match(/<title>([^<]*)<\/title>/)?.[1] ?? '').includes('مسودة'), `${path}: draft in the title`);
   }
   for (const page of ['/', '/new', '/about']) {
-    const links = footerLinks((await get(page)).html);
-    assert.ok(!links.some((h) => h.startsWith('/terms') || h.startsWith('/privacy')), `${page} links a draft`);
+    const paths = footerLinks((await get(page)).html).map((h) => h.split(/[?#]/)[0]);
+    assert.ok(paths.includes('/terms') && paths.includes('/privacy'), `${page}: footer must link both`);
+  }
+});
+
+test('one search-engine switch: every kind of page follows lib/site.ts INDEXABLE', async () => {
+  for (const path of ['/', `/listing/${ids.withAll}`, '/new', '/about', '/terms', '/privacy']) {
+    const { html } = await get(path);
+    const robots = html.match(/<meta name="robots" content="([^"]*)"\/>/)?.[1];
+    if (INDEXABLE) assert.equal(robots, undefined, `${path}: indexable, so no robots tag`);
+    else assert.equal(robots, 'noindex, nofollow', path);
   }
 });

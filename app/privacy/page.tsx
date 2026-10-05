@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import { Flag, ReadingPage } from '@/components/ReadingPage.tsx';
+import { ReadingPage } from '@/components/ReadingPage.tsx';
 import { readBoardContext } from '@/lib/board-url.ts';
 import { CONTACT_EMAIL } from '@/lib/site.ts';
 
-// DRAFT. Not linked from the site until its text is approved; kept out of search engines
-// meanwhile. It states only what is fact about the site today, each checked in the code:
+// The privacy page as published. It states only what is fact about the site today, each
+// checked in the code:
 // every listing field is public (lib/listing.ts LISTING_COLUMNS), the board needs no
 // account and verifies nothing, the site sets no cookie, a listing cannot be edited or
 // deleted on the site, and removal is by email.
@@ -13,7 +13,7 @@ import { CONTACT_EMAIL } from '@/lib/site.ts';
 // about the law in the three countries, and any sentence that assigns or disclaims legal
 // responsibility for the data. Leaving them out defers those questions; it does not
 // settle them.
-export const metadata: Metadata = { title: 'الخصوصية (مسودة) — برينسيس', robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: 'الخصوصية — برينسيس' };
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
@@ -25,8 +25,7 @@ export default async function PrivacyPage({ searchParams }: Props) {
     <ReadingPage
       ctx={ctx}
       title="الخصوصية"
-      draft
-      updated={<Flag why="يُكتب التاريخ عند اعتماد النص">آخر تحديث: —</Flag>}
+      updated="آخر تحديث: ٥ أكتوبر ٢٠٢٦"
       summary={[
         <>كل ما تكتبينه في إعلانك يظهر للجميع، ومنه اسمك ومدينتك وصورتك، و<strong>أرقام واتساب والهاتف وحساب إنستغرام</strong>.</>,
         <>أي شخص يستطيع رؤية إعلانك ونسخ أرقامك، دون حساب أو تسجيل.</>,

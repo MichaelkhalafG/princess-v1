@@ -6,13 +6,13 @@ import styles from './SiteFooter.module.css';
 export const ABOUT =
   'برينسيس لوحة إعلانات فقط: تعرض فيها السيدات خدماتهن وملابسهن، والاتفاق والدفع بينهن وبين العميلات مباشرة، دون أي عمولة.';
 
-/** Only pages that exist are linked: a link that goes nowhere is worse than none. Both
-    links open /about at their section. The terms and privacy pages are drafts
-    (app/terms, app/privacy) and stay unlinked until their text is rewritten. Each link
-    keeps her board context. */
+/** Only pages that exist are linked: a link that goes nowhere is worse than none. The
+    first two open /about at their section. Each link keeps her board context. */
 const PAGES = [
   { path: '/about', hash: '#how', label: 'كيف يعمل؟' },
   { path: '/about', hash: '#contact', label: 'تواصلي معنا' },
+  { path: '/terms', hash: '', label: 'الشروط' },
+  { path: '/privacy', hash: '', label: 'الخصوصية' },
 ];
 
 /**
@@ -31,7 +31,7 @@ export function SiteFooter({ ctx = NO_BOARD_CONTEXT }: { ctx?: BoardContext }) {
             <p className={styles.line}>{ABOUT}</p>
           </div>
           <nav aria-label="روابط الموقع" className={styles.links}>
-            {PAGES.map((p) => <a key={p.hash} href={`${withBoardContext(p.path, ctx)}${p.hash}`} className="tap-area">{p.label}</a>)}
+            {PAGES.map((p) => <a key={p.path + p.hash} href={`${withBoardContext(p.path, ctx)}${p.hash}`} className="tap-area">{p.label}</a>)}
           </nav>
         </div>
         <p className={styles.bottom}>برينسيس — مشروع من MDN</p>

@@ -21,3 +21,11 @@ export const SITE_URL = siteUrl();
 
 /** Where she writes to us, and where removal requests go (handled by hand). */
 export const CONTACT_EMAIL = 'info@mdneg.com';
+
+/**
+ * THE SEARCH-ENGINE SWITCH. false while the site is on trial: every page tells search
+ * engines not to index it or follow its links (app/layout.tsx, the one place it is read).
+ * Set it to true at launch, and that is all — no page sets its own `robots`, because a
+ * page's `robots` replaces the layout's (tests/unit/site.test.ts keeps it that way).
+ */
+export const INDEXABLE = false;

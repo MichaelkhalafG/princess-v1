@@ -1,0 +1,3 @@
+# Second guard: deploys come from Git, where public/_mock/ is ignored already. If a deploy
+# is ever made with the Vercel CLI from a working folder, the mockups still stay behind.
+public/_mock/

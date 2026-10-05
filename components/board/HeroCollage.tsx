@@ -3,12 +3,12 @@
 import { useEffect, useRef } from 'react';
 import styles from './HeroCollage.module.css';
 
-// The design's three arch photos, with the design's alt text. Hosted on Pexels, as in
-// the approved file.
+// The design's three arch photos, with the design's alt text. From Pexels (free to use,
+// no attribution required), served from public/hero/ exactly as downloaded.
 const PHOTOS = [
-  { cls: 'p1', factor: -0.06, src: 'https://images.pexels.com/photos/34871553/pexels-photo-34871553.jpeg?auto=compress&cs=tinysrgb&w=1200', alt: 'أظافر طويلة بطلاء أحمر' },
-  { cls: 'p2', factor: 0.04, src: 'https://images.pexels.com/photos/33078826/pexels-photo-33078826/free-photo-of-tailor-meticulously-crafting-garments-in-workshop.jpeg?w=1260&h=750&dpr=1', alt: 'تفصيل فستان في الورشة' },
-  { cls: 'p3', factor: -0.1, src: 'https://images.pexels.com/photos/6287459/pexels-photo-6287459.jpeg?auto=compress&cs=tinysrgb&w=1200', alt: 'يدان تطبخان في المطبخ' },
+  { cls: 'p1', factor: -0.06, src: '/hero/nails.jpg', alt: 'أظافر طويلة بطلاء أحمر' },
+  { cls: 'p2', factor: 0.04, src: '/hero/tailoring.jpg', alt: 'تفصيل فستان في الورشة' },
+  { cls: 'p3', factor: -0.1, src: '/hero/cooking.jpg', alt: 'يدان تطبخان في المطبخ' },
 ] as const;
 
 /** The hero collage: three arch-topped photos drifting at different speeds on scroll. */
