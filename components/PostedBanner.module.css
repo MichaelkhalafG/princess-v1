@@ -1,0 +1,65 @@
+.banner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-15) var(--space-17);
+  flex-wrap: wrap;
+  background: var(--color-secondary);
+  color: var(--color-on-accent);
+  /* a wide short strip: a plain radius, not the arch (the arch is for shapes about as
+     tall as they are wide — cards, photos, panels) */
+  border-radius: var(--radius-panel);
+  padding: var(--space-16) var(--space-17);
+  margin-top: var(--space-5);
+  /* the one load moment on this page: confirming that her listing is live.
+     Opacity and scale only — its space is reserved from the first paint. */
+  animation: posted-in var(--duration-slow) var(--ease-out);
+}
+
+@keyframes posted-in {
+  from {
+    opacity: 0;
+    transform: scale(var(--scale-press));
+  }
+}
+
+.text {
+  flex: 1;
+  min-width: var(--width-banner-text-min);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.title {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-heavy);
+  font-size: var(--text-banner-title);
+  line-height: var(--leading-title);
+  /* the news; everything under it is detail */
+  margin-bottom: var(--space-5);
+}
+
+.body {
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-snug);
+}
+
+/* the honest part: what she cannot do later, and the one way to remove it. Detail, at
+   the body line's size and weight — set apart by space, not by weight */
+.keep {
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-snug);
+}
+
+@media (max-width: 480px) {
+  .banner {
+    padding: var(--space-15) var(--space-13);
+  }
+}
+
+/* on the teal fill the design rings focus in ink */
+.link:focus-visible {
+  outline: var(--focus-ring-on-accent);
+}

@@ -1,0 +1,305 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: clip;
+}
+
+.main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--width-detail);
+  margin: 0 auto;
+  padding: var(--space-5) var(--gutter-page) var(--pad-section-bottom);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-detail-sections);
+}
+
+.blob {
+  position: absolute;
+  right: var(--blob-lg-inset-x);
+  top: var(--blob-lg-inset-y-detail);
+  width: var(--blob-lg);
+  height: var(--blob-lg);
+  border-radius: var(--radius-circle);
+  background: var(--color-tint);
+  z-index: 0;
+}
+
+/* The listing is one white card, like a board card grown: the photo inset by the card's
+   padding, the details beside it. The design left the details floating on the page
+   background next to the photo. */
+.detail {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: var(--gap-detail);
+  align-items: start;
+  margin-top: var(--space-5);
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-card);
+}
+
+/* photo / monogram: the card's shoulder, grown. Side by side, it stays in view under
+   the header while a long description scrolls past (it used to stop halfway down and
+   leave an empty white block). */
+.media {
+  position: sticky;
+  top: calc(var(--size-header) + var(--space-8));
+}
+
+/* capped to the viewport so the stuck photo can never be taller than the screen and fight
+   the scroll; object-fit: cover crops a tall photo instead of squashing it */
+.photo,
+.monogramPanel {
+  max-height: calc(100svh - var(--size-header) - var(--space-8) * 2);
+}
+
+.photo,
+.monogramPanel {
+  aspect-ratio: var(--ratio-media-lg);
+  border-radius: var(--radius-media-lg) var(--radius-media-lg-shoulder) var(--radius-media-lg) var(--radius-media-lg);
+}
+
+/* inside the card the photo needs no shadow of its own */
+.photo {
+  overflow: hidden;
+  background: var(--color-tint);
+}
+
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.monogramPanel {
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-monogram);
+  container-type: inline-size;
+}
+
+/* the category's icon, as on the card (never a letter: «ه» reads as ٥, «ا» as ١) */
+.monogram {
+  width: var(--size-monogram-lg);
+  height: var(--size-monogram-lg);
+  stroke-width: var(--stroke-monogram);
+}
+
+.badge {
+  position: absolute;
+  right: var(--space-14);
+  bottom: var(--space-badge-overlap-lg);
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  min-width: 0;
+  /* breathing room inside the card on the side away from the photo */
+  padding-block: var(--space-15);
+  padding-inline-end: var(--space-15);
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.name {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-name-lg);
+}
+
+.title {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-heavy);
+  font-size: var(--text-detail-title);
+  /* the design's 1.1 let the two lines of a long Arabic title touch */
+  line-height: var(--leading-title);
+  margin: 0;
+  letter-spacing: var(--tracking-display);
+  text-wrap: pretty;
+}
+
+/* one run of text: a long city and district wrap like a sentence */
+.where {
+  margin: 0;
+  font-size: var(--text-control);
+  line-height: var(--leading-body);
+  color: var(--color-text-muted);
+}
+
+.whereDot {
+  display: inline-block;
+  width: var(--size-dot-sm);
+  height: var(--size-dot-sm);
+  border-radius: var(--radius-circle);
+  background: var(--color-highlight);
+  margin-inline-end: var(--space-5);
+  vertical-align: middle;
+}
+
+/* the country and its separator never part */
+.whereCountry {
+  white-space: nowrap;
+}
+
+.description {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+  text-wrap: pretty;
+}
+
+.price {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-heavy);
+  font-size: var(--text-price-lg);
+  color: var(--color-accent);
+  line-height: var(--leading-price);
+}
+
+/* the full values live here, so they wrap rather than truncate — but a long unbroken
+   string still breaks instead of pushing past the card */
+.name,
+.title,
+.where,
+.description,
+.price {
+  overflow-wrap: anywhere;
+}
+
+.contacts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  padding-top: var(--space-2);
+}
+
+.secondary {
+  display: flex;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.secondaryButton {
+  flex: 1 1 var(--width-action-basis);
+}
+
+.date {
+  font-size: var(--text-small);
+  color: var(--color-text-subtle);
+}
+
+/* others in the same category and country */
+.others {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.othersHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-11);
+  flex-wrap: wrap;
+}
+
+.othersTitle {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-heavy);
+  font-size: var(--text-h2-sm);
+  margin: 0;
+  line-height: var(--leading-heading);
+}
+
+.othersCount {
+  font-size: var(--text-body-sm);
+  color: var(--color-text-muted);
+}
+
+.row {
+  display: flex;
+  gap: var(--gap-carousel);
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 calc(var(--gutter-page) * -1);
+  padding: var(--space-3) var(--gutter-page) var(--space-carousel-pad-bottom);
+}
+
+.row::-webkit-scrollbar {
+  display: none;
+}
+
+.rowItem {
+  flex: 0 0 var(--width-card-compact);
+  display: flex;
+}
+
+.rowItem > * {
+  flex: 1;
+}
+
+/* the only listing in its category and country */
+.alone {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-11);
+  flex-wrap: wrap;
+  background: var(--color-surface);
+  border-radius: var(--radius-panel); /* wide and short: no arch */
+  padding: var(--space-12) var(--space-14);
+  box-shadow: var(--shadow-catbar);
+}
+
+.aloneText {
+  font-size: var(--text-control);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-snug);
+}
+
+@media (max-width: 860px) {
+  .detail {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  /* one column: the photo is above the text, nothing to stay beside */
+  .media {
+    position: relative;
+    top: auto;
+  }
+
+  /* single column: the details sit under the photo like a board card's body */
+  .info {
+    padding: var(--space-15) var(--space-8) var(--space-8);
+  }
+
+  /* On a tablet the full-width photo grew to ~635px and pushed the contact buttons
+     below the fold; capped, it stays a photo rather than a screen. */
+  .photo,
+  .monogramPanel {
+    max-height: var(--height-detail-media-max);
+    width: 100%;
+  }
+}
+
+/* Small phones need no rule: the buttons wrap onto their own full-width rows. A
+   column direction here turned each button's 180px flex-basis into a 180px HEIGHT. */

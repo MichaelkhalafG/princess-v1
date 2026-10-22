@@ -1,0 +1,37 @@
+.panel {
+  background: var(--color-surface);
+  /* about twice as wide as it is tall on wide screens: a plain radius, not the arch */
+  border-radius: var(--radius-panel);
+  padding: var(--space-empty-pad-top) var(--space-16) var(--space-empty-pad-bottom);
+  text-align: center;
+  max-width: var(--width-measure);
+  margin: var(--space-5) auto 0;
+  box-shadow: var(--shadow-panel);
+}
+
+.title {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-heavy);
+  font-size: var(--text-heading-sm);
+  line-height: var(--leading-title);
+  margin-bottom: var(--space-8);
+  text-wrap: pretty;
+}
+
+.body {
+  margin: 0 0 var(--space-14);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-body);
+}
+
+/* several paragraphs read as one message: the full gap only before the actions */
+.body:not(:last-of-type) {
+  margin-bottom: var(--space-8);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-8);
+}

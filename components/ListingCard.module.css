@@ -1,0 +1,341 @@
+.card {
+  /* arriving at a card by its #l-<id> anchor leaves it clear of the sticky header */
+  scroll-margin-top: calc(var(--size-header) + var(--space-11));
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-7);
+  /* A grid item defaults to min-width:auto — it can never be narrower than its longest
+     unbreakable line, so one long free-text value widened the card, the grid and the
+     page (592px on a 380px phone). With 0 the card always fits its column. */
+  min-width: 0;
+}
+
+/* every free-text field breaks a long unbroken string rather than pushing past the edge */
+.name,
+.area,
+.title,
+.description,
+.price {
+  overflow-wrap: anywhere;
+}
+
+.media {
+  position: relative;
+  /* the photo's corner is sized against this box's width (100cqi) */
+  container-type: inline-size;
+}
+
+/* physical, as in the design: the sweeping "shoulder" is the top-right corner — the
+   leading corner in RTL. It is a share of the photo's width, so the shape is the same on a
+   full-width card and on a half-width one. */
+.photo,
+.monogramPanel {
+  aspect-ratio: var(--ratio-media);
+  border-radius: var(--radius-media) calc(var(--ratio-media-shoulder) * 100cqi) var(--radius-media) var(--radius-media);
+}
+
+/* the arch echo (ListingCard.tsx): decoration only — no pointer events, under the badge */
+.echo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: calc(var(--ratio-media-shoulder) * 100cqi);
+  height: calc(var(--ratio-media-shoulder) * 100cqi);
+  overflow: visible;
+  pointer-events: none;
+  fill: none;
+  stroke: var(--color-arch-echo);
+  stroke-width: var(--stroke-arch-echo);
+  stroke-linecap: round;
+}
+
+.echo path {
+  /* the same weight on a 169px card and a 478px one */
+  vector-effect: non-scaling-stroke;
+}
+
+.photo {
+  overflow: hidden;
+  background: var(--color-tint);
+}
+
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.monogramPanel {
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-monogram);
+  /* the monogram is sized against this panel's width (decision 8a) */
+  container-type: inline-size;
+}
+
+/* the category's icon, large, in the tone's ink — never a letter, which can read as a
+   digit («ه» = ٥, «ا» = ١) */
+.monogram {
+  width: var(--size-monogram);
+  height: var(--size-monogram);
+  stroke-width: var(--stroke-monogram);
+}
+
+.badge {
+  position: absolute;
+  right: var(--space-10);
+  bottom: var(--space-badge-overlap);
+}
+
+.body {
+  padding: var(--space-15) var(--space-8) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  flex: 1;
+}
+
+/* name and area share one line, each ending in an ellipsis when it does not fit. The
+   name keeps priority (it shrinks last); the area gives way first but never below a
+   readable minimum. Full text is on the listing page and in the title tooltip. */
+.meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-7);
+  min-width: 0;
+}
+
+.name,
+.area {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.name {
+  flex: 0 1 auto;
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-body);
+}
+
+.area {
+  flex: 0 3 auto;
+  min-width: var(--width-area-min);
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+}
+
+/* at most three lines; an 80-character title fits in three at the narrowest column */
+.title {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-heavy);
+  font-size: var(--text-card-title);
+  line-height: var(--leading-card-title);
+  margin: 0;
+  text-wrap: pretty;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.description {
+  margin: 0;
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-card-body);
+  color: var(--color-text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* at most two lines, spaced so they never touch (the design's line-height 1 did) */
+.price {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: var(--weight-heavy);
+  font-size: var(--text-price);
+  color: var(--color-accent);
+  line-height: var(--leading-price);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* margin-top:auto pins the buttons to the bottom, so cards with and without a price
+   line up in the same grid row */
+.actions {
+  display: flex;
+  gap: var(--space-5);
+  margin-top: auto;
+  padding-top: var(--space-3);
+}
+
+.date {
+  font-size: var(--text-caption);
+  color: var(--color-text-subtle);
+}
+
+/* full card: the title link is stretched over the whole card */
+.linked {
+  position: relative;
+}
+
+.cardLink {
+  color: inherit;
+}
+
+.cardLink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-card);
+  z-index: 1;
+}
+
+/* the focus ring belongs to the whole card, not to the title text */
+.cardLink:focus-visible {
+  outline: none;
+}
+
+.linked:has(.cardLink:focus-visible) {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset-lg);
+}
+
+/* contact buttons sit above the stretched link: they are separate links, not children */
+.linked .actions {
+  position: relative;
+  z-index: 2;
+  /* the gaps between buttons fall through to the card link — no dead spots */
+  pointer-events: none;
+}
+
+.linked .actions > * {
+  pointer-events: auto;
+}
+
+/* compact: the detail page's "others" row — the whole card is a link */
+.compact {
+  color: var(--color-ink);
+}
+
+.compact:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset-lg);
+}
+
+.compact .body {
+  gap: var(--space-5);
+}
+
+.compact .name {
+  font-size: var(--text-control);
+}
+
+.compact .title {
+  font-size: var(--text-card-title-sm);
+}
+
+.compact .price {
+  font-size: var(--text-price-sm);
+}
+
+/* a long price (over PRICE_LONG_CHARS) steps down so it never outweighs the title */
+.price[data-long] {
+  font-size: var(--text-price-long);
+  font-weight: var(--weight-bold);
+}
+
+/* cards in a row share one height; the date sits at the bottom of each, like the board
+   card's buttons, instead of leaving a blank band under shorter content */
+.compact .date {
+  margin-top: auto;
+}
+
+/* Hover — pointer devices only. The card is the main target on the board: its shadow
+   deepens (nothing moves). */
+.linked,
+.compact {
+  transition: box-shadow var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .cardLink:hover,
+  .compact:hover {
+    text-decoration: none;
+  }
+
+  .linked:hover,
+  .compact:hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+}
+
+/* ── Phones: two cards per row ──────────────────────────────────────────────
+   Half the width, a third of the height (about 330px instead of about 590): the photo,
+   the category, her name, her city ("near me" is the question), a two-line title, a
+   one-line price, and one full-width button for her first contact method. The
+   description, the date and the other contact buttons are on the listing page. */
+@media (max-width: 480px) {
+  .linked {
+    padding: var(--space-3);
+  }
+
+  .linked .media .badge {
+    right: var(--space-5);
+    font-size: var(--text-caption);
+    padding: var(--space-2) var(--space-6);
+  }
+
+  .linked .body {
+    padding: var(--space-13) var(--space-2) var(--space-2);
+    gap: var(--space-3);
+  }
+
+  /* name and city each get their own line: at this width they cannot share one */
+  .linked .meta {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .linked .name {
+    font-size: var(--text-body-sm);
+  }
+
+  .linked .area {
+    min-width: 0;
+  }
+
+  .linked .title {
+    font-size: var(--text-control);
+    -webkit-line-clamp: 2;
+  }
+
+  .linked .description,
+  .linked .date,
+  .linked .actions > :not(:first-child) {
+    display: none;
+  }
+
+  .linked .price,
+  .linked .price[data-long] {
+    font-size: var(--text-body-sm);
+    -webkit-line-clamp: 1;
+  }
+
+  .linked .actions > :first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-inline: var(--space-5);
+    font-size: var(--text-body-sm);
+  }
+}

@@ -1,0 +1,125 @@
+.group {
+  display: inline-flex;
+  background: var(--color-surface);
+  border-radius: var(--radius-pill);
+  gap: var(--space-1);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-weight: var(--weight-semibold);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  background: transparent;
+  color: var(--color-text-muted);
+  transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+}
+
+.option:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+.selected {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.flag {
+  display: block;
+  flex: 0 0 auto;
+  height: auto;
+  border-radius: var(--radius-flag);
+  /* a hairline edge so white stripes (EG, AE) do not dissolve into the white pill */
+  box-shadow: var(--shadow-flag);
+}
+
+/* header */
+.compact {
+  padding: var(--space-2);
+  box-shadow: var(--shadow-control-compact);
+}
+
+.compact .option {
+  gap: var(--space-3);
+  font-size: var(--text-body-sm);
+  padding: var(--space-6) var(--space-9);
+}
+
+.compact .flag {
+  width: var(--size-flag);
+}
+
+/* hero */
+.large {
+  padding: var(--space-selector-pad);
+  box-shadow: var(--shadow-control);
+}
+
+.large .option {
+  gap: var(--space-4);
+  font-size: var(--text-control);
+  /* a standard control height: the country is chosen with a thumb */
+  min-height: var(--size-control);
+  padding: 0 var(--space-11);
+}
+
+.large .flag {
+  width: var(--size-flag-lg);
+}
+
+/* inside the form card */
+.inset {
+  display: flex;
+  width: 100%;
+  background: var(--color-canvas);
+  box-shadow: none;
+}
+
+.inset .option {
+  flex: 1;
+  justify-content: center;
+}
+
+@media (max-width: 480px) {
+  /* Three countries in one row on a small phone: the form design's override. Applied to
+     the hero selector too — with the landing's 12×16 padding it is clipped at 380px. */
+  .large .option {
+    padding: 0 var(--space-5);
+    font-size: var(--text-body-sm);
+  }
+}
+
+@media (max-width: 860px) {
+  .large {
+    width: 100%;
+  }
+
+  .large .option {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .compact .option {
+    padding: var(--space-5) var(--space-7);
+    font-size: var(--text-small);
+  }
+
+  .compact .flag {
+    display: none;
+  }
+}
+
+/* Hover — pointer devices only; the selected country never changes */
+@media (hover: hover) {
+  .option:not(.selected):hover {
+    background: var(--color-tint-soft);
+    color: var(--color-ink);
+  }
+}

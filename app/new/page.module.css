@@ -1,0 +1,37 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: clip;
+}
+
+.main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--width-form);
+  margin: 0 auto;
+  padding: var(--space-5) var(--gutter-page) var(--pad-section-bottom);
+  position: relative;
+}
+
+.blob {
+  position: absolute;
+  border-radius: var(--radius-circle);
+  z-index: 0;
+}
+
+.blobTint {
+  right: var(--blob-lg-inset-x);
+  top: var(--blob-lg-inset-y-form);
+  width: var(--blob-lg);
+  height: var(--blob-lg);
+  background: var(--color-tint);
+}
+
+.blobAmber {
+  left: var(--blob-md-inset-x);
+  bottom: var(--blob-md-inset-bottom);
+  width: var(--blob-md);
+  height: var(--blob-md);
+  background: var(--color-tint-amber);
+}

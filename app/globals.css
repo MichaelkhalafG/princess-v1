@@ -1,0 +1,507 @@
+/*
+ * Princess — design tokens and global base.
+ *
+ * Every value here was extracted from the approved designs ("Princess Landing.dc.html",
+ * "Princess Form.dc.html", "Princess Listing.dc.html"). Nothing is invented and nothing
+ * is rounded into a scale. Tokens are named by role.
+ * This is the ONLY file allowed to contain raw colour, px or shadow values
+ * (tests/unit/tokens.test.ts enforces it).
+ *
+ * Breakpoints cannot be custom properties (CSS does not allow var() in @media), so
+ * stylesheets write them literally in their @media preludes:
+ *   860px — tablet/phone layout     480px — small phone
+ * Values that change at a breakpoint are redefined at the bottom of this file
+ * (breakpoint-scoped tokens), never forced with !important.
+ */
+
+:root {
+  /* ── Colour ─────────────────────────────────────────────────────────────── */
+  /* Palette: Option A (chosen 2026-10-03) — the design's hues, desaturated and
+     redistributed. Saturated colour is kept for actions and small accents (buttons,
+     selected states, price, focus); large areas (category panels and badges, orbs,
+     collage disc, page ground) carry soft tints of the same hues.
+     The design's originals, for reference: canvas #FFF6F1, accent #FF4D8D / hover
+     #E83D7C, secondary #2BA39B, highlight #FFB038, tint #FFE3D3, tint-soft #FFF0E8,
+     tint-amber #FFE9C2; category panels and badges were solid accent/secondary/
+     highlight/ink. */
+  --color-ink: #1C0A14;               /* primary text, dark surfaces, ink buttons */
+  --color-ink-hover: #3A2733;         /* ink, "awake": the same button lifted, not a new colour
+                                         (the design turned ink buttons pink and the contact
+                                         button teal on hover) */
+  --color-canvas: #FCF8F6;            /* page background, form fields */
+  --color-on-ink: #FCF8F6;            /* text on ink surfaces */
+  --color-surface: #fff;              /* cards, controls, panels */
+  --color-on-accent: #fff;            /* text on accent / secondary fills */
+  --color-on-accent-divider: rgb(255 255 255 / .35); /* a hairline on the teal "posted" banner */
+  --color-on-contact: #fff;           /* main contact button: the design uses pure white
+                                         on ink here, but cream (--color-on-ink) on every
+                                         other ink surface */
+
+  --color-accent: #D03A73;            /* brand pink, hsl(337 62% 52%): white text on it 4.63:1 (Option A #D65284 was 3.89) */
+  --color-accent-hover: #BE2D64;     /* hsl(337 62% 46%): one step darker */
+  --color-secondary: #3D7F79;         /* teal, hsl(174 35% 37%): white text on it 4.66:1 (was 3.70) — WhatsApp dot, "complete", posted banner */
+  --color-highlight: #E0A752;         /* amber, hsl(36 70% 60%): focus ring */
+
+  --color-tint: #F7E7DE;              /* hover fill, photo placeholder, blobs, busy submit */
+  --color-tint-soft: #FBF1EC;         /* soft buttons, field prefixes */
+  --color-tint-amber: #F5E8D2;        /* decorative blob */
+
+  --color-text-secondary: #4A3540;    /* body copy, descriptions */
+  --color-text-muted: #6B5460;        /* area, counts, hints, unselected country */
+  --color-text-subtle: #7B6872;       /* dates, counts, counters: 5.17 on white, 4.65 on soft tint (was 3.83 at worst) */
+  --color-text-muted-on-ink: #D9B8C8; /* muted text on a dark surface: the number on the
+                                         contact button */
+
+  --color-footer-text: #E9D3DC;
+  --color-footer-muted: #B899A8;
+  --color-footer-divider: #3A2532;
+
+  --color-bar-bg: rgba(252, 248, 246, .94);     /* sticky filter bar: the canvas at 94% */
+  --color-bar-border: rgb(122 41 72 / .12);    /* the shadow rose-brown, not the old neon */
+  --color-divider: rgba(28, 10, 20, .2);        /* short vertical dividers */
+  --color-dropzone-border: rgb(208 58 115 / .45);   /* accent */
+
+
+  /* Category tones (badge + monogram panel) and the collage disc: large areas, so soft
+     tints of each hue with a deep ink of the same hue for the text on them. */
+  --tone-accent-bg: #FAE5ED;
+  --tone-accent-ink: #7A2948;
+  --tone-secondary-bg: #E3F2F0;
+  --tone-secondary-ink: #24605B;
+  --tone-highlight-bg: #F9EBD7;
+  --tone-highlight-ink: #72501D;
+  --tone-ink-bg: #EDE4E8;
+  --tone-ink-ink: #1C0A14;
+  --color-decor-disc: #CFE6E3;
+
+  /* ── Logo: "The built P" (Princess Logo System.dc.html, approved section) ── */
+  --color-logo-ink: #1C0A14;
+  --color-logo-disc: #EE6F9C;         /* the file's coral (its "softer" palette). Not the
+                                         button pink #D03A73: the disc is a mark, not text,
+                                         so the contrast fix does not apply to it. */
+  --color-arch-echo: #F4BCD0;         /* the short stroke echoing a listing photo's corner: light enough to
+                                         repeat on every card without competing with the photo */
+  --color-logo-blush: #FFF6F1;        /* reversed variant; also the icon tile ground */
+  --tracking-logo-word: -.02em;
+  --logo-mark-height: .75em;          /* the P at 0.75 em … */
+  --logo-mark-baseline: .145em;       /* … seated on the baseline */
+  --logo-word-gap: .03em;
+  --text-logo-header: 32px;           /* file: desktop header 1200 × 64 */
+  --text-logo-header-sm: 22px;        /* file: mobile header 380 × 56 */
+  --size-logo-mark-only: 26px;        /* mark-only header, ≤ 375px (the file said ≤ 340) */
+  --text-logo-footer: 28px;           /* file: dark footer, reversed */
+  --text-logo-hero: 44px;
+
+  /* ── Typography ─────────────────────────────────────────────────────────── */
+  /* --font-heading / --font-body are set by next/font on <html> (app/fonts.ts):
+     Alexandria (700, 800) and Readex Pro (400, 500, 600) — the only weights used. */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-heavy: 800;
+
+  --text-caption: 12px;               /* category badge, date, character counter */
+  --text-small: 13px;                 /* chips, hints, errors, sticky bar */
+  --text-body-sm: 14px;               /* card description, field labels, back link */
+  --text-control: 15px;               /* buttons, country options, compact card name */
+  --text-body: 16px;                  /* inputs, card name, detail description */
+  --text-banner-title: clamp(22px, 2.4vw, 28px); /* ONE-OFF: "posted" banner title — the news */
+  --text-cta: 18px;                   /* large CTA, submit */
+  --text-step-number: 20px;           /* /about: the numeral inside a step's circle */
+  --text-name-lg: 18px;               /* detail page: her name */
+  --text-card-title-sm: 18px;         /* compact card title ("others" row) */
+  --text-price-sm: 19px;              /* ONE-OFF: compact card price */
+  --text-logo-sm: 20px;               /* logo under 480px */
+  --text-card-title: 21px;            /* ONE-OFF */
+  --text-price: 22px;                 /* ONE-OFF */
+  --text-price-long: 17px;            /* card price over 20 characters (ListingCard) */
+  --text-logo: 24px;
+  --text-heading-sm: 26px;            /* empty-state title, footer logo */
+  --text-lead: clamp(16px, 1.4vw, 19px);
+  --text-lead-sm: clamp(15px, 1.3vw, 17px);     /* form intro */
+  --text-h2: clamp(26px, 3vw, 34px);
+  --text-h2-sm: clamp(22px, 2.6vw, 28px);       /* detail: "others" heading */
+  --text-price-lg: clamp(26px, 3vw, 32px);      /* detail price */
+  --text-notfound-title: clamp(26px, 4vw, 34px);
+  --text-h1: clamp(40px, 4.6vw, 64px);
+  --text-h1-mobile: clamp(34px, 9.5vw, 44px);
+  --text-form-title: clamp(34px, 4.6vw, 48px);  /* breakpoint-scoped below */
+  --text-detail-title: clamp(30px, 3.6vw, 44px);/* breakpoint-scoped below */
+  /* No-photo panel: the category's icon, sized against the panel's WIDTH (container
+     query units). The design's letter monogram was dropped: in Alexandria «ه» is the
+     digit ٥ and «ا» the digit ١, and alef cannot take a joining form to tell them apart. */
+  --size-monogram: clamp(64px, 34cqi, 104px);    /* no-photo panel: the category icon, against the panel's width */
+  --size-monogram-lg: min(32cqi, 168px);         /* … on the listing page */
+  --stroke-monogram: 1.25;                       /* the icon's line, thinner when drawn this large */
+
+  /* Arabic headings need more leading than Latin: the design's 1.08–1.22 let two lines
+     of a wrapped heading touch. Every heading is now at least 1.3. */
+  --leading-none: 1;                  /* monogram, flags — single glyphs, never wrapped text */
+  --leading-display: 1.3;             /* h1 (design: 1.08) */
+  --leading-heading: 1.3;             /* h2, detail title (design: 1.1) */
+  --leading-notfound-title: 1.3;      /* (design: 1.15) */
+  --leading-title: 1.3;               /* empty-state and detail titles (design: 1.2) */
+  --leading-card-title: 1.3;          /* card titles (design: 1.22) */
+  --leading-price: 1.3;               /* prices — the design's 1.0 made a wrapped price touch itself */
+  --leading-snug: 1.5;                /* errors, hints, banner text */
+  --leading-note: 1.6;                /* ONE-OFF: note under the submit button */
+  --leading-card-body: 1.65;          /* card description, textarea */
+  --leading-body: 1.7;                /* lead paragraphs, panels, footer disclaimer */
+  --leading-relaxed: 1.75;            /* detail description, landing footer paragraph */
+
+  --tracking-display: -.015em;        /* h1 */
+  --tracking-logo: -.01em;
+
+  /* ── Spacing ────────────────────────────────────────────────────────────── */
+  /* Every px value the designs use in two or more places, in order. The designs do
+     not follow a 4/8 ramp: control padding sits on 7/9/13, layout on even steps. */
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 6px;
+  --space-4: 7px;
+  --space-5: 8px;
+  --space-6: 9px;
+  --space-7: 10px;
+  --space-8: 12px;
+  --space-9: 13px;
+  --space-10: 14px;
+  --space-11: 16px;
+  --space-12: 18px;
+  --space-13: 20px;
+  --space-14: 22px;
+  --space-15: 24px;
+  --space-16: 28px;
+  --space-17: 32px;
+
+  /* One-offs: used in exactly one place, kept out of the scale. */
+  --space-hairline-gap: 3px;          /* contacts heading → its two lines */
+  --space-selector-pad: 5px;          /* large country selector inner padding */
+  --space-badge-lg-pad-x: 15px;       /* detail page badge */
+  --space-dropzone-pad-top: 26px;     /* photo picker */
+  --space-carousel-pad-bottom: 36px;  /* room for the cards' shadow under the "others" row */
+  --space-empty-pad-top: 64px;        /* empty-state panel */
+  --space-empty-pad-bottom: 40px;     /* empty-state and status panels */
+  --space-status-pad-top: 72px;       /* status panels with a mark (not found) */
+  --space-badge-overlap: -13px;       /* category badge hangs below the photo */
+  --space-badge-overlap-lg: -15px;    /* … on the detail page */
+
+  /* Fluid layout */
+  --gutter-page: clamp(16px, 4vw, 48px);
+  --gap-grid: clamp(20px, 3vw, 28px);
+  --gap-hero: clamp(24px, 4vw, 48px);
+  --gap-carousel: clamp(16px, 2.5vw, 24px);
+  --gap-detail: clamp(28px, 4vw, 48px);         /* breakpoint-scoped below */
+  --gap-detail-sections: clamp(36px, 5vw, 56px);
+  --pad-section-top: clamp(24px, 3.5vw, 40px);
+  --pad-section-bottom: clamp(48px, 6vw, 72px);
+  --pad-hero-bottom: clamp(40px, 6vw, 64px);
+  --pad-footer-top: clamp(40px, 6vw, 56px);
+  --pad-form-card: 30px 28px 28px;              /* breakpoint-scoped below */
+  --width-content: 1400px;
+  --width-detail: 1200px;
+  --width-form: 880px;                /* design: 720px — too narrow once short fields pair up */
+  --width-card-min: 260px;
+  --width-area-min: 72px;             /* the card's "city، district" never shrinks below this */
+  --width-card-compact: 280px;
+  --width-measure: 520px;             /* empty state, lead paragraphs */
+  --width-reading: 640px;             /* terms, privacy: a column for reading */
+  --width-contents: 260px;            /* … and their contents list beside it on wide screens */
+  --reading-lift: 64px;               /* … how far the text and contents rise onto the header band */
+  --width-status: 560px;              /* not-found panel */
+  --width-status-text: 400px;
+  --width-footer-text: 620px;
+  --width-search-basis: 300px;
+  --width-action-basis: 180px;        /* detail page secondary contact buttons */
+  --width-banner-text-min: 200px;
+
+  /* ── Sizes ──────────────────────────────────────────────────────────────── */
+  /* Control heights: three steps, set by touch. Nothing a finger uses responds over less
+     than --size-hit-min in either direction; anything drawn smaller gets the invisible
+     .tap-area layer (below), and its neighbours stay at least --space-5 apart so those
+     layers never overlap. */
+  --size-control-sm: 36px;            /* chips, header buttons — drawn small, tap layer to 44 */
+  --size-control: 48px;               /* every standard button, field and country option */
+  --size-control-lg: 58px;            /* the main action on a page: hero CTA, form submit */
+  --size-bar: 40px;                   /* sticky filter bar height */
+  --size-header: 64px;                /* sticky header (logo file: 1200 × 64); 56 on phones */
+  --stroke-back: 2;                   /* back arrow */
+  --size-icon: 15px;                  /* category line icons */
+  --size-step-number: 44px;           /* /about: a step's number, in a filled circle in the card's free corner */
+  --size-icon-tile: 26px;             /* the icon on a category tile: above the name, large enough to read */
+  --size-tile: 80px;                  /* a category tile (hero, bar, form): icon above name */
+  --size-tile-sm: 72px;               /* … in the category bar's scrolling row */
+  --size-tile-scroll: 96px;           /* … its narrowest width there */
+  --stroke-icon: 1.75;
+  --stroke-arch-echo: 2.5px;          /* fixed at every card size (vector-effect: non-scaling-stroke) */
+  --size-dot: 9px;                    /* contact-button dot */
+  --size-dot-sm: 8px;                 /* sticky bar, back link, detail meta */
+  --size-dot-xs: 7px;                 /* error bullet */
+  --offset-error-dot: 7px;            /* error bullet top offset (13px text) */
+  --offset-error-dot-lg: 8px;         /* … beside 14px text */
+  --size-search-glyph: 12px;
+  --stroke-search-glyph: 2.5px;
+  --size-divider-h: 14px;
+  --size-hairline: 1px;
+  --border-field: 1.5px;              /* field and dropzone borders, error outlines */
+  --size-flag: 15px;                  /* compact selector flag */
+  --size-flag-lg: 16px;               /* large selector flag (flags are 4:3 images) */
+  --radius-flag: 2px;
+  --shadow-flag: 0 0 0 1px rgba(28, 10, 20, .12);
+  --size-thumb: 76px;                 /* uploaded photo preview */
+  --size-progress: 6px;               /* upload progress bar */
+  --size-textarea-min: 140px;
+  --ratio-media: 4 / 3.3;             /* card photo / monogram panel */
+  --ratio-media-lg: 4 / 3.6;          /* detail page photo / monogram panel */
+  --height-detail-media-max: 380px;   /* detail photo in one column (tablet, phone) */
+  --blur-bar: 10px;
+
+  --size-status-mark: 64px;           /* the built P on the status panel (not-found) */
+  --size-about-tile-w: 180px;         /* /about: the arch tile holding the built P */
+  --size-about-tile-h: 220px;
+  --size-about-mark: 96px;
+  --size-about-tile-w-sm: 96px;       /* … on a phone, beside the title */
+  --size-about-tile-h-sm: 116px;
+  --size-about-mark-sm: 50px;
+
+  /* Touch */
+  --size-hit-min: 44px;               /* smallest tap target in either direction */
+  --catbar-columns: 6;                /* the category bar on wide screens: 12 tiles, 2 rows of 6 */
+  --form-tile-columns: 4;             /* the form's category picker on wide screens */
+  --size-fade: 32px;                  /* trailing fade on a row of chips that scrolls */
+  --color-mask-opaque: #000;          /* mask-image only reads alpha: this is "fully shown" */
+
+  /* Landing hero */
+  --width-hero-controls: 640px;       /* country selector + search row */
+  --width-collage-mobile: 440px;
+  --ratio-collage: 1 / 1.08;
+  --blob-hero-lg: 560px;
+  --blob-hero-lg-inset-x: -160px;
+  --blob-hero-lg-inset-y: -200px;
+  /* the design had the amber orb at bottom:-260px inside the hero, so the hero cut it flat;
+     it now bleeds off the left screen edge and stays whole above the band's bottom */
+  --blob-hero-md: 460px;
+  --blob-hero-md-inset-x: -200px;
+  --blob-hero-md-inset-bottom: 24px;
+
+  /* Decorative blobs behind the form and detail pages */
+  --blob-lg: 460px;
+  --blob-md: 380px;
+  --blob-lg-inset-x: -220px;
+  --blob-lg-inset-y-form: -120px;
+  --blob-lg-inset-y-detail: -140px;
+  --blob-md-inset-x: -200px;
+  --blob-md-inset-bottom: 10%;
+
+  /* ── Radii ──────────────────────────────────────────────────────────────── */
+  --radius-pill: 999px;
+  --radius-circle: 50%;
+  --radius-card: 26px;                /* listing cards and the form card (the form's 22px
+                                         mobile override collapsed into this) */
+  --radius-media: 16px;               /* card photo, photo picker … */
+  --radius-media-shoulder: 150px;     /* … the photo picker's sweeping corner (fixed size) */
+  --ratio-media-shoulder: .45;        /* a listing photo's sweeping corner, as a share of the
+                                         photo's width: 148px on today's 328px phone photo,
+                                         about 70px two-per-row — the same shape at any size */
+  --radius-media-lg: 24px;            /* detail page photo … */
+  --radius-media-lg-shoulder: 220px;  /* … its leading corner */
+  --radius-thumb: 14px;               /* uploaded photo preview … */
+  --radius-thumb-shoulder: 60px;      /* … its leading corner */
+  --radius-panel: 28px;               /* empty-state and status panels … */
+  --radius-panel-shoulder: 140px;     /* … their leading corner */
+  --radius-banner: 20px;              /* "posted" banner, "only one" note … */
+  --radius-banner-shoulder: 80px;     /* … their leading corner */
+  --radius-section: 20px;             /* the grouped contacts section */
+  --radius-field: 14px;               /* inputs, textarea (18 → 14), chip group outline (16 → 14) */
+  --radius-focus: 6px;                /* focus outline on bare links */
+  --radius-footer: clamp(32px, 5vw, 48px);
+
+  /* ── Focus ──────────────────────────────────────────────────────────────── */
+  --focus-width: 3px;
+  --focus-ring: var(--focus-width) solid var(--color-highlight);
+  --focus-ring-on-accent: var(--focus-width) solid var(--color-ink);   /* on pink/teal fills */
+  --focus-offset: 2px;
+  --focus-offset-lg: 3px;
+  --focus-offset-inset: -3px;         /* inside the category bar's scroll area */
+
+  /* ── Shadows ────────────────────────────────────────────────────────────── */
+  /* Option A applied to shadows. The design tinted every shadow with the neon accent
+     (rgba(255, 77, 141, .3–.6)), which left the soft palette sitting on hot-pink glows.
+     Shadows under surfaces now use a muted rose-brown (the accent tone's deep ink,
+     #7A2948) at low alpha; only glows that belong to an action (submit, logo) and the
+     three collage photos keep a hue — Option A's softened one. Channels as tokens so a
+     shadow cannot drift out of the palette again. */
+  --rgb-shadow: 122 41 72;            /* #7A2948 */
+  --rgb-ink: 28 10 20;                /* #1C0A14 */
+  --rgb-accent: 208 58 115;           /* #D03A73 */
+  --rgb-highlight: 224 167 82;        /* #E0A752 */
+  --rgb-secondary: 61 127 121;        /* #3D7F79 */
+
+  --shadow-media-lift: 0 30px 56px -26px rgb(var(--rgb-shadow) / .22);
+  --shadow-card: var(--shadow-media-lift), 0 2px 10px rgb(var(--rgb-shadow) / .05);
+  /* hovering a card deepens its shadow — feedback without moving anything */
+  --shadow-card-hover: 0 34px 60px -24px rgb(var(--rgb-shadow) / .32), 0 2px 12px rgb(var(--rgb-shadow) / .08);
+  --shadow-badge: 0 0 0 4px var(--color-surface), 0 10px 20px -10px rgba(28, 10, 20, .3);
+  --shadow-badge-on-canvas: 0 0 0 4px var(--color-canvas), 0 10px 20px -10px rgba(28, 10, 20, .3);
+  /* the design's 22% suited solid fills; on the soft category tints it reads as a smudge */
+  --shadow-monogram: inset -40px -40px 90px -50px rgba(28, 10, 20, .08);
+  --shadow-control: 0 18px 40px -16px rgb(var(--rgb-shadow) / .16), 0 2px 6px rgb(var(--rgb-ink) / .05);
+  --shadow-control-compact: 0 10px 24px -12px rgb(var(--rgb-shadow) / .16), 0 0 0 1px rgb(var(--rgb-shadow) / .07);
+  --shadow-catbar: 0 14px 34px -16px rgb(var(--rgb-shadow) / .14);
+  --shadow-panel: 0 24px 50px -24px rgb(var(--rgb-shadow) / .2);
+  --shadow-cta: 0 20px 40px -18px rgb(var(--rgb-ink) / .45);
+  --shadow-cta-accent: 0 20px 40px -18px rgb(var(--rgb-accent) / .45);   /* submit: an action keeps its hue */
+  /* hero collage — one each, in Option A's softened hues */
+  --shadow-photo-accent: 0 40px 70px -30px rgb(var(--rgb-accent) / .32), 0 8px 20px -8px rgb(var(--rgb-ink) / .12);
+  --shadow-photo-highlight: 0 30px 60px -26px rgb(var(--rgb-highlight) / .38), 0 6px 16px -6px rgb(var(--rgb-ink) / .12);
+  --shadow-photo-secondary: 0 34px 60px -24px rgb(var(--rgb-secondary) / .32), 0 6px 16px -6px rgb(var(--rgb-ink) / .12);
+
+  /* ── Motion ─────────────────────────────────────────────────────────────── */
+  /* Motion only answers an action (filter, select, open, confirm, press). All of it is
+     switched off by prefers-reduced-motion at the bottom of this file. */
+  /* First values (100/150/220ms, a 2% press, 55% dim) were too small to notice — a
+     transition the person cannot perceive is a no-op, not restraint. */
+  --duration-press: 120ms;
+  --duration-fast: 200ms;
+  --duration-base: 280ms;
+  --duration-slow: 360ms;
+  --duration-loading: 1100ms;         /* one sweep of the "results loading" line */
+  --stagger-step: 45ms;               /* delay between cards as new results fade in */
+  --ease-out: cubic-bezier(.2, .7, .2, 1);
+  --scale-press: .96;
+  --opacity-pending: .45;
+  --size-loading-line: 3px;
+
+  /* ── Layers ─────────────────────────────────────────────────────────────── */
+  --z-bar: 20;
+}
+
+/* ── Breakpoint-scoped tokens ──────────────────────────────────────────────── */
+@media (max-width: 860px) {
+  :root {
+    --pad-form-card: 22px 16px 20px;
+    --text-form-title: clamp(30px, 8vw, 36px);
+    --text-detail-title: clamp(28px, 7.5vw, 36px);
+    --gap-detail: 28px;
+    --size-header: 56px;              /* logo file: mobile header 380 × 56 */
+    /* hero orbs at phone scale — the design kept the 560/460px desktop sizes, which on a
+       380px screen stop reading as orbs and become a wash over the whole top */
+    --blob-hero-lg: 300px;
+    --blob-hero-lg-inset-x: -110px;
+    --blob-hero-lg-inset-y: -120px;
+    --blob-hero-md: 240px;
+    --blob-hero-md-inset-x: -120px;
+  }
+}
+
+/* ── Base (from the designs' global <style>) ───────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-canvas);
+}
+
+body {
+  min-height: 100vh;
+  color: var(--color-ink);
+  font-family: var(--font-body), sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* pointer devices only, so a tapped link does not stay underlined on a phone */
+@media (hover: hover) {
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+img {
+  display: block;
+}
+
+input,
+textarea {
+  font: inherit;
+}
+
+/* placeholders carry examples and instructions ("اسم الحساب فقط، بلا رابط"), so they
+   meet text contrast: --color-text-subtle is 5.17 on white, 4.9 on the field ground
+   (ink at half opacity was 3.75) */
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-subtle);
+  opacity: 1;
+}
+
+/* Tap area: an invisible layer, centred on a control drawn smaller than a finger, at
+   least --size-hit-min in both directions. Add the class to the control itself. */
+.tap-area {
+  position: relative;
+}
+
+.tap-area::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, var(--size-hit-min));
+  height: max(100%, var(--size-hit-min));
+  translate: -50% -50%;
+}
+
+/* A skip link's target (a <main> or the listings section, tabindex -1) takes focus only
+   so the next Tab continues from there; it is not a control and draws no ring. */
+[tabindex='-1']:focus {
+  outline: none;
+}
+
+/* Skip link: the first stop on every page, hidden until a keyboard reaches it */
+.skip-link {
+  position: absolute;
+  top: var(--space-5);
+  inset-inline-start: var(--space-5);
+  z-index: calc(var(--z-bar) + 1);
+  padding: var(--space-6) var(--space-11);
+  border-radius: var(--radius-pill);
+  background: var(--color-ink);
+  color: var(--color-on-ink);
+  font-weight: var(--weight-semibold);
+  translate: 0 calc(-100% - var(--space-11));
+}
+
+.skip-link:focus-visible {
+  translate: 0 0;
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Reduced motion switches off every transition and animation on the site. Nothing is
+   needed to use any page: motion only ever accompanies a change that happens anyway. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

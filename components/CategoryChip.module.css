@@ -1,0 +1,86 @@
+/* A category tile: its line icon above its name. The tile is the main way anyone picks a
+   category, so it is drawn as a control with room — every tile in a set the same width
+   (the set's grid decides), the icon large enough to recognise rather than decorate. */
+.chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-width: 0;
+  min-height: var(--size-tile);
+  padding: var(--space-5) var(--space-5);
+  border: 0;
+  border-radius: var(--radius-field);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-control);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-card-title);
+  white-space: nowrap;
+  color: var(--color-ink);
+  /* every visitor is on a phone: no double-tap-zoom delay, and no grey rectangle flashed
+     over a tile — the tile turns ink the moment it is tapped, which is the feedback */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  /* selecting a tile eases its colour instead of snapping */
+  transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+}
+
+/* the icon carries the category's tone, as on the card badge */
+.icon {
+  display: inline-flex;
+  color: var(--color-ink);
+}
+
+.icon svg {
+  width: var(--size-icon-tile);
+  height: var(--size-icon-tile);
+}
+
+.chip[data-tone='accent'] .icon { color: var(--tone-accent-ink); }
+.chip[data-tone='secondary'] .icon { color: var(--tone-secondary-ink); }
+.chip[data-tone='highlight'] .icon { color: var(--tone-highlight-ink); }
+.chip[data-tone='ink'] .icon { color: var(--tone-ink-ink); }
+
+.selected,
+.chip.selected {
+  background: var(--color-ink);
+  color: var(--color-on-ink);
+}
+
+.selected .icon,
+.chip.selected[data-tone] .icon {
+  color: var(--color-on-ink);
+}
+
+.chip:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+/* category bar and form tiles: on a white panel */
+.bar,
+.inset {
+  background: var(--color-canvas);
+}
+
+/* Hover — pointer devices only, so nothing sticks after a tap on a phone. A selected tile
+   never changes on hover. */
+@media (hover: hover) {
+  .chip:not(.selected):hover {
+    background: var(--color-tint);
+  }
+}
+
+/* the category bar's scrolling row (tablets and phones): fixed-width tiles, a little
+   shorter so the row costs less of the first screen */
+@media (max-width: 860px) {
+  .bar {
+    flex: 0 0 auto;
+    min-width: var(--size-tile-scroll);
+    padding-inline: var(--space-10);
+    min-height: var(--size-tile-sm);
+    font-size: var(--text-body-sm);
+  }
+}

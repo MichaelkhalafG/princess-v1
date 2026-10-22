@@ -1,0 +1,26 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: clip;
+}
+
+.main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--width-form);
+  margin: 0 auto;
+  padding: var(--space-5) var(--gutter-page) var(--pad-section-bottom);
+  position: relative;
+}
+
+.blob {
+  position: absolute;
+  right: var(--blob-lg-inset-x);
+  top: var(--blob-lg-inset-y-form);
+  width: var(--blob-lg);
+  height: var(--blob-lg);
+  border-radius: var(--radius-circle);
+  background: var(--color-tint);
+  z-index: 0;
+}

@@ -1,0 +1,297 @@
+'use client';
+
+import { useEffect, useOptimistic, useRef, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { ALL_CATEGORIES, getCategory, getCountry, type CategorySlug, type CountryCode } from '@princess/shared/constants.ts';
+import { PAGE_SIZE, boardHref, boardQuery, withBoardContext } from '@princess/shared/board-url.ts';
+import { listingCountLabel, searchPlaceholder } from '@princess/shared/format.ts';
+import type { Listing } from '@princess/shared/listing.ts';
+import { Button } from '../Button.tsx';
+import { CategoryBar } from '../CategoryBar.tsx';
+import { CountrySelector } from '../CountrySelector.tsx';
+import { EmptyState } from '../EmptyState.tsx';
+import { FilterSummary, useFilterBarVisible } from '../FilterBar.tsx';
+import { ListingCard } from '../ListingCard.tsx';
+import { SearchField } from '../SearchField.tsx';
+import { SiteFooter } from '../SiteFooter.tsx';
+import { SiteHeader } from '../SiteHeader.tsx';
+import { HeroCollage } from './HeroCollage.tsx';
+import styles from './Board.module.css';
+
+const SEARCH_DEBOUNCE_MS = 350;
+
+/** What the result count says while new results are on their way. */
+const LOADING_LABEL = 'جارٍ التحديث…';
+
+export type BoardListing = { listing: Listing; photoSrc: string | null };
+
+/**
+ * The board. Country, category, search and how many are shown live in the URL
+ * (/?country=EG&category=nails&q=…&n=48): the server filters, this component only changes
+ * the URL. "عرض المزيد" asks for PAGE_SIZE more; any filter change starts at the first page.
+ */
+export function Board({
+  country,
+  category,
+  q,
+  shown,
+  total,
+  launch,
+  elsewhere,
+  listings,
+  now,
+}: {
+  country: CountryCode;
+  category: CategorySlug | null;
+  q: string;
+  /** how many she has asked for (PAGE_SIZE, then +PAGE_SIZE per "عرض المزيد") */
+  shown: number;
+  /** how many match in all */
+  total: number;
+  /** The country has no listing at all yet (app/page.tsx): nothing to search or filter,
+      so the board explains itself instead — headline on phones too, no search, no
+      category bar, and an empty panel for someone looking as well as someone posting. */
+  launch: boolean;
+  /** in the launch state, the other countries that do have listings */
+  elsewhere: CountryCode[];
+  listings: BoardListing[];
+  /** ISO time the server rendered at, so server and browser agree on "قبل ٣ ساعات". */
+  now: string;
+}) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [query, setQuery] = useState(q);
+  // Results fade in only when the result set changes — never on first load, and never
+  // replaying the old results while the new ones are still loading.
+  const resultKey = `${country}|${category ?? ''}|${q}`;
+  const firstResultKey = useRef(resultKey);
+  const resultsChanged = useRef(false);
+  if (resultKey !== firstResultKey.current) resultsChanged.current = true;
+  const heroControls = useRef<HTMLDivElement>(null);
+  const categoryBar = useRef<HTMLDivElement>(null);
+  const grid = useRef<HTMLElement>(null);
+  const summaryVisible = useFilterBarVisible(categoryBar, grid);
+
+  const k = getCountry(country);
+  const nowDate = new Date(now);
+  const n = listings.length;
+  const countLabel = listingCountLabel(total);
+  const activeLabel = category ? getCategory(category).label : ALL_CATEGORIES.label;
+
+  // Where she is now — carried by every link that leaves the board, so coming back
+  // (by the logo, a back link, or the form) returns her here.
+  const ctx = { country, category, q, shown };
+  const listingQuery = boardQuery(ctx);
+
+  // The controls answer the click at once; the URL (and the results) follow from the
+  // server a moment later. Without this the chip only changed colour when the new results
+  // arrived — 0.3–0.8s after the click — and its transition was lost in the swap.
+  const [selected, setSelected] = useOptimistic({ country, category });
+
+  /** Brings the results to the top of the screen, under the sticky header. */
+  const revealResults = () => {
+    const el = grid.current;
+    if (!el) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const header = document.querySelector('header')?.getBoundingClientRect().height ?? 0;
+    const top = el.getBoundingClientRect().top;
+    // already at the top of the screen (within a few px): nothing to do
+    if (Math.abs(top - header) < 8) return;
+    el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+  };
+
+  const navigate = (next: { country?: CountryCode; category?: CategorySlug | null; q?: string }, reveal = true) => {
+    const nextCountry = next.country ?? selected.country;
+    const nextCategory = next.category === undefined ? selected.category : next.category;
+    const p = new URLSearchParams();
+    p.set('country', nextCountry);
+    if (nextCategory) p.set('category', nextCategory);
+    const text = (next.q ?? query).trim();
+    if (text) p.set('q', text);
+    startTransition(() => {
+      setSelected({ country: nextCountry, category: nextCategory });
+      router.replace(`/?${p.toString()}`, { scroll: false });
+    });
+    // After a filter change the results are usually below the fold: bring them into view
+    // so the dim-and-fade answering her click is where she is looking.
+    if (reveal) revealResults();
+  };
+
+  // "عرض المزيد": the next PAGE_SIZE, in place. Its own transition, so the cards already
+  // on screen do not dim while the new ones load; replace, so Back is not filled with
+  // one entry per page. Focus then moves to the first new card — the button it was on now
+  // sits after them, and a keyboard would skip them.
+  const [morePending, startMore] = useTransition();
+  const firstNew = useRef<number | null>(null);
+  const showMore = () => {
+    if (morePending) return;
+    const p = new URLSearchParams(boardQuery({ country, category, q, shown: shown + PAGE_SIZE }));
+    firstNew.current = n;
+    startMore(() => router.replace(`/?${p.toString()}`, { scroll: false }));
+  };
+  useEffect(() => {
+    const i = firstNew.current;
+    if (i === null || n <= i) return;
+    firstNew.current = null;
+    grid.current?.querySelectorAll<HTMLElement>('article a[class*="cardLink"]')[i]?.focus({ preventScroll: true });
+  }, [n]);
+
+  // Search as she types, once she pauses — without moving the page under her typing.
+  useEffect(() => {
+    if (query.trim() === q) return;
+    const t = setTimeout(() => navigate({ q: query }, false), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
+
+  const jumpTo = (el: HTMLElement | null, focusSelector: string) => {
+    if (!el) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const header = document.querySelector('header')?.getBoundingClientRect().height ?? 0;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - header - 16, behavior: reduced ? 'auto' : 'smooth' });
+    const target = el.querySelector<HTMLElement>(focusSelector);
+    if (target) setTimeout(() => target.focus({ preventScroll: true }), reduced ? 0 : 450);
+  };
+
+  const postHref = withBoardContext('/new', ctx);
+
+  /** "Clear the search": back to the same country and category, with no search. */
+  const clearSearch = () => {
+    setQuery('');
+    navigate({ q: '' });
+  };
+  const currentCategory = selected.category ? getCategory(selected.category) : null;
+
+  return (
+    <div className={styles.page}>
+      <SiteHeader
+        homeHref={boardHref(ctx)}
+        skip={{ href: '#listings', label: 'انتقلي إلى الإعلانات' }}
+        postHref={postHref}
+        center={summaryVisible && !launch ? (
+          <FilterSummary
+            countryName={getCountry(selected.country).name}
+            countryFlag={getCountry(selected.country).flag}
+            categoryLabel={currentCategory ? currentCategory.label : ALL_CATEGORIES.label}
+            categoryIcon={currentCategory ? currentCategory.icon : ALL_CATEGORIES.icon}
+            countLabel={pending ? LOADING_LABEL : countLabel}
+            onCountryClick={() => jumpTo(heroControls.current, '[role="radio"][aria-checked="true"]')}
+            onCategoryClick={() => jumpTo(categoryBar.current, 'button')}
+          />
+        ) : null}
+      />
+
+      {/* Full-width band under the header, holding the hero. It tucks up behind the
+          (transparent) header so the orbs bleed off the top of the screen; they are
+          clipped by the screen edges, never by a section boundary. */}
+      <main id="main">
+      <div className={launch ? `${styles.top} ${styles.launch}` : styles.top}>
+        <span className={`${styles.blob} ${styles.blobTint}`} aria-hidden="true" />
+        <span className={`${styles.blob} ${styles.blobAmber}`} aria-hidden="true" />
+
+        <section className={styles.hero}>
+          <div className={styles.copy}>
+            <h1 className={styles.title}>عملكِ يصل<br />إلى كل سيدة حولك</h1>
+            <p className={styles.lead}>اعرضي خدمتك أو ملابسك، وتتواصل معك من تحتاجها عبر واتساب مباشرة. بلا وسيط وبلا عمولة.</p>
+
+            <div className={styles.controls} ref={heroControls}>
+              <CountrySelector size="large" value={selected.country} onChange={(c) => navigate({ country: c })} />
+              {!launch && (
+                <SearchField
+                  value={query}
+                  placeholder={searchPlaceholder(country)}
+                  onChange={setQuery}
+                  onSubmit={() => navigate({ q: query })}
+                />
+              )}
+            </div>
+
+            <div className={styles.ctaRow}>
+              <Button variant="cta" href={postHref}>اعرضي خدمتك</Button>
+              <span className={styles.ctaNote}>مجاني، بلا حساب أو تسجيل</span>
+            </div>
+          </div>
+
+          <HeroCollage />
+        </section>
+      </div>
+
+      {!launch && <CategoryBar ref={categoryBar} selected={selected.category} onSelect={(c) => navigate({ category: c })} />}
+
+      {/* tabIndex -1: the skip link's target takes focus, so the next Tab is the first card */}
+      <section id="listings" tabIndex={-1} className={styles.grid} ref={grid} aria-busy={pending} aria-labelledby="listings-title">
+        {launch ? (
+          // the panel's title says it; the section still needs its heading
+          <h2 id="listings-title" className="visually-hidden">لا توجد إعلانات في {k.name} بعد</h2>
+        ) : (
+          <div className={styles.gridHead}>
+            <h2 id="listings-title" className={styles.gridTitle}>
+              {q
+                ? `نتائج «${q}»${category ? ` في «${activeLabel}»` : ''} في ${k.name}`
+                : category ? `${activeLabel} في ${k.name}` : `آخر الإعلانات في ${k.name}`}
+            </h2>
+            <span className={styles.count}>{pending ? LOADING_LABEL : countLabel}</span>
+            {pending && <span className={styles.loading} aria-hidden="true" />}
+          </div>
+        )}
+
+        {launch ? (
+          <EmptyState
+            title={`اللوحة جديدة في ${k.name}`}
+            body={[
+              `هنا ستجدين سيدات من ${k.name} يعرضن خدماتهن وملابسهن، وتتواصلين معهن مباشرة على واتساب أو الهاتف، بلا وسيط.`,
+              'لم يُنشر أي إعلان بعد. إن كانت لديكِ خدمة أو ملابس تعرضينها، كوني أول من تنشر: الإعلان مجاني ويستغرق دقيقتين. وإن كنتِ تبحثين عن خدمة، فأرسلي الرابط لمن تعرفين ممن تقدّم واحدة.',
+            ]}
+            actions={[
+              { label: 'اعرضي خدمتك الآن', href: postHref },
+              elsewhere[0] ? { label: `تصفحي إعلانات ${getCountry(elsewhere[0]).name}`, onClick: () => navigate({ country: elsewhere[0], category: null, q: '' }) } : undefined,
+            ]}
+          />
+        ) : n === 0 ? (
+          q ? (
+            // A search that found nothing: say what she searched for, and the two ways out —
+            // drop the search, or (inside a category) go back to the whole country.
+            <EmptyState
+              title={`لا نتائج لـ«${q}»${category ? ` في «${activeLabel}»` : ''} في ${k.name}`}
+              body="جرّبي كلمة أخرى أو أقصر، أو امسحي البحث لتري كل الإعلانات."
+              actions={[
+                { label: 'امسحي البحث', onClick: clearSearch },
+                category ? { label: `كل إعلانات ${k.name}`, onClick: () => { setQuery(''); navigate({ category: null, q: '' }); } } : undefined,
+              ]}
+            />
+          ) : (
+            // Nothing posted here yet: invite her to be first, or let her see the rest.
+            <EmptyState
+              title={category ? `لا توجد إعلانات في «${activeLabel}» في ${k.name} بعد` : `لا توجد إعلانات في ${k.name} بعد`}
+              body="كوني أول من تعرض هنا، فالإعلان يستغرق دقيقتين."
+              actions={[
+                { label: 'اعرضي خدمتك الآن', href: postHref },
+                category ? { label: 'تصفحي كل الفئات', onClick: () => navigate({ category: null }) } : undefined,
+              ]}
+            />
+          )
+        ) : (
+          <div
+            // a new element per result set, so the fade-in plays once per new set
+            key={resultKey}
+            className={`${styles.cards} ${resultsChanged.current ? styles.cardsIn : ''} ${pending ? styles.cardsPending : ''}`}
+          >
+            {listings.map(({ listing, photoSrc }) => (
+              <ListingCard key={listing.id} listing={listing} photoSrc={photoSrc} now={nowDate} contextQuery={listingQuery} />
+            ))}
+          </div>
+        )}
+        {n > 0 && n < total && (
+          <div className={styles.more}>
+            <Button variant="soft" onClick={showMore} aria-disabled={morePending}>
+              {morePending ? 'جارٍ التحميل…' : 'عرض المزيد'}
+            </Button>
+          </div>
+        )}
+      </section>
+      </main>
+
+      <SiteFooter ctx={ctx} />
+    </div>
+  );
+}
