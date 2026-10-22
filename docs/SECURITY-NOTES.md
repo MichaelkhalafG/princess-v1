@@ -35,9 +35,9 @@ consequences we know about and have chosen not to solve yet.
 - **The type check trusts the client.** The bucket's allowed MIME types are checked
   against the `Content-Type` the uploader declares, not the file's bytes.
 
-What *is* enforced (proved in `tests/db/listings.test.ts`): uploads only, 5 MB maximum,
-JPEG/PNG/WebP declared types only, object names must be `<uuid>.<jpg|png|webp>`, and the
-public cannot list, overwrite or delete objects.
+What *is* enforced (proved in `apps/web/tests/db/listings.test.ts`): uploads only,
+5 MB maximum, JPEG/PNG/WebP declared types only, object names must be
+`<uuid>.<jpg|png|webp>`, and the public cannot list, overwrite or delete objects.
 
 ## Listings
 

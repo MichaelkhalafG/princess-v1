@@ -1,7 +1,7 @@
 // What a search should find beyond the listing's own words: the categories she named.
 // "أظافر" or "اظافر" typed into the search finds the nails listings even when none of them
 // uses the word.
-import { CATEGORIES, type CategorySlug } from './constants.ts';
+import { CATEGORIES, type CategorySlug } from '@princess/shared/constants.ts';
 
 // The fold, as data, because the database applies the same one to the stored text
 // (search_text, supabase/migrations/20261005000000_fold_search_text.sql) and

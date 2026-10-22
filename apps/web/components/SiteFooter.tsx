@@ -1,4 +1,4 @@
-import { NO_BOARD_CONTEXT, withBoardContext, type BoardContext } from '@/lib/board-url.ts';
+import { NO_BOARD_CONTEXT, withBoardContext, type BoardContext } from '@princess/shared/board-url.ts';
 import { Logo } from './Logo.tsx';
 import styles from './SiteFooter.module.css';
 

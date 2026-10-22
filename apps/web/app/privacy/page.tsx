@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
 import { ReadingPage } from '@/components/ReadingPage.tsx';
-import { readBoardContext } from '@/lib/board-url.ts';
+import { readBoardContext } from '@princess/shared/board-url.ts';
 import { CONTACT_EMAIL } from '@/lib/site.ts';
 
 // The privacy page as published. It states only what is fact about the site today, each
 // checked in the code:
-// every listing field is public (lib/listing.ts LISTING_COLUMNS), the board needs no
-// account and verifies nothing, the site sets no cookie, a listing cannot be edited or
-// deleted on the site, and removal is by email.
+// every listing field is public (@princess/shared/listing.ts LISTING_COLUMNS), the
+// board needs no account and verifies nothing, the site sets no cookie, a listing
+// cannot be edited or deleted on the site, and removal is by email.
 //
 // Deliberately absent, by the owner's decision (do not fill these in later): any claim
 // about the law in the three countries, and any sentence that assigns or disclaims legal

@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/Button.tsx';
 import { StatusPage } from '@/components/StatusPage.tsx';
-import { NO_BOARD_CONTEXT, boardHref } from '@/lib/board-url.ts';
+import { NO_BOARD_CONTEXT, boardHref } from '@princess/shared/board-url.ts';
 import { bodyFont, headingFont, logoFont } from './fonts.ts';
 import './globals.css';
 

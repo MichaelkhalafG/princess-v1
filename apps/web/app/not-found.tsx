@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Button } from '@/components/Button.tsx';
 import { StatusPage } from '@/components/StatusPage.tsx';
-import { NO_BOARD_CONTEXT, boardHref } from '@/lib/board-url.ts';
+import { NO_BOARD_CONTEXT, boardHref } from '@princess/shared/board-url.ts';
 
 export const metadata: Metadata = { title: 'الصفحة غير موجودة — برينسيس' };
 

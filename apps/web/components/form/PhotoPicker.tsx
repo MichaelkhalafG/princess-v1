@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { megabytesLabel } from '@/lib/format.ts';
-import type { UploadState } from '@/lib/listing-form.ts';
-import { PHOTO_MIME_TYPES } from '@/lib/constants.ts';
+import { megabytesLabel } from '@princess/shared/format.ts';
+import type { UploadState } from '@princess/shared/listing-form.ts';
+import { PHOTO_MIME_TYPES } from '@princess/shared/constants.ts';
 import { preparePhoto } from '@/lib/photo-resize.ts';
 import { UNREADABLE_PHOTO_MESSAGE, checkPhoto, checkPhotoType } from '@/lib/upload.ts';
 import { Button } from '../Button.tsx';

@@ -4,8 +4,8 @@
 // The bucket itself enforces type, size and name (see the migration); these checks
 // only refuse early with the design's message.
 
-import { PHOTO_BUCKET, PHOTO_MAX_BYTES, PHOTO_MIME_TYPES } from './constants.ts';
-import { megabytesLabel } from './format.ts';
+import { PHOTO_BUCKET, PHOTO_MAX_BYTES, PHOTO_MIME_TYPES } from '@princess/shared/constants.ts';
+import { megabytesLabel } from '@princess/shared/format.ts';
 
 const EXTENSION: Record<(typeof PHOTO_MIME_TYPES)[number], string> = {
   'image/jpeg': 'jpg',

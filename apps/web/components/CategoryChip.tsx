@@ -1,5 +1,5 @@
-import type { CategorySlug } from '@/lib/constants.ts';
-import { getCategory } from '@/lib/constants.ts';
+import type { CategorySlug } from '@princess/shared/constants.ts';
+import { getCategory } from '@princess/shared/constants.ts';
 import { CategoryIcon } from './CategoryIcon.tsx';
 import styles from './CategoryChip.module.css';
 

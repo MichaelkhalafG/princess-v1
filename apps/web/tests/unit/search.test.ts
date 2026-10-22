@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CATEGORIES, getCategory } from '../../lib/constants.ts';
+import { CATEGORIES, getCategory } from '@princess/shared/constants.ts';
 import { categoriesNamedIn, foldArabic } from '../../lib/search.ts';
 
 test('folding makes the usual spelling differences compare equal', () => {

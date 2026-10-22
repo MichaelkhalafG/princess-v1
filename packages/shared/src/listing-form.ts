@@ -1,8 +1,8 @@
-// The posting form's rules, as pure functions (the component in components/form only
-// renders them). Messages are the approved form design's, with Arabic number agreement
-// corrected through lib/format.ts.
+// The posting form's rules, as pure functions (the component in apps/web/components/form
+// only renders them). Messages are the approved form design's, with Arabic number agreement
+// corrected through format.ts.
 //
-// None of this is enforcement: the server action re-validates with lib/listing.ts and the
+// None of this is enforcement: the server action re-validates with listing.ts and the
 // database re-checks with its constraints. This file exists so the form refuses early,
 // with a reason, before she has filled everything in.
 

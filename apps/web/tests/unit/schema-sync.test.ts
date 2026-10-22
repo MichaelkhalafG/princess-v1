@@ -5,11 +5,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { CATEGORY_SLUGS, COUNTRY_CODES, LIMITS, PHOTO_BUCKET, PHOTO_MAX_BYTES, PHOTO_MIME_TYPES, phonePatternSource } from '../../lib/constants.ts';
-import { INSTAGRAM_PATTERN, PHONE_PATTERN, PHOTO_PATH_PATTERN, WRITABLE_COLUMNS } from '../../lib/listing.ts';
+import { CATEGORY_SLUGS, COUNTRY_CODES, LIMITS, PHOTO_BUCKET, PHOTO_MAX_BYTES, PHOTO_MIME_TYPES, phonePatternSource } from '@princess/shared/constants.ts';
+import { INSTAGRAM_PATTERN, PHONE_PATTERN, PHOTO_PATH_PATTERN, WRITABLE_COLUMNS } from '@princess/shared/listing.ts';
 import { FOLD_FROM, FOLD_MARKS, FOLD_TO } from '../../lib/search.ts';
 
-const dir = join(import.meta.dirname, '../../supabase/migrations');
+const dir = join(import.meta.dirname, '../../../../supabase/migrations');
 const sql = readdirSync(dir).filter((f) => f.endsWith('.sql')).sort().map((f) => readFileSync(join(dir, f), 'utf8')).join('\n')
   .replace(/--.*$/gm, ''); // ignore comments: only executable SQL counts
 

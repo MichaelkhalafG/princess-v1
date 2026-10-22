@@ -1,7 +1,7 @@
 'use client';
 
 import type { KeyboardEvent } from 'react';
-import { COUNTRIES, type CountryCode } from '@/lib/constants.ts';
+import { COUNTRIES, type CountryCode } from '@princess/shared/constants.ts';
 import { nextRadioIndex, radioTabIndex } from '@/lib/radio.ts';
 import styles from './CountrySelector.module.css';
 

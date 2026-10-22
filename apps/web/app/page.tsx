@@ -1,6 +1,6 @@
 import { Board } from '@/components/board/Board.tsx';
-import { readBoardContext, shownOf } from '@/lib/board-url.ts';
-import { COUNTRIES } from '@/lib/constants.ts';
+import { readBoardContext, shownOf } from '@princess/shared/board-url.ts';
+import { COUNTRIES } from '@princess/shared/constants.ts';
 import { countListings, fetchListings, photoUrl } from '@/lib/listings.ts';
 import { getSupabase } from '@/lib/supabase.ts';
 

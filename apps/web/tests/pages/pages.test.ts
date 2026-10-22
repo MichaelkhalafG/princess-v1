@@ -9,8 +9,8 @@ import { spawn, execFileSync, type ChildProcess } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { createServer } from 'node:net';
 import { createClient } from '@supabase/supabase-js';
-import { CATEGORIES, COUNTRIES } from '../../lib/constants.ts';
-import { areaText, formatPhone } from '../../lib/format.ts';
+import { CATEGORIES, COUNTRIES } from '@princess/shared/constants.ts';
+import { areaText, formatPhone } from '@princess/shared/format.ts';
 import { CONTACT_EMAIL, INDEXABLE } from '../../lib/site.ts';
 import { testEnv } from '../support/env.ts';
 

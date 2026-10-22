@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { COUNTRIES } from '@/lib/constants.ts';
-import { boardHref, boardQuery, readBoardContext } from '@/lib/board-url.ts';
+import { COUNTRIES } from '@princess/shared/constants.ts';
+import { boardHref, boardQuery, readBoardContext } from '@princess/shared/board-url.ts';
 import { SiteFooter } from '@/components/SiteFooter.tsx';
 import { SiteHeader } from '@/components/SiteHeader.tsx';
 import { ListingForm } from '@/components/form/ListingForm.tsx';

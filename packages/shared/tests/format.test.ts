@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { COUNTRIES } from '../../lib/constants.ts';
+import { COUNTRIES } from '../src/constants.ts';
 import {
   areaText, charsLabel, charsOverLabel, contactLinks, digitsLabel, formatPhone, listingCountLabel, pricePlaceholder, relativeDate, toArabicDigits, megabytesLabel, phonePlaceholder,
-} from '../../lib/format.ts';
+} from '../src/format.ts';
 
 test('listingCountLabel: the decided boundaries', () => {
   assert.equal(listingCountLabel(0), 'لا نتائج');

@@ -1,6 +1,6 @@
 // The single list of categories and countries. The form, the filters, the cards and the
-// database CHECK constraints all follow this file (tests/unit/schema-sync.test.ts fails
-// if supabase/migrations drifts from it).
+// database CHECK constraints all follow this file
+// (apps/web/tests/unit/schema-sync.test.ts fails if supabase/migrations drifts from it).
 //
 // Adding a category: one line in CATEGORIES, plus its slug in the listings_category_check
 // constraint (the sync test will tell you if you forget).

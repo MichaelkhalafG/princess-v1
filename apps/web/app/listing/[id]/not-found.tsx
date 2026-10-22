@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { NO_BOARD_CONTEXT } from '@/lib/board-url.ts';
+import { NO_BOARD_CONTEXT } from '@princess/shared/board-url.ts';
 import { NotFoundFromUrl, NotFoundView } from './NotFoundView.tsx';
 
 // The board context lives in the URL, which only a client component can read here; the

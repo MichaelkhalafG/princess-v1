@@ -1,6 +1,6 @@
-import type { Listing } from '@/lib/listing.ts';
-import { getCategory } from '@/lib/constants.ts';
-import { areaText, contactLinks, relativeDate } from '@/lib/format.ts';
+import type { Listing } from '@princess/shared/listing.ts';
+import { getCategory } from '@princess/shared/constants.ts';
+import { areaText, contactLinks, relativeDate } from '@princess/shared/format.ts';
 import { Button } from './Button.tsx';
 import { CategoryBadge } from './CategoryBadge.tsx';
 import { CategoryIcon } from './CategoryIcon.tsx';
@@ -123,7 +123,8 @@ export function ListingCard({
     // The whole card opens the listing through ONE real link — the title — whose ::after is
     // stretched over the card ("stretched link"). The contact buttons are sibling links
     // layered above it, never nested inside it, so each does only its own thing.
-    // id: "back to the board" from the listing page lands on this card (lib/board-url.ts boardHrefAt)
+    // id: "back to the board" from the listing page lands on this card
+    // (@princess/shared/board-url.ts boardHrefAt)
     <article id={`l-${listing.id}`} className={`${styles.card} ${styles.linked}`}>
       {media}
       <div className={styles.body}>

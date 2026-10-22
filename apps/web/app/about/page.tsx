@@ -3,8 +3,8 @@ import { Button } from '@/components/Button.tsx';
 import { LogoMark } from '@/components/Logo.tsx';
 import { SiteFooter } from '@/components/SiteFooter.tsx';
 import { SiteHeader } from '@/components/SiteHeader.tsx';
-import { boardHref, readBoardContext, withBoardContext } from '@/lib/board-url.ts';
-import { toArabicDigits } from '@/lib/format.ts';
+import { boardHref, readBoardContext, withBoardContext } from '@princess/shared/board-url.ts';
+import { toArabicDigits } from '@princess/shared/format.ts';
 import { CONTACT_EMAIL } from '@/lib/site.ts';
 import styles from './page.module.css';
 

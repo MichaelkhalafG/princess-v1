@@ -5,7 +5,7 @@ import { Button } from '@/components/Button.tsx';
 import { SiteFooter } from '@/components/SiteFooter.tsx';
 import { SiteHeader } from '@/components/SiteHeader.tsx';
 import { StatusPanel } from '@/components/StatusPanel.tsx';
-import { boardHref, readBoardContext, withBoardContext, type BoardContext } from '@/lib/board-url.ts';
+import { boardHref, readBoardContext, withBoardContext, type BoardContext } from '@princess/shared/board-url.ts';
 import styles from './page.module.css';
 
 /**

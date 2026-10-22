@@ -1,18 +1,19 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { readBoardContext, withBoardContext } from '@/lib/board-url.ts';
-import { SERVER_MESSAGES, validateListing } from '@/lib/listing.ts';
+import { readBoardContext, withBoardContext } from '@princess/shared/board-url.ts';
+import { SERVER_MESSAGES, validateListing } from '@princess/shared/listing.ts';
 import { insertListing } from '@/lib/listings.ts';
-import { PUBLISH_FAILED_MESSAGE, type FormErrors } from '@/lib/listing-form.ts';
+import { PUBLISH_FAILED_MESSAGE, type FormErrors } from '@princess/shared/listing-form.ts';
 import { getSupabase } from '@/lib/supabase.ts';
 
 export type CreateListingResult = { errors: FormErrors; message: string | null };
 
 /**
  * Publishes a listing. The form's checks are presentation; this is the first
- * enforcement (lib/listing.ts) and the database is the second (CHECKs + grants).
- * On success it redirects to the listing's own page with the "posted" confirmation.
+ * enforcement (@princess/shared/listing.ts) and the database is the second
+ * (CHECKs + grants). On success it redirects to the listing's own page with the
+ * "posted" confirmation.
  */
 export async function createListing(input: unknown, contextQuery: unknown = ''): Promise<CreateListingResult> {
   const v = validateListing(input);

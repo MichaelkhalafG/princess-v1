@@ -15,6 +15,7 @@
     "test:pages": "node --env-file=.env.test.local --test --test-concurrency=1 \"tests/pages/*.test.ts\""
   },
   "dependencies": {
+    "@princess/shared": "file:../../packages/shared",
     "@supabase/supabase-js": "2.117.2",
     "next": "16.3.8",
     "react": "19.3.0",

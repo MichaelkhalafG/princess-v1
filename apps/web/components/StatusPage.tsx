@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { boardHref, type BoardContext } from '@/lib/board-url.ts';
+import { boardHref, type BoardContext } from '@princess/shared/board-url.ts';
 import { SiteFooter } from './SiteFooter.tsx';
 import { SiteHeader } from './SiteHeader.tsx';
 import { StatusPanel } from './StatusPanel.tsx';

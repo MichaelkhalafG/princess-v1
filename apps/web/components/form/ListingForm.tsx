@@ -2,14 +2,14 @@
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { createListing } from '@/app/new/actions.ts';
-import { CATEGORIES, getCountry, type CategorySlug, type CountryCode } from '@/lib/constants.ts';
-import { phonePlaceholder, pricePlaceholder } from '@/lib/format.ts';
+import { CATEGORIES, getCountry, type CategorySlug, type CountryCode } from '@princess/shared/constants.ts';
+import { phonePlaceholder, pricePlaceholder } from '@princess/shared/format.ts';
 import { nextRadioIndex, radioTabIndex } from '@/lib/radio.ts';
 import { UPLOAD_FAILED_MESSAGE, uploadPhoto } from '@/lib/upload.ts';
 import {
   CONTACTS_REQUIREMENT, PUBLISH_FAILED_MESSAGE, counter, emptyForm, hasValidContact, submitGate, toPayload, validateForm,
   type FormErrors, type FormField, type FormValues, type SubmitPhase, type UploadState,
-} from '@/lib/listing-form.ts';
+} from '@princess/shared/listing-form.ts';
 import { Button } from '../Button.tsx';
 import { CategoryChip } from '../CategoryChip.tsx';
 import { CountrySelector } from '../CountrySelector.tsx';

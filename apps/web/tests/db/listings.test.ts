@@ -6,7 +6,7 @@ import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { CATEGORIES, COUNTRIES, LIMITS, PHOTO_BUCKET, PHOTO_MAX_BYTES } from '../../lib/constants.ts';
+import { CATEGORIES, COUNTRIES, LIMITS, PHOTO_BUCKET, PHOTO_MAX_BYTES } from '@princess/shared/constants.ts';
 import { createSupabaseClient } from '../../lib/supabase.ts';
 import { countListings, fetchListings, insertListing } from '../../lib/listings.ts';
 import { categoriesNamedIn, foldArabic } from '../../lib/search.ts';

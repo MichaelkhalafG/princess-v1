@@ -1,4 +1,4 @@
-import { getCategory, type CategorySlug } from '@/lib/constants.ts';
+import { getCategory, type CategorySlug } from '@princess/shared/constants.ts';
 import { CategoryIcon } from './CategoryIcon.tsx';
 import styles from './CategoryBadge.module.css';
 import tones from './tones.module.css';

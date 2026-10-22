@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, type Ref } from 'react';
-import { ALL_CATEGORIES, CATEGORIES, type CategorySlug } from '@/lib/constants.ts';
+import { ALL_CATEGORIES, CATEGORIES, type CategorySlug } from '@princess/shared/constants.ts';
 import { CategoryChip } from './CategoryChip.tsx';
 import styles from './CategoryBar.module.css';
 

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CATEGORIES, COUNTRIES } from '../../lib/constants.ts';
-import { MAX_QUERY, MAX_SHOWN, PAGE_SIZE, boardHref, boardHrefAt, readBoardContext, shownOf, withBoardContext } from '../../lib/board-url.ts';
+import { CATEGORIES, COUNTRIES } from '../src/constants.ts';
+import { MAX_QUERY, MAX_SHOWN, PAGE_SIZE, boardHref, boardHrefAt, readBoardContext, shownOf, withBoardContext } from '../src/board-url.ts';
 
 const K = COUNTRIES[1];
 const C = CATEGORIES[2];

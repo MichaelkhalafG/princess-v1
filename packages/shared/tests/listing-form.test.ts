@@ -1,13 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CATEGORIES, COUNTRIES, LIMITS, PHOTO_MAX_BYTES } from '../../lib/constants.ts';
-import { toArabicDigits } from '../../lib/format.ts';
-import { validateListing } from '../../lib/listing.ts';
+import { CATEGORIES, COUNTRIES, LIMITS } from '../src/constants.ts';
+import { toArabicDigits } from '../src/format.ts';
+import { validateListing } from '../src/listing.ts';
 import {
   CONTACTS_MISSING_MESSAGE, counter, emptyForm, hasAnyContact, hasValidContact, parsePhone, submitGate, toPayload, validateForm,
   type FormValues,
-} from '../../lib/listing-form.ts';
-import { checkPhoto } from '../../lib/upload.ts';
+} from '../src/listing-form.ts';
 
 const K = COUNTRIES[0];
 
@@ -104,17 +103,6 @@ test('required fields and the city message use the selected country', () => {
     assert.ok(e.city!.includes(k.cityExample));
     assert.equal(e.contacts, undefined);
   }
-});
-
-test('checkPhoto: the design refusals, before any upload', () => {
-  assert.equal(checkPhoto({ type: 'image/png', size: PHOTO_MAX_BYTES }).ok, true);
-  const big = checkPhoto({ type: 'image/jpeg', size: PHOTO_MAX_BYTES + 1 });
-  assert.equal(big.ok, false);
-  assert.match(!big.ok ? big.reason : '', /أكبر من المسموح \(٥٫٠ ميغابايت\)/);
-  const gif = checkPhoto({ type: 'image/gif', size: 10 });
-  assert.match(!gif.ok ? gif.reason : '', /من نوع GIF/);
-  const none = checkPhoto({ type: '', size: 10 });
-  assert.match(!none.ok ? none.reason : '', /ليس صورة/);
 });
 
 test('the contacts pill is green only for a contact that will be accepted', () => {

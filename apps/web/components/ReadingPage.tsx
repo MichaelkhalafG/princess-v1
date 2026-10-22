@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import { toArabicDigits } from '@/lib/format.ts';
-import { boardHref, withBoardContext, type BoardContext } from '@/lib/board-url.ts';
+import { toArabicDigits } from '@princess/shared/format.ts';
+import { boardHref, withBoardContext, type BoardContext } from '@princess/shared/board-url.ts';
 import { SiteFooter } from './SiteFooter.tsx';
 import { SiteHeader } from './SiteHeader.tsx';
 import styles from './ReadingPage.module.css';

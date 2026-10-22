@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { ReadingPage } from '@/components/ReadingPage.tsx';
-import { readBoardContext, withBoardContext } from '@/lib/board-url.ts';
+import { readBoardContext, withBoardContext } from '@princess/shared/board-url.ts';
 import { CONTACT_EMAIL } from '@/lib/site.ts';
 
 // The terms as published: only what the owner has settled. The "باختصار" points state

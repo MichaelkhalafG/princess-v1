@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CATEGORIES, COUNTRIES, LIMITS } from '../../lib/constants.ts';
-import { validateListing, WRITABLE_COLUMNS, type ValidationResult } from '../../lib/listing.ts';
+import { CATEGORIES, COUNTRIES, LIMITS } from '../src/constants.ts';
+import { validateListing, WRITABLE_COLUMNS, type ValidationResult } from '../src/listing.ts';
 
 // A valid number for a country, derived from the shared constants.
 const num = (k: (typeof COUNTRIES)[number]) => `${k.dialCode}${k.phone.example}`;
