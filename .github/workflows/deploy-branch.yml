@@ -1,0 +1,89 @@
+# On every push to main: check the web app and the shared package, assemble them into one
+# folder that reaches nothing outside itself, prove that folder builds on its own, and commit
+# it to the deploy branch. The host builds the deploy branch as a plain Next app, so nothing
+# depends on how a particular host treats a monorepo.
+
+name: Deploy branch
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# One run at a time, so two pushes never race each other onto the deploy branch.
+concurrency:
+  group: deploy-branch
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-branch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write # to push the deploy branch
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The host runs Node 22, so the checks and the build run on it too.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+
+      # The gate: nothing reaches the deploy branch unless the types check and the unit tests
+      # pass. The database and page tests need a project of their own and do not run here.
+      - name: Install the web app
+        working-directory: apps/web
+        run: npm ci --no-audit --no-fund
+      - name: Typecheck
+        working-directory: apps/web
+        run: npm run typecheck
+      - name: Web unit tests
+        working-directory: apps/web
+        run: npm test
+      - name: Shared unit tests
+        working-directory: packages/shared
+        run: npm test
+
+      - name: Assemble the deploy folder
+        run: node .github/scripts/assemble-deploy.mjs . "$RUNNER_TEMP/deploy"
+
+      # A second copy, outside the checkout, must install and build with nothing around it.
+      # Placeholder settings only: the real ones live on the host, and the build reads no data.
+      - name: Build the deploy folder on its own
+        env:
+          SITE_URL: https://example.com
+          NEXT_PUBLIC_SUPABASE_URL: https://example.invalid
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder
+          NEXT_TELEMETRY_DISABLED: 1
+        run: |
+          node .github/scripts/assemble-deploy.mjs . "$RUNNER_TEMP/check"
+          cd "$RUNNER_TEMP/check"
+          npm ci --no-audit --no-fund
+          npm run build
+
+      # The deploy branch holds exactly the assembled folder, one commit per main commit that
+      # changes it. It is written only here: a change made on it by hand is replaced next run.
+      - name: Publish to the deploy branch
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/publish"
+          if git ls-remote --exit-code --heads origin deploy > /dev/null; then
+            git fetch --no-tags --depth=1 origin deploy
+            git worktree add --detach "$out" FETCH_HEAD
+            git -C "$out" rm -rq .
+          else
+            git worktree add --detach "$out"
+            git -C "$out" switch --orphan deploy
+          fi
+          cp -a "$RUNNER_TEMP/deploy/." "$out/"
+          git -C "$out" add -A
+          if git -C "$out" diff --cached --quiet; then
+            echo "The assembled folder is unchanged: nothing to publish."
+            exit 0
+          fi
+          subject="$(git log -1 --format=%s "$GITHUB_SHA")"
+          git -C "$out" -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -q -m "Deploy ${GITHUB_SHA::7}: $subject" -m "Assembled from $GITHUB_SHA on main."
+          git -C "$out" push origin HEAD:refs/heads/deploy
