@@ -33,11 +33,27 @@ abstract class TestCase extends BaseTestCase
         return $app;
     }
 
-    protected function makeUser(): User
+    /** An account with the password "test-password", verified unless a test says otherwise. */
+    protected function makeUser(bool $verified = true): User
     {
         $n = ++self::$serial;
+        $user = User::create(['email' => "poster{$n}@example.test", 'password' => 'test-password']);
+        if ($verified) {
+            $user->forceFill(['email_verified_at' => Carbon::now()])->save();
+        }
 
-        return User::create(['email' => "poster{$n}@example.test", 'password' => 'test-password-'.$n]);
+        return $user;
+    }
+
+    /**
+     * Signs the next requests in as $user with a real API token, the way the app does, and
+     * forgets whoever earlier requests were signed in as.
+     */
+    protected function signIn(User $user): static
+    {
+        $this->app['auth']->forgetGuards();
+
+        return $this->withToken($user->createToken('test')->plainTextToken);
     }
 
     /**

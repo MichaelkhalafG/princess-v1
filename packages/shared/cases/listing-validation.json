@@ -1,0 +1,860 @@
+{
+  "about": [
+    "One list of listing-validation cases, run by both the web app (packages/shared/tests/listing-cases.test.ts)",
+    "and the API (apps/api/tests/Unit/ListingCasesTest.php and Feature/PublishTest.php). A case starts from",
+    "\"base\", applies \"set\", removes the keys in \"unset\", and either passes with the \"expect\" fields, or fails",
+    "with exactly \"errors\". \"rules\" are the values both implementations must carry. Change a rule here and in",
+    "both, or one suite fails."
+  ],
+  "rules": {
+    "categories": {
+      "hairdressing": "كوافير وتجميل",
+      "makeup": "مكياج",
+      "nails": "أظافر",
+      "henna": "حنّة",
+      "tailoring": "خياطة وتفصيل",
+      "clothes-for-sale": "بيع ملابس",
+      "cooking-and-desserts": "طبخ وحلويات",
+      "private-tutoring": "دروس خصوصية",
+      "cleaning": "تنظيف منازل",
+      "childcare": "رعاية أطفال",
+      "elderly-care": "رعاية كبار السن"
+    },
+    "countries": {
+      "EG": {
+        "dial": "+20",
+        "length": 10,
+        "lead": "1"
+      },
+      "SA": {
+        "dial": "+966",
+        "length": 9,
+        "lead": "5"
+      },
+      "AE": {
+        "dial": "+971",
+        "length": 9,
+        "lead": "5"
+      }
+    },
+    "limits": {
+      "name": 40,
+      "title": 80,
+      "description": 600,
+      "price": 40
+    },
+    "writable": [
+      "name",
+      "title",
+      "category",
+      "country",
+      "city",
+      "district",
+      "description",
+      "price",
+      "whatsapp",
+      "phone",
+      "social"
+    ]
+  },
+  "base": {
+    "name": "سارة",
+    "title": "تصفيف شعر",
+    "category": "hairdressing",
+    "country": "EG",
+    "city": "القاهرة",
+    "description": "تصفيف وقص في البيت",
+    "whatsapp": "+201012345678"
+  },
+  "cases": [
+    {
+      "name": "the base listing",
+      "set": {},
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "name": "سارة",
+        "title": "تصفيف شعر",
+        "category": "hairdressing",
+        "country": "EG",
+        "city": "القاهرة",
+        "district": null,
+        "description": "تصفيف وقص في البيت",
+        "price": null,
+        "whatsapp": "+201012345678",
+        "phone": null,
+        "social": null
+      }
+    },
+    {
+      "name": "text is trimmed of every kind of white space JavaScript trims",
+      "set": {
+        "name": "\u00a0\u3000سارة\t\n",
+        "title": " تصفيف شعر\u2003"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "name": "سارة",
+        "title": "تصفيف شعر"
+      }
+    },
+    {
+      "name": "a zero-width space is not white space, so it stays",
+      "set": {
+        "name": "\u200bسارة"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "name": "\u200bسارة"
+      }
+    },
+    {
+      "name": "blank optional text becomes null",
+      "set": {
+        "district": "   ",
+        "price": ""
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "district": null,
+        "price": null
+      }
+    },
+    {
+      "name": "optional text is kept, trimmed",
+      "set": {
+        "district": " مدينة نصر ",
+        "price": " ٥٠ للساعة "
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "district": "مدينة نصر",
+        "price": "٥٠ للساعة"
+      }
+    },
+    {
+      "name": "every text limit, exactly",
+      "set": {
+        "name": "بببببببببببببببببببببببببببببببببببببببب",
+        "title": "بببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببب",
+        "description": "بببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببب",
+        "price": "بببببببببببببببببببببببببببببببببببببببب"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "name": "بببببببببببببببببببببببببببببببببببببببب",
+        "title": "بببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببب",
+        "description": "بببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببب",
+        "price": "بببببببببببببببببببببببببببببببببببببببب"
+      }
+    },
+    {
+      "name": "length counts characters, not UTF-16 units: 40 emoji fit in a name",
+      "set": {
+        "name": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "name": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀"
+      }
+    },
+    {
+      "name": "a city has no length limit",
+      "set": {
+        "city": "بببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببب"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "city": "بببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببب"
+      }
+    },
+    {
+      "name": "category hairdressing",
+      "set": {
+        "category": "hairdressing"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "category": "hairdressing"
+      }
+    },
+    {
+      "name": "category makeup",
+      "set": {
+        "category": "makeup"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "category": "makeup"
+      }
+    },
+    {
+      "name": "category nails",
+      "set": {
+        "category": "nails"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "category": "nails"
+      }
+    },
+    {
+      "name": "category henna",
+      "set": {
+        "category": "henna"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "category": "henna"
+      }
+    },
+    {
+      "name": "category tailoring",
+      "set": {
+        "category": "tailoring"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "category": "tailoring"
+      }
+    },
+    {
+      "name": "category clothes-for-sale",
+      "set": {
+        "category": "clothes-for-sale"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "category": "clothes-for-sale"
+      }
+    },
+    {
+      "name": "category cooking-and-desserts",
+      "set": {
+        "category": "cooking-and-desserts"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "category": "cooking-and-desserts"
+      }
+    },
+    {
+      "name": "category private-tutoring",
+      "set": {
+        "category": "private-tutoring"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "category": "private-tutoring"
+      }
+    },
+    {
+      "name": "category cleaning",
+      "set": {
+        "category": "cleaning"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "category": "cleaning"
+      }
+    },
+    {
+      "name": "category childcare",
+      "set": {
+        "category": "childcare"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "category": "childcare"
+      }
+    },
+    {
+      "name": "category elderly-care",
+      "set": {
+        "category": "elderly-care"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "category": "elderly-care"
+      }
+    },
+    {
+      "name": "Saudi Arabia with a Saudi number",
+      "set": {
+        "country": "SA",
+        "whatsapp": "+966512345678"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "country": "SA",
+        "whatsapp": "+966512345678"
+      }
+    },
+    {
+      "name": "the UAE with a UAE number",
+      "set": {
+        "country": "AE",
+        "whatsapp": "+971501234567"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "country": "AE",
+        "whatsapp": "+971501234567"
+      }
+    },
+    {
+      "name": "a phone number as the only contact",
+      "set": {
+        "phone": "+201012345678"
+      },
+      "unset": [
+        "whatsapp"
+      ],
+      "ok": true,
+      "expect": {
+        "whatsapp": null,
+        "phone": "+201012345678",
+        "social": null
+      }
+    },
+    {
+      "name": "an Instagram handle as the only contact",
+      "set": {
+        "social": "princess.nails"
+      },
+      "unset": [
+        "whatsapp"
+      ],
+      "ok": true,
+      "expect": {
+        "whatsapp": null,
+        "phone": null,
+        "social": "princess.nails"
+      }
+    },
+    {
+      "name": "all three contacts",
+      "set": {
+        "phone": "+201112345678",
+        "social": "princess_nails"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "whatsapp": "+201012345678",
+        "phone": "+201112345678",
+        "social": "princess_nails"
+      }
+    },
+    {
+      "name": "a number in Arabic-Indic digits, with spaces and dashes",
+      "set": {
+        "whatsapp": "+٢٠ ١٠١-٢٣٤-٥٦٧٨"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "whatsapp": "+201012345678"
+      }
+    },
+    {
+      "name": "a number in Persian digits",
+      "set": {
+        "whatsapp": "+۲۰۱۰۱۲۳۴۵۶۷۸"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "whatsapp": "+201012345678"
+      }
+    },
+    {
+      "name": "00 in place of +",
+      "set": {
+        "whatsapp": "00201012345678"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "whatsapp": "+201012345678"
+      }
+    },
+    {
+      "name": "brackets and dots in a number",
+      "set": {
+        "whatsapp": "(+20) 101.234.5678"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "whatsapp": "+201012345678"
+      }
+    },
+    {
+      "name": "no-break spaces inside a number",
+      "set": {
+        "whatsapp": "+20\u00a0101\u00a0234\u00a05678"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "whatsapp": "+201012345678"
+      }
+    },
+    {
+      "name": "@ before an Instagram handle is dropped",
+      "set": {
+        "social": " @Princess.Nails "
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "social": "Princess.Nails"
+      }
+    },
+    {
+      "name": "an Instagram handle of exactly 30 characters",
+      "set": {
+        "social": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "social": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "name": "fields without a rule are dropped",
+      "set": {
+        "status": "published",
+        "user_id": 7,
+        "id": "x",
+        "published_at": "2020-01-01T00:00:00Z"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "name": "سارة"
+      }
+    },
+    {
+      "name": "an empty listing",
+      "set": {},
+      "unset": [
+        "name",
+        "title",
+        "category",
+        "country",
+        "city",
+        "description",
+        "whatsapp"
+      ],
+      "ok": false,
+      "errors": {
+        "name": "required",
+        "title": "required",
+        "description": "required",
+        "city": "required",
+        "category": "required",
+        "country": "required",
+        "contact": "contact_required"
+      }
+    },
+    {
+      "name": "blank required text",
+      "set": {
+        "name": "   "
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "name": "required"
+      }
+    },
+    {
+      "name": "required text set to null",
+      "set": {
+        "title": null
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "title": "required"
+      }
+    },
+    {
+      "name": "white space JavaScript trims is blank too",
+      "set": {
+        "city": "\u00a0\u3000"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "city": "required"
+      }
+    },
+    {
+      "name": "required text of the wrong type",
+      "set": {
+        "name": 5,
+        "title": true,
+        "city": [],
+        "description": {}
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "name": "invalid",
+        "title": "invalid",
+        "city": "invalid",
+        "description": "invalid"
+      }
+    },
+    {
+      "name": "optional text of the wrong type",
+      "set": {
+        "district": 5,
+        "price": false
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "district": "invalid",
+        "price": "invalid"
+      }
+    },
+    {
+      "name": "one character over every limit",
+      "set": {
+        "name": "ببببببببببببببببببببببببببببببببببببببببب",
+        "title": "ببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببب",
+        "description": "ببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببببب",
+        "price": "ببببببببببببببببببببببببببببببببببببببببب"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "name": "too_long",
+        "title": "too_long",
+        "description": "too_long",
+        "price": "too_long"
+      }
+    },
+    {
+      "name": "41 emoji are too long for a name",
+      "set": {
+        "name": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "name": "too_long"
+      }
+    },
+    {
+      "name": "a category not in the list",
+      "set": {
+        "category": "not-a-category"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "category": "invalid"
+      }
+    },
+    {
+      "name": "the Arabic name of a category is not a category",
+      "set": {
+        "category": "أظافر"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "category": "invalid"
+      }
+    },
+    {
+      "name": "a category is not trimmed",
+      "set": {
+        "category": " nails"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "category": "invalid"
+      }
+    },
+    {
+      "name": "a category of only spaces",
+      "set": {
+        "category": "  "
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "category": "invalid"
+      }
+    },
+    {
+      "name": "a category of the wrong type",
+      "set": {
+        "category": 3
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "category": "invalid"
+      }
+    },
+    {
+      "name": "a blank category",
+      "set": {
+        "category": ""
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "category": "required"
+      }
+    },
+    {
+      "name": "an unknown country, and its number is not checked against it",
+      "set": {
+        "country": "XX"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "country": "invalid"
+      }
+    },
+    {
+      "name": "country codes are upper case",
+      "set": {
+        "country": "eg"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "country": "invalid"
+      }
+    },
+    {
+      "name": "a blank country",
+      "set": {
+        "country": ""
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "country": "required"
+      }
+    },
+    {
+      "name": "a null country",
+      "set": {
+        "country": null
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "country": "required"
+      }
+    },
+    {
+      "name": "a number from another country",
+      "set": {
+        "country": "SA"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "whatsapp": "invalid"
+      }
+    },
+    {
+      "name": "a phone number from another country",
+      "set": {
+        "phone": "+971501234567"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "phone": "invalid"
+      }
+    },
+    {
+      "name": "the wrong first digit for the country",
+      "set": {
+        "whatsapp": "+202012345678"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "whatsapp": "invalid"
+      }
+    },
+    {
+      "name": "one digit short",
+      "set": {
+        "whatsapp": "+20101234567"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "whatsapp": "invalid"
+      }
+    },
+    {
+      "name": "one digit long",
+      "set": {
+        "whatsapp": "+2010123456789"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "whatsapp": "invalid"
+      }
+    },
+    {
+      "name": "no country code",
+      "set": {
+        "whatsapp": "01012345678"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "whatsapp": "invalid"
+      }
+    },
+    {
+      "name": "letters for a number: an error of its own, but a contact was given",
+      "set": {
+        "whatsapp": "abc"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "whatsapp": "invalid"
+      }
+    },
+    {
+      "name": "a contact of the wrong type still counts as given",
+      "set": {
+        "phone": 201012345678
+      },
+      "unset": [
+        "whatsapp"
+      ],
+      "ok": false,
+      "errors": {
+        "phone": "invalid"
+      }
+    },
+    {
+      "name": "no contact at all",
+      "set": {},
+      "unset": [
+        "whatsapp"
+      ],
+      "ok": false,
+      "errors": {
+        "contact": "contact_required"
+      }
+    },
+    {
+      "name": "blank contacts are no contact",
+      "set": {
+        "whatsapp": "",
+        "phone": "  ",
+        "social": null
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "contact": "contact_required"
+      }
+    },
+    {
+      "name": "an Instagram handle with a space",
+      "set": {
+        "social": "princess nails"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "social": "invalid"
+      }
+    },
+    {
+      "name": "an Instagram handle over 30 characters",
+      "set": {
+        "social": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "social": "invalid"
+      }
+    },
+    {
+      "name": "@ alone is not a handle",
+      "set": {
+        "social": "@"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "social": "invalid"
+      }
+    },
+    {
+      "name": "Arabic letters in a handle",
+      "set": {
+        "social": "أميرة"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "social": "invalid"
+      }
+    },
+    {
+      "name": "several errors are all reported",
+      "set": {
+        "name": "",
+        "category": "x",
+        "country": "SA",
+        "price": "ببببببببببببببببببببببببببببببببببببببببب"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "name": "required",
+        "category": "invalid",
+        "price": "too_long",
+        "whatsapp": "invalid"
+      }
+    }
+  ]
+}

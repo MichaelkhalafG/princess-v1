@@ -45,4 +45,46 @@ return [
         'max_query' => 100,
     ],
 
+    // Where the links in emails point: the web app, which passes their parameters to the API.
+    'web_url' => rtrim(env('PRINCESS_WEB_URL', 'http://localhost:3000'), '/'),
+
+    'accounts' => [
+        // an account whose email is never verified is deleted, with its listing, after this
+        'unverified_days' => 7,
+        'verification_link_hours' => 24,
+        'password_min_chars' => 8,
+        // bcrypt reads no further than 72 bytes; a longer password would be cut without a word
+        'password_max_bytes' => 72,
+    ],
+
+    // Line B: an account's listings wait for a moderator until one of them has been approved
+    // (and none removed since); after that they publish at once unless a signal holds them.
+    'moderation' => [
+        // every listing waits for a moderator, trusted or not, until this is switched off
+        'launch_phase' => (bool) env('MODERATION_LAUNCH_PHASE', true),
+    ],
+
+    'posting' => [
+        // listings one account may create in any 24 hours, whatever becomes of them
+        'per_day' => 5,
+    ],
+
+    // Abuse limits on the endpoints that create, sign in or send email.
+    'rate_limits' => [
+        'accounts_per_ip_per_hour' => 10,
+        'logins_per_minute' => 5,
+        'password_emails_per_ip_per_hour' => 5,
+        'verification_emails_per_hour' => 6,
+    ],
+
+    // The visitor's real address behind a proxy or CDN. Both unset: the address the request
+    // came from is used and no header is trusted. Set both once the host's proxy is known:
+    // the header it writes (X-Forwarded-For, X-Real-IP, CF-Connecting-IP...) and the
+    // addresses or ranges it sends from, comma separated. The header is believed only on a
+    // request that arrives from one of those addresses.
+    'client_ip' => [
+        'header' => env('CLIENT_IP_HEADER'),
+        'trusted_proxies' => env('CLIENT_IP_TRUSTED_PROXIES'),
+    ],
+
 ];

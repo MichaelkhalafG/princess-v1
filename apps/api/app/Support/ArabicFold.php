@@ -10,8 +10,7 @@ use Normalizer;
  * in lower case. Listings store their text folded (search_text) and searches are folded
  * the same way, so "مدينه نصر" finds "مدينة نصر".
  *
- * A port of the web app's foldArabic. White space is the exact set JavaScript's \s and
- * trim() use, written out, so the result does not depend on how PCRE was built.
+ * A port of the web app's foldArabic, with JavaScript's white space (JsText).
  */
 final class ArabicFold
 {
@@ -27,8 +26,6 @@ final class ArabicFold
     /** Tashkeel, superscript alef, tatweel. */
     private const MARKS = '/[\x{064B}-\x{065F}\x{0670}\x{0640}]/u';
 
-    private const SPACE = '\t\n\x{0B}\f\r \x{00A0}\x{1680}\x{2000}-\x{200A}\x{2028}\x{2029}\x{202F}\x{205F}\x{3000}\x{FEFF}';
-
     public static function fold(string $text): string
     {
         $text = Normalizer::normalize($text, Normalizer::FORM_C);
@@ -37,10 +34,9 @@ final class ArabicFold
         }
         $text = preg_replace(self::MARKS, '', $text);
         $text = strtr($text, self::LETTERS);
-        $text = preg_replace('/['.self::SPACE.']+/u', ' ', $text);
-        $text = preg_replace('/^['.self::SPACE.']+|['.self::SPACE.']+$/u', '', $text);
+        $text = preg_replace('/['.JsText::SPACE.']+/u', ' ', $text);
 
-        return mb_strtolower($text, 'UTF-8');
+        return mb_strtolower(JsText::trim($text), 'UTF-8');
     }
 
     /**
