@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\EmailVerificationController;
 use App\Http\Controllers\Api\ListingController;
 use App\Http\Controllers\Api\PasswordController;
+use App\Http\Controllers\Api\PhotoController;
 use Illuminate\Support\Facades\Route;
 
 // Under /api/v1 (bootstrap/app.php). Reads carry no rate limit: the web server makes them
@@ -16,6 +17,8 @@ Route::get('listings/{id}/others', [ListingController::class, 'others'])->whereU
 
 // signed in, or signing up in the same request
 Route::post('listings', [ListingController::class, 'store'])->middleware('throttle:new-accounts');
+// before she has an account, too (she signs up at the end of the form)
+Route::post('photos', [PhotoController::class, 'store'])->middleware('throttle:photo-uploads');
 
 Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');
 Route::get('email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])

@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
@@ -45,6 +47,31 @@ class Listing extends Model
                 $listing->name, $listing->title, $listing->description, $listing->city, $listing->district ?? '',
             ]));
         });
+
+        // Its photo is public exactly while it is published. Moved once the change is committed,
+        // so a rolled-back decision never exposes a photo.
+        static::saved(function (Listing $listing) {
+            if ($listing->wasChanged('status') || $listing->wasRecentlyCreated) {
+                DB::afterCommit(fn () => $listing->syncPhotoVisibility());
+            }
+        });
+
+        // A listing deleted on its own (she withdraws it) takes its photo with it. Listings deleted
+        // with an account go through App\Accounts\AccountDeletion, which deletes the files.
+        static::deleting(function (Listing $listing) {
+            $listing->photo?->deleteWithFile();
+        });
+    }
+
+    public function photo(): HasOne
+    {
+        return $this->hasOne(Photo::class);
+    }
+
+    public function syncPhotoVisibility(): void
+    {
+        $this->unsetRelation('photo');
+        $this->photo?->moveTo($this->status === ListingStatus::Published ? Photo::PUBLIC : Photo::PRIVATE);
     }
 
     /** Random (version 4) ids: a listing's address reveals nothing, not even when it was made. */
@@ -54,7 +81,8 @@ class Listing extends Model
     }
 
     /**
-     * The listing as the public sees it: PUBLIC_FIELDS and its photo, nothing else.
+     * The listing as the public sees it: PUBLIC_FIELDS and its photo, nothing else. Load the
+     * photo with the listing (with('photo')) when listing many.
      *
      * @return array<string, mixed>
      */
@@ -65,7 +93,8 @@ class Listing extends Model
             $out[$field] = $this->getAttribute($field);
         }
         $out['published_at'] = $this->published_at?->toIso8601ZuluString();
-        $out['photo'] = null; // photos arrive with the photo pipeline
+        // only a public photo ever leaves here
+        $out['photo'] = $this->photo?->toClient();
 
         return $out;
     }

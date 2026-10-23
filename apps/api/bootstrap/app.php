@@ -17,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: 'api/v1',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        then: function () {
+            Illuminate\Support\Facades\Route::group([], __DIR__.'/../routes/photos.php');
+        },
     )
     ->withMiddleware(function (Middleware $middleware): void {
         // first, so every rate limit and log sees the visitor's address (config princess.client_ip)

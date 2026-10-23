@@ -69,8 +69,33 @@ return [
         'per_day' => 5,
     ],
 
+    // One photo per listing, re-encoded on the server whatever arrives: decoded, turned upright,
+    // shrunk, written as a fresh JPEG. Nothing she uploaded is stored as it came, so no
+    // metadata (GPS, camera, XMP, IPTC) survives. Pending photos are private; a photo is public
+    // exactly while its listing is published.
+    'photos' => [
+        'max_bytes' => 5 * 1024 * 1024,
+        // the longest side kept, as the web form already shrinks to
+        'max_edge' => 1600,
+        'jpeg_quality' => 85,
+        // refused from the header alone above this: decoding takes about 5 bytes a pixel, so
+        // 4096 × 4096 needs about 85 MB of the 128 MB a PHP request has by default
+        'max_pixels' => 4096 * 4096,
+        // an upload that no listing claims is deleted after this
+        'unclaimed_hours' => 24,
+        // the photo of a rejected or removed listing, kept privately for the moderators, then deleted
+        'refused_days' => 14,
+        // how long the signed address of a private photo works (her listings page, the admin)
+        'private_link_minutes' => 60,
+        // where the files live: PHOTOS_ROOT, read by the photos_private and photos_public disks
+        // (config/filesystems.php), outside the code so a deploy never touches them
+        // the public address of a published photo; a CDN can go here later
+        'public_url' => rtrim((string) (env('PHOTOS_PUBLIC_URL') ?: rtrim((string) env('APP_URL', 'http://localhost'), '/').'/photos'), '/'),
+    ],
+
     // Abuse limits on the endpoints that create, sign in or send email.
     'rate_limits' => [
+        'photo_uploads_per_ip_per_hour' => 30,
         'accounts_per_ip_per_hour' => 10,
         'logins_per_minute' => 5,
         'password_emails_per_ip_per_hour' => 5,

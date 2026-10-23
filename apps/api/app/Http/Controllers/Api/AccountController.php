@@ -28,8 +28,11 @@ class AccountController extends Controller
     /** Every listing of hers, newest first, with where each one is. Only she sees this. */
     public function listings(Request $request): JsonResponse
     {
-        $items = $request->user()->listings()->orderByDesc('created_at')->orderBy('id')->get()
-            ->map(fn ($listing) => $listing->toPublic() + [
+        $items = $request->user()->listings()->with('photo')->orderByDesc('created_at')->orderBy('id')->get()
+            ->map(fn ($listing) => [
+                ...$listing->toPublic(),
+                // she sees her own photo whatever its state, through a signed address
+                'photo' => $listing->photo?->toClient(privateAllowed: true),
                 'status' => $listing->status->value,
                 'reject_reason' => $listing->reject_reason,
             ]);

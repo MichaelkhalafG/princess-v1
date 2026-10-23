@@ -47,6 +47,20 @@ return [
             'report' => false,
         ],
 
+        // Listing photos (config/princess.php "photos"): one disk while the listing is not
+        // published, one while it is. Moving to S3-compatible storage is a change here only.
+        'photos_private' => [
+            'driver' => 'local',
+            'root' => rtrim(env('PHOTOS_ROOT') ?: storage_path('app/photos'), '/\\').'/private',
+            'throw' => true,
+        ],
+
+        'photos_public' => [
+            'driver' => 'local',
+            'root' => rtrim(env('PHOTOS_ROOT') ?: storage_path('app/photos'), '/\\').'/public',
+            'throw' => true,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

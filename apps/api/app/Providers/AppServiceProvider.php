@@ -45,6 +45,8 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute($limit('logins_per_minute'))->by($who.'|'.$request->ip());
         });
 
+        RateLimiter::for('photo-uploads', fn (Request $request) => Limit::perHour($limit('photo_uploads_per_ip_per_hour'))->by('ip:'.$request->ip()));
+
         RateLimiter::for('password-emails', fn (Request $request) => Limit::perHour($limit('password_emails_per_ip_per_hour'))->by('ip:'.$request->ip()));
 
         // One new link a minute, a few an hour (distinct keys, so the two limits count apart).

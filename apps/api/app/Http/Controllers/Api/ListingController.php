@@ -9,13 +9,16 @@ use App\Http\Requests\ListListingsRequest;
 use App\Listings\ListingInput;
 use App\Listings\PublishDecision;
 use App\Models\Listing;
+use App\Models\Photo;
 use App\Models\User;
 use App\Support\ArabicFold;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * The board's reads, and posting. Only published listings exist for reading: anything else is
@@ -38,6 +41,10 @@ class ListingController extends Controller
 
         $listing = ListingInput::validate($request->except(['email', 'password', 'device_name']));
         $errors = $listing['ok'] ? [] : $listing['errors'];
+        $photo = $this->claimablePhoto($request->input('photo'), $user);
+        if ($photo === false) {
+            $errors['photo'] = 'invalid';
+        }
         if ($user === null) {
             $errors += AccountInput::newAccountErrors($request->input('email'), $request->input('password'));
         }
@@ -45,7 +52,7 @@ class ListingController extends Controller
             return response()->json(['errors' => $errors], 422);
         }
 
-        $created = DB::transaction(function () use ($user, $request, $listing) {
+        $created = DB::transaction(function () use ($user, $request, $listing, $photo) {
             if ($user !== null) {
                 // her row locked, so two posts sent at once cannot both pass the limit
                 User::query()->whereKey($user->getKey())->lockForUpdate()->first();
@@ -61,6 +68,15 @@ class ListingController extends Controller
             $model->forceFill([...$listing['value'], 'user_id' => $user->getKey()]);
             PublishDecision::apply($model, $user);
             $model->save();
+            if ($photo !== null) {
+                // locked and checked again: two listings cannot claim one photo
+                $claimed = Photo::query()->whereKey($photo->id)->whereNull('listing_id')->lockForUpdate()->first();
+                if ($claimed === null) {
+                    throw new HttpResponseException(response()->json(['errors' => ['photo' => 'invalid']], 422));
+                }
+                $claimed->forceFill(['listing_id' => $model->getKey(), 'user_id' => $user->getKey()])->save();
+                DB::afterCommit(fn () => $model->syncPhotoVisibility());
+            }
 
             return [$user, $model];
         });
@@ -76,6 +92,29 @@ class ListingController extends Controller
         }
 
         return response()->json($body, 201);
+    }
+
+    /**
+     * The photo the listing names, if it may have it: an id from POST /photos, claimed by no
+     * listing, uploaded within unclaimed_hours, by her or by nobody signed in. Null when the
+     * listing names none; false when it names one it may not have.
+     */
+    private function claimablePhoto(mixed $id, ?User $user): Photo|false|null
+    {
+        if ($id === null || $id === '') {
+            return null;
+        }
+        if (! is_string($id) || ! Str::isUuid($id)) {
+            return false;
+        }
+        $photo = Photo::query()->whereKey($id)->whereNull('listing_id')
+            ->where('created_at', '>', Carbon::now()->subHours(config('princess.photos.unclaimed_hours')))
+            ->first();
+        if ($photo === null || ($photo->user_id !== null && $photo->user_id !== $user?->getKey())) {
+            return false;
+        }
+
+        return $photo;
     }
 
     /** Seconds until she may post again, or null when she is under the daily limit. */
@@ -101,7 +140,7 @@ class ListingController extends Controller
     public function index(ListListingsRequest $request): JsonResponse
     {
         $filters = $request->validated();
-        $query = Listing::query()->published()->where('country', $filters['country']);
+        $query = Listing::query()->with('photo')->published()->where('country', $filters['country']);
         if (! empty($filters['category'])) {
             $query->where('category', $filters['category']);
         }
@@ -128,7 +167,7 @@ class ListingController extends Controller
     public function others(string $id): JsonResponse
     {
         $listing = $this->published($id);
-        $items = Listing::query()->published()
+        $items = Listing::query()->with('photo')->published()
             ->where('country', $listing->country)
             ->where('category', $listing->category)
             ->whereKeyNot($listing->getKey())
@@ -141,7 +180,7 @@ class ListingController extends Controller
 
     private function published(string $id): Listing
     {
-        return Listing::query()->published()->whereKey($id)->firstOrFail();
+        return Listing::query()->with('photo')->published()->whereKey($id)->firstOrFail();
     }
 
     /**

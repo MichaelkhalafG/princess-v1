@@ -7,6 +7,8 @@ use App\Models\Listing;
 use App\Models\User;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 
 abstract class TestCase extends BaseTestCase
@@ -15,6 +17,35 @@ abstract class TestCase extends BaseTestCase
     public $mockConsoleOutput = false;
 
     private static int $serial = 0;
+
+    /** This test's photo storage: real folders on disk, made for the test and removed after it. */
+    protected string $photoRoot;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->photoRoot = sys_get_temp_dir().DIRECTORY_SEPARATOR.'princess-photos-'.bin2hex(random_bytes(6));
+        config([
+            'filesystems.disks.photos_private.root' => $this->photoRoot.DIRECTORY_SEPARATOR.'private',
+            'filesystems.disks.photos_public.root' => $this->photoRoot.DIRECTORY_SEPARATOR.'public',
+            'princess.photos.public_url' => 'http://localhost/photos',
+        ]);
+        Storage::forgetDisk(['photos_private', 'photos_public']);
+    }
+
+    protected function tearDown(): void
+    {
+        File::deleteDirectory($this->photoRoot);
+        parent::tearDown();
+    }
+
+    /** The bytes stored for a photo, read straight from its folder on disk. */
+    protected function storedPhoto(string $id, string $visibility): ?string
+    {
+        $path = $this->photoRoot.DIRECTORY_SEPARATOR.$visibility.DIRECTORY_SEPARATOR.$id.'.jpg';
+
+        return is_file($path) ? (string) file_get_contents($path) : null;
+    }
 
     /**
      * Tests empty and rebuild the database they run on. Refuse anything but a local database
@@ -54,6 +85,14 @@ abstract class TestCase extends BaseTestCase
         $this->app['auth']->forgetGuards();
 
         return $this->withToken($user->createToken('test')->plainTextToken);
+    }
+
+    /** The next requests are signed out again. */
+    protected function signOut(): static
+    {
+        $this->app['auth']->forgetGuards();
+
+        return $this->withoutHeader('Authorization');
     }
 
     /**
