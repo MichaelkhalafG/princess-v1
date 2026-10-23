@@ -5,7 +5,7 @@ import { CONTACT_EMAIL } from '@/lib/site.ts';
 
 // The privacy page as published. It states only what is fact about the site today, each
 // checked in the code:
-// every listing field is public (@princess/shared/listing.ts LISTING_COLUMNS), the
+// every listing field is public (the API's Listing::PUBLIC_FIELDS), the
 // board needs no account and verifies nothing, the site sets no cookie, a listing
 // cannot be edited or deleted on the site, and removal is by email.
 //

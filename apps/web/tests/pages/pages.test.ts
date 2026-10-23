@@ -1,31 +1,45 @@
-// Renders the real pages (next dev) against the LOCAL Supabase and asserts on their HTML.
-// This proves what the server renders — not how it looks. Every listing used here is
-// created by this file and deleted in after(), and the dev server is stopped and its
-// port checked free.
+// Renders the real pages (next dev) against a LOCAL API (apps/api, on PHP's built-in server)
+// over the throwaway test database, and asserts on their HTML. This proves what the server
+// renders — not how it looks. The database is emptied first and last; every listing used here
+// is created by this file (php artisan princess:fixtures); both servers are stopped at the end
+// and their ports checked free.
+//
+// Needs the local MySQL (127.0.0.1, port PAGES_DB_PORT or 3316) with a princess_test database,
+// and PHP on the PATH.
 
 import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, execFileSync, type ChildProcess } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
+import { writeFileSync, rmSync } from 'node:fs';
 import { createServer } from 'node:net';
-import { createClient } from '@supabase/supabase-js';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { CATEGORIES, COUNTRIES } from '@princess/shared/constants.ts';
 import { areaText, formatPhone } from '@princess/shared/format.ts';
 import { CONTACT_EMAIL, INDEXABLE } from '../../lib/site.ts';
-import { testEnv } from '../support/env.ts';
 
-const { url, publishableKey, secretKey } = testEnv();
+const API_DIR = join(import.meta.dirname, '../../../api');
+// Test data never touches real data: a local database whose name ends in _test, nothing else.
+const DB = { DB_CONNECTION: 'mysql', DB_HOST: '127.0.0.1', DB_PORT: process.env.PAGES_DB_PORT ?? '3316', DB_DATABASE: 'princess_test', DB_USERNAME: 'root', DB_PASSWORD: '' };
+assert.ok(DB.DB_HOST === '127.0.0.1' && DB.DB_DATABASE.endsWith('_test'), 'page tests run only against a local _test database');
+const apiEnv = {
+  ...process.env, ...DB,
+  APP_ENV: 'testing', APP_DEBUG: 'false', APP_KEY: `base64:${randomBytes(32).toString('base64')}`,
+  CACHE_STORE: 'array', SESSION_DRIVER: 'array', MAIL_MAILER: 'array', QUEUE_CONNECTION: 'sync',
+};
+const artisan = (...args: string[]) => execFileSync('php', ['artisan', ...args], { cwd: API_DIR, env: apiEnv, encoding: 'utf8' });
 
-const admin = createClient(url, secretKey, { auth: { persistSession: false, autoRefreshToken: false } });
 const RUN = `p${randomUUID().slice(0, 8)}`;
 const K = COUNTRIES[0];
 const num = `${K.dialCode}${K.phone.example}`;
 // Two categories the run owns alone in this country: derived, not named.
 const [CAT_SHARED, CAT_ALONE] = [CATEGORIES[CATEGORIES.length - 1].slug, CATEGORIES[CATEGORIES.length - 2].slug];
 
-let server: ChildProcess | undefined;
+const servers: ChildProcess[] = [];
 let base = '';
-const ids: Record<string, string> = {};
+let apiBase = '';
+let ids: Record<string, string> = {};
 
 function freePort(): Promise<number> {
   return new Promise((resolve, reject) => {
@@ -38,15 +52,6 @@ function freePort(): Promise<number> {
   });
 }
 
-async function insert(row: Record<string, unknown>): Promise<string> {
-  const { data, error } = await admin.from('listings').insert({
-    name: 'اختبار', title: `عنوان ${RUN}`, category: CAT_SHARED, country: K.code, city: `مدينة-${RUN}`,
-    description: `وصف ${RUN}`, ...row,
-  }).select('id').single();
-  if (error) throw error;
-  return data.id;
-}
-
 async function get(path: string): Promise<{ status: number; html: string }> {
   const res = await fetch(`${base}${path}`, { redirect: 'manual' });
   // React's server renderer separates adjacent text pieces ("في {country} منذ") with empty
@@ -54,42 +59,84 @@ async function get(path: string): Promise<{ status: number; html: string }> {
   return { status: res.status, html: (await res.text()).replaceAll('<!-- -->', '') };
 }
 
-before(async () => {
-  await admin.from('listings').delete().like('search_text', `%${RUN}%`);
-  ids.withAll = await insert({ district: `حي-${RUN}`, whatsapp: num, phone: num, social: 'mona.nails', price: 'حسب الطلب' });
-  ids.noWhatsapp = await insert({ phone: num, social: 'reem.henna' });
-  ids.alone = await insert({ category: CAT_ALONE, social: 'only.one' });
-  // the shared category must hold only this run's rows for the "others" assertions
-  const { count } = await admin.from('listings').select('id', { count: 'exact', head: true }).eq('country', K.code).eq('category', CAT_ALONE);
-  assert.equal(count, 1, `category ${CAT_ALONE} in ${K.code} is not empty before the test; cannot assert the "alone" state`);
-
-  const port = await freePort();
-  base = `http://127.0.0.1:${port}`;
-  server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'dev', '-p', String(port), '-H', '127.0.0.1'], {
-    env: { ...process.env, NEXT_PUBLIC_SUPABASE_URL: url, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: publishableKey, NEXT_TELEMETRY_DISABLED: '1' },
-    stdio: 'ignore',
-  });
-  for (let i = 0; i < 240; i++) {
+async function waitFor(url: string, seconds: number): Promise<void> {
+  for (let i = 0; i < seconds; i++) {
     try {
-      if ((await fetch(`${base}/new`)).status === 200) return;
+      if ((await fetch(url)).status < 500) return;
     } catch { /* not up yet */ }
     await new Promise((r) => setTimeout(r, 1000));
   }
-  throw new Error('next dev did not come up in 240s');
+  throw new Error(`${url} did not come up in ${seconds}s`);
+}
+
+function stop(server: ChildProcess) {
+  if (!server.pid) return;
+  // the servers spawn workers: end the whole tree (taskkill exists on Windows)
+  if (process.platform === 'win32') execFileSync('taskkill', ['/pid', String(server.pid), '/T', '/F'], { stdio: 'ignore' });
+  else server.kill('SIGTERM');
+}
+
+before(async () => {
+  artisan('migrate:fresh', '--force');
+  const listing = (key: string, row: Record<string, unknown>) => ({
+    key, name: 'اختبار', title: `عنوان ${RUN}`, category: CAT_SHARED, country: K.code, city: `مدينة-${RUN}`, description: `وصف ${RUN}`, ...row,
+  });
+  const file = join(tmpdir(), `princess-fixtures-${RUN}.json`);
+  writeFileSync(file, JSON.stringify({ listings: [
+    listing('withAll', { district: `حي-${RUN}`, whatsapp: num, phone: num, social: 'mona.nails', price: 'حسب الطلب', minutes_ago: 1 }),
+    listing('noWhatsapp', { phone: num, social: 'reem.henna', minutes_ago: 2 }),
+    listing('alone', { category: CAT_ALONE, social: 'only.one', minutes_ago: 3 }),
+    listing('pending', { title: `قيد المراجعة ${RUN}`, social: 'waiting.one', status: 'pending', published_at: null }),
+  ] }));
+  try {
+    ids = JSON.parse(artisan('princess:fixtures', file).trim());
+  } finally {
+    rmSync(file);
+  }
+
+  const apiPort = await freePort();
+  apiBase = `http://127.0.0.1:${apiPort}`;
+  // as `php artisan serve` runs it: from public/, with Laravel's router script
+  servers.push(spawn('php', ['-S', `127.0.0.1:${apiPort}`, '../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php'], { cwd: join(API_DIR, 'public'), env: apiEnv, stdio: 'ignore' }));
+  await waitFor(`${apiBase}/up`, 60);
+
+  const port = await freePort();
+  base = `http://127.0.0.1:${port}`;
+  servers.push(spawn(process.execPath, ['node_modules/next/dist/bin/next', 'dev', '-p', String(port), '-H', '127.0.0.1'], {
+    env: { ...process.env, API_URL: apiBase, NEXT_PUBLIC_API_URL: apiBase, NEXT_TELEMETRY_DISABLED: '1' },
+    stdio: 'ignore',
+  }));
+  await waitFor(`${base}/new`, 240);
 });
 
 after(async () => {
-  await admin.from('listings').delete().like('search_text', `%${RUN}%`);
-  const { count } = await admin.from('listings').select('id', { count: 'exact', head: true }).like('search_text', `%${RUN}%`);
-  assert.equal(count, 0, 'test rows left behind');
-  if (server?.pid) {
-    // the dev server spawns workers: end the whole tree (taskkill exists on Windows)
-    if (process.platform === 'win32') execFileSync('taskkill', ['/pid', String(server.pid), '/T', '/F'], { stdio: 'ignore' });
-    else server.kill('SIGTERM');
-  }
+  for (const server of servers) stop(server);
   await new Promise((r) => setTimeout(r, 1000));
-  const stillUp = await fetch(`${base}/new`).then(() => true, () => false);
-  assert.equal(stillUp, false, 'dev server still answering after shutdown');
+  for (const url of [`${base}/new`, `${apiBase}/up`]) {
+    const stillUp = await fetch(url).then(() => true, () => false);
+    assert.equal(stillUp, false, `${url} still answering after shutdown`);
+  }
+  artisan('migrate:fresh', '--force');
+});
+
+test('the board shows what the API publishes, newest first, and nothing that waits for review', async () => {
+  const { status, html } = await get(`/?country=${K.code}`);
+  assert.equal(status, 200);
+  const at = (id: string) => html.indexOf(`/listing/${id}`);
+  assert.ok(at(ids.withAll) > 0 && at(ids.noWhatsapp) > at(ids.withAll) && at(ids.alone) > at(ids.noWhatsapp), 'newest published first');
+  assert.equal(at(ids.pending), -1, 'a listing waiting for review is not on the board');
+  assert.ok(!html.includes(`قيد المراجعة ${RUN}`));
+});
+
+test('a search goes to the API, folded: a spelling she did not use still finds it', async () => {
+  // "مدينه" with ه finds the city written "مدينة" with ة: the API folds both
+  const { html } = await get(`/?country=${K.code}&q=${encodeURIComponent(`مدينه-${RUN}`)}`);
+  assert.ok(html.includes(`/listing/${ids.withAll}`));
+});
+
+test('a listing waiting for review has no public page: not found, like one that never existed', async () => {
+  const { status } = await get(`/listing/${ids.pending}`);
+  assert.equal(status, 404);
 });
 
 test('detail page: city and district together, price as typed, WhatsApp first', async () => {

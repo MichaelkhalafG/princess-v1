@@ -8,6 +8,10 @@
 
 import { LIMITS, isCategorySlug, isCountryCode, phonePatternSource, type CategorySlug, type CountryCode } from './constants.ts';
 
+/** A published photo, as the API serves it: its address and its size in pixels. */
+export type ListingPhoto = { url: string; width: number; height: number };
+
+/** A listing as the API returns it (GET /api/v1/listings…): published, so public. */
 export type Listing = {
   id: string;
   name: string;
@@ -19,27 +23,39 @@ export type Listing = {
   description: string;
   /** Free text exactly as she typed it ("٥٠ للساعة", "حسب الطلب"). Never a number, never sorted. */
   price: string | null;
-  /** Object path inside the listing-photos bucket, e.g. "<uuid>.webp". Never a full URL. */
-  photo: string | null;
   /** E.164, e.g. "+201001234567". */
   whatsapp: string | null;
   /** E.164, e.g. "+966501234567". */
   phone: string | null;
   /** Instagram handle without "@". The column is called `social` per the brief. */
   social: string | null;
-  created_at: string;
+  /** When it reached the board (ISO 8601). The board's order, and what "قبل ساعة" counts from. */
+  published_at: string;
+  photo: ListingPhoto | null;
 };
 
-export type NewListing = Omit<Listing, 'id' | 'created_at'>;
+/** What she sends for a new listing, as validated here. */
+export type NewListing = {
+  name: string;
+  title: string;
+  category: CategorySlug;
+  country: CountryCode;
+  city: string;
+  district: string | null;
+  description: string;
+  price: string | null;
+  /** Object path inside the listing-photos bucket, e.g. "<uuid>.webp". Never a full URL. */
+  photo: string | null;
+  whatsapp: string | null;
+  phone: string | null;
+  social: string | null;
+};
 
 /** The columns the public may write — mirrors the column-level GRANT in the migration. */
 export const WRITABLE_COLUMNS = [
   'name', 'title', 'category', 'country', 'city', 'district', 'description',
   'price', 'photo', 'whatsapp', 'phone', 'social',
 ] as const satisfies readonly (keyof NewListing)[];
-
-/** The columns read back for display. */
-export const LISTING_COLUMNS = ['id', ...WRITABLE_COLUMNS, 'created_at'].join(',');
 
 export type ListingField = (typeof WRITABLE_COLUMNS)[number];
 export type ErrorCode = 'required' | 'too_long' | 'invalid' | 'contact_required';

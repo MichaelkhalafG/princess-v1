@@ -1,8 +1,7 @@
 import { Board } from '@/components/board/Board.tsx';
 import { readBoardContext, shownOf } from '@princess/shared/board-url.ts';
 import { COUNTRIES } from '@princess/shared/constants.ts';
-import { countListings, fetchListings, photoUrl } from '@/lib/listings.ts';
-import { getSupabase } from '@/lib/supabase.ts';
+import { countListings, fetchBoard } from '@/lib/listings.ts';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,17 +22,15 @@ export default async function BoardPage({ searchParams }: Props) {
   const filters = { country, category: ctx.category, q: ctx.q };
   const shown = shownOf(ctx);
 
-  const db = getSupabase();
   const narrowed = Boolean(ctx.category || ctx.q);
-  const [listings, total, countryTotal] = await Promise.all([
-    fetchListings(db, { ...filters, limit: shown }),
-    countListings(db, filters),
-    narrowed ? countListings(db, { country }) : null,
+  const [{ items: listings, total }, countryTotal] = await Promise.all([
+    fetchBoard({ ...filters, limit: shown }),
+    narrowed ? countListings({ country }) : null,
   ]);
   const launch = (countryTotal ?? total) === 0;
   // In the launch state, the countries that do have listings, to offer instead.
   const elsewhere = launch
-    ? (await Promise.all(COUNTRIES.filter((c) => c.code !== country).map(async (c) => ((await countListings(db, { country: c.code })) > 0 ? c.code : null))))
+    ? (await Promise.all(COUNTRIES.filter((c) => c.code !== country).map(async (c) => ((await countListings({ country: c.code })) > 0 ? c.code : null))))
         .filter((c) => c !== null)
     : [];
 
@@ -47,7 +44,7 @@ export default async function BoardPage({ searchParams }: Props) {
       launch={launch}
       elsewhere={elsewhere}
       now={new Date().toISOString()}
-      listings={listings.map((l) => ({ listing: l, photoSrc: l.photo ? photoUrl(db, l.photo) : null }))}
+      listings={listings.map((l) => ({ listing: l, photoSrc: l.photo?.url ?? null }))}
     />
   );
 }

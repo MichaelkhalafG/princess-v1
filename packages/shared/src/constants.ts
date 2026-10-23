@@ -1,9 +1,10 @@
-// The single list of categories and countries. The form, the filters, the cards and the
-// database CHECK constraints all follow this file
-// (apps/web/tests/unit/schema-sync.test.ts fails if supabase/migrations drifts from it).
+// The single list of categories and countries for the web and the app: the form, the filters
+// and the cards follow this file. The API keeps the same rules in apps/api/config/princess.php;
+// packages/shared/cases/listing-validation.json states them once and both test suites fail if
+// either side drifts from it.
 //
-// Adding a category: one line in CATEGORIES, plus its slug in the listings_category_check
-// constraint (the sync test will tell you if you forget).
+// Adding a category: one line in CATEGORIES, the same in the API's config and in the case
+// file's "rules" (the tests will tell you if you forget one).
 //
 // icon: a single SVG path in a 24×24 box, drawn as a 1.75 stroke line icon — copied from
 // the approved landing design, never redrawn.

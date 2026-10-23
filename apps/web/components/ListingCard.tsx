@@ -55,7 +55,7 @@ export function ListingCard({
   contextQuery,
 }: {
   listing: Listing;
-  /** Public URL of listing.photo, resolved by the caller (lib/listings.ts photoUrl). */
+  /** The address of listing.photo (the API's), or null when she gave none. */
   photoSrc: string | null;
   now: Date;
   variant?: 'full' | 'compact';
@@ -97,8 +97,8 @@ export function ListingCard({
   );
 
   const date = (
-    <time className={styles.date} dateTime={listing.created_at}>
-      {relativeDate(listing.created_at, now)}
+    <time className={styles.date} dateTime={listing.published_at}>
+      {relativeDate(listing.published_at, now)}
     </time>
   );
 
