@@ -13,6 +13,9 @@ import { CONTACT_EMAIL } from '@/lib/site.ts';
 // Left out until they are written, not to be filled with general text: what is not
 // allowed, the applicable law, and how changes to the terms are announced. Like the
 // privacy page, it assigns or disclaims no legal responsibility for the data.
+//
+// ARABIC COPY: everything about accounts, review, removal, reports and the daily limit (the
+// fourth summary point and the posting and removal sections) is a DRAFT, not yet approved.
 export const metadata: Metadata = { title: 'الشروط — برينسيس' };
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
@@ -25,12 +28,12 @@ export default async function TermsPage({ searchParams }: Props) {
     <ReadingPage
       ctx={ctx}
       title="الشروط"
-      updated="آخر تحديث: ٥ أكتوبر ٢٠٢٦"
+      updated="آخر تحديث: ٢٣ أكتوبر ٢٠٢٦"
       summary={[
         <>برينسيس لوحة إعلانات فقط: لا تبيع ولا تشتري ولا تتوسط بينكِ وبين العميلة.</>,
         <>الاتفاق والدفع بينكما مباشرة. برينسيس لا تأخذ أي عمولة، ولا تضمن أي خدمة أو منتج.</>,
-        <>ما تنشرينه يظهر للجميع كما كتبتِه، ومنه أرقام التواصل، ولا يمكن تعديله بعد نشره.</>,
-        <>لحذف إعلانك راسلينا على {email} مع رابط الإعلان.</>,
+        <>نراجع كل إعلان قبل أن يظهر على اللوحة. ما يُنشر يظهر للجميع كما كتبتِه، ومنه أرقام التواصل، ولا يمكن تعديله بعد نشره.</>,
+        <>تحذفين إعلاناتك، أو حسابك كله، بنفسك من صفحة «إعلاناتي».</>,
       ]}
       sections={[
         {
@@ -51,7 +54,7 @@ export default async function TermsPage({ searchParams }: Props) {
           title: 'من يمكنها النشر',
           body: (
             <p>
-              يمكن لأي شخص لديه خدمة أو منتج يعرضه أن ينشر إعلانًا. الموقع موجّه لمن تجاوزوا ١٨ عامًا، لكنه لا يتحقق من عمر أحد.
+              يمكن لأي شخص لديه خدمة أو منتج يعرضه أن ينشر إعلانًا، بحساب ينشئه ببريده الإلكتروني ويؤكّده. الموقع موجّه لمن تجاوزوا ١٨ عامًا، لكنه لا يتحقق من عمر أحد.
             </p>
           ),
         },
@@ -64,7 +67,9 @@ export default async function TermsPage({ searchParams }: Props) {
                 توافقين على أن يُنشر كل ما كتبتِه للجميع، ومنه أرقام التواصل (انظري{' '}
                 <a href={withBoardContext('/privacy', ctx)}>صفحة الخصوصية</a>).
               </li>
-              <li><strong>لا يمكن تعديل الإعلان بعد نشره.</strong> إن أردتِ تغيير شيء، اطلبي حذفه ثم انشري إعلانًا جديدًا.</li>
+              <li>نراجع كل إعلان قبل أن يظهر على اللوحة، وقد نرفض إعلانًا دون نشره، وتجدين السبب في صفحة «إعلاناتي».</li>
+              <li><strong>لا يمكن تعديل الإعلان بعد نشره.</strong> إن أردتِ تغيير شيء، احذفيه من صفحة «إعلاناتي» ثم أرسلي إعلانًا جديدًا.</li>
+              <li>يمكنكِ إرسال ٥ إعلانات على الأكثر خلال ٢٤ ساعة.</li>
               <li>تؤكدين أن المعلومات صحيحة وأن الخدمة أو المنتج لكِ.</li>
             </ul>
           ),
@@ -74,8 +79,9 @@ export default async function TermsPage({ searchParams }: Props) {
           title: 'حذف الإعلانات',
           body: (
             <>
-              <p>لا يمكن حذف الإعلان من الموقع نفسه. تُرسل طلبات الحذف إلى {email} مع رابط الإعلان، وتُراجَع يدويًا.</p>
-              <p>قد تحذف برينسيس أي إعلان يخالف هذه الشروط.</p>
+              <p>تحذفين أي إعلان من إعلاناتك، أو حسابك كله، من صفحة «إعلاناتي». الحذف نهائي، والصورة تُحذف معه.</p>
+              <p>يمكن لأي زائرة الإبلاغ عن إعلان من صفحته.</p>
+              <p>قد تزيل برينسيس أي إعلان يخالف هذه الشروط، وقد توقف حسابًا عن النشر.</p>
             </>
           ),
         },

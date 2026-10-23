@@ -1,13 +1,17 @@
-// The shape of a listing, and the one validator every write goes through before it
-// reaches Supabase. The database enforces the same rules independently (CHECK
-// constraints + column grants in supabase/migrations) because the anon key can insert
-// without ever passing through this file.
+// The shape of a listing, and the validator the form and the app check her listing with
+// before sending it. Not the enforcement: the API checks the same rules on its own
+// (apps/api/app/Listings/ListingInput.php), and packages/shared/cases/listing-validation.json
+// holds the two together.
 //
 // Validation is a filter: the output is built field by field from the rules below, so
 // any key without a rule is dropped, never passed through.
 
 import { LIMITS, isCategorySlug, isCountryCode, phonePatternSource, type CategorySlug, type CountryCode } from './constants.ts';
 
+/** A published photo, as the API serves it: its address and its size in pixels. */
+export type ListingPhoto = { url: string; width: number; height: number };
+
+/** A listing as the API returns it (GET /api/v1/listings…): published, so public. */
 export type Listing = {
   id: string;
   name: string;
@@ -19,27 +23,39 @@ export type Listing = {
   description: string;
   /** Free text exactly as she typed it ("٥٠ للساعة", "حسب الطلب"). Never a number, never sorted. */
   price: string | null;
-  /** Object path inside the listing-photos bucket, e.g. "<uuid>.webp". Never a full URL. */
-  photo: string | null;
   /** E.164, e.g. "+201001234567". */
   whatsapp: string | null;
   /** E.164, e.g. "+966501234567". */
   phone: string | null;
   /** Instagram handle without "@". The column is called `social` per the brief. */
   social: string | null;
-  created_at: string;
+  /** When it reached the board (ISO 8601). The board's order, and what "قبل ساعة" counts from. */
+  published_at: string;
+  photo: ListingPhoto | null;
 };
 
-export type NewListing = Omit<Listing, 'id' | 'created_at'>;
+/** What she sends for a new listing, as validated here. */
+export type NewListing = {
+  name: string;
+  title: string;
+  category: CategorySlug;
+  country: CountryCode;
+  city: string;
+  district: string | null;
+  description: string;
+  price: string | null;
+  /** The id the API gave her photo when she uploaded it (POST /api/v1/photos). Never a URL. */
+  photo: string | null;
+  whatsapp: string | null;
+  phone: string | null;
+  social: string | null;
+};
 
 /** The columns the public may write — mirrors the column-level GRANT in the migration. */
 export const WRITABLE_COLUMNS = [
   'name', 'title', 'category', 'country', 'city', 'district', 'description',
   'price', 'photo', 'whatsapp', 'phone', 'social',
 ] as const satisfies readonly (keyof NewListing)[];
-
-/** The columns read back for display. */
-export const LISTING_COLUMNS = ['id', ...WRITABLE_COLUMNS, 'created_at'].join(',');
 
 export type ListingField = (typeof WRITABLE_COLUMNS)[number];
 export type ErrorCode = 'required' | 'too_long' | 'invalid' | 'contact_required';
@@ -50,7 +66,8 @@ export type ValidationResult =
 
 export const PHONE_PATTERN = /^\+[1-9][0-9]{6,14}$/;
 export const INSTAGRAM_PATTERN = /^[A-Za-z0-9._]{1,30}$/;
-export const PHOTO_PATH_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|png|webp)$/;
+/** A photo id from the API: a UUID, in lower case as the API writes it. */
+export const PHOTO_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 /**
  * The server's own messages, returned when it refuses a submission. The form shows
@@ -158,7 +175,7 @@ export function validateListing(input: unknown): ValidationResult {
   if (country === undefined || country === null || country === '') errors.country = 'required';
   else if (!isCountryCode(country)) errors.country = 'invalid';
 
-  const photo = optionalPattern('photo', PHOTO_PATH_PATTERN);
+  const photo = optionalPattern('photo', PHOTO_ID_PATTERN);
   const whatsapp = optionalPattern('whatsapp', PHONE_PATTERN, normalizePhone);
   const phone = optionalPattern('phone', PHONE_PATTERN, normalizePhone);
   const social = optionalPattern('social', INSTAGRAM_PATTERN, normalizeInstagram);

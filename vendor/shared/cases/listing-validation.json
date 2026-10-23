@@ -52,9 +52,34 @@
       "district",
       "description",
       "price",
+      "photo",
       "whatsapp",
       "phone",
       "social"
+    ],
+    "moderation_reasons": [
+      "not_a_service",
+      "prohibited",
+      "misleading",
+      "contact",
+      "duplicate",
+      "photo",
+      "other"
+    ],
+    "report_reasons": [
+      "scam",
+      "offensive",
+      "wrong_contact",
+      "misleading",
+      "spam",
+      "other"
+    ],
+    "statuses": [
+      "unverified",
+      "pending",
+      "published",
+      "rejected",
+      "removed"
     ]
   },
   "base": {
@@ -81,6 +106,7 @@
         "district": null,
         "description": "تصفيف وقص في البيت",
         "price": null,
+        "photo": null,
         "whatsapp": "+201012345678",
         "phone": null,
         "social": null
@@ -441,6 +467,17 @@
       "ok": true,
       "expect": {
         "social": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "name": "a photo id the API gave the upload",
+      "set": {
+        "photo": "0f8fad5b-d9cb-469f-a165-70867728950e"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "photo": "0f8fad5b-d9cb-469f-a165-70867728950e"
       }
     },
     {
@@ -837,6 +874,50 @@
       "ok": false,
       "errors": {
         "social": "invalid"
+      }
+    },
+    {
+      "name": "a photo given as an address",
+      "set": {
+        "photo": "https://example.com/x.jpg"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "photo": "invalid"
+      }
+    },
+    {
+      "name": "a photo given as a file name",
+      "set": {
+        "photo": "0f8fad5b-d9cb-469f-a165-70867728950e.jpg"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "photo": "invalid"
+      }
+    },
+    {
+      "name": "a photo id in capitals is not one the API writes",
+      "set": {
+        "photo": "0F8FAD5B-D9CB-469F-A165-70867728950E"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "photo": "invalid"
+      }
+    },
+    {
+      "name": "a photo of the wrong type",
+      "set": {
+        "photo": 7
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "photo": "invalid"
       }
     },
     {

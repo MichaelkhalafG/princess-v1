@@ -4,15 +4,21 @@ import { readBoardContext } from '@princess/shared/board-url.ts';
 import { CONTACT_EMAIL } from '@/lib/site.ts';
 
 // The privacy page as published. It states only what is fact about the site today, each
-// checked in the code:
-// every listing field is public (@princess/shared/listing.ts LISTING_COLUMNS), the
-// board needs no account and verifies nothing, the site sets no cookie, a listing
-// cannot be edited or deleted on the site, and removal is by email.
+// checked in the code (apps/api):
+// every listing field is public (Listing::PUBLIC_FIELDS); posting needs an account (an email
+// and a password; the email is never shown); a signed-in visitor gets a session cookie and
+// nothing tracks anyone; photos are re-encoded with no location or camera data; reports keep
+// nothing about who sent them and the visitor's address only feeds rate limits; a ban keeps
+// the numbers and handle; she deletes her listings and her account herself; an account never
+// verified is deleted after 7 days; a refused listing's photo after 14.
 //
 // Deliberately absent, by the owner's decision (do not fill these in later): any claim
 // about the law in the three countries, and any sentence that assigns or disclaims legal
 // responsibility for the data. Leaving them out defers those questions; it does not
 // settle them.
+//
+// ARABIC COPY: the whole page was rewritten for accounts and moderation, and is a DRAFT, not
+// yet approved.
 export const metadata: Metadata = { title: 'الخصوصية — برينسيس' };
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
@@ -25,12 +31,12 @@ export default async function PrivacyPage({ searchParams }: Props) {
     <ReadingPage
       ctx={ctx}
       title="الخصوصية"
-      updated="آخر تحديث: ٥ أكتوبر ٢٠٢٦"
+      updated="آخر تحديث: ٢٣ أكتوبر ٢٠٢٦"
       summary={[
-        <>كل ما تكتبينه في إعلانك يظهر للجميع، ومنه اسمك ومدينتك وصورتك، و<strong>أرقام واتساب والهاتف وحساب إنستغرام</strong>.</>,
-        <>أي شخص يستطيع رؤية إعلانك ونسخ أرقامك، دون حساب أو تسجيل.</>,
-        <>لا نطلب منكِ حسابًا ولا بريدًا إلكترونيًا ولا كلمة مرور، ولا يستخدم الموقع ملفات الكوكيز.</>,
-        <>لا يمكن تعديل الإعلان بعد نشره ولا حذفه من الموقع نفسه. لحذفه راسلينا على {email} مع رابط الإعلان.</>,
+        <>كل ما تكتبينه في إعلانك يظهر للجميع بعد نشره، ومنه اسمك ومدينتك وصورتك، و<strong>أرقام واتساب والهاتف وحساب إنستغرام</strong>.</>,
+        <>لإرسال إعلان تنشئين حسابًا ببريد إلكتروني وكلمة مرور. <strong>بريدك لا يظهر لأحد.</strong></>,
+        <>نحذف من صورتك كل ما فيها غير الصورة نفسها، ومنه موقع التصوير.</>,
+        <>تحذفين إعلاناتك، أو حسابك كله، بنفسك ونهائيًا من صفحة «إعلاناتي».</>,
       ]}
       sections={[
         {
@@ -38,7 +44,7 @@ export default async function PrivacyPage({ searchParams }: Props) {
           title: 'ما الذي يُنشر',
           body: (
             <>
-              <p>كل ما تكتبينه في نموذج الإعلان يُنشر كما هو، ويظهر على صفحة الإعلان وعلى اللوحة:</p>
+              <p>حين يُنشر إعلانك يظهر كما كتبتِه على صفحته وعلى اللوحة:</p>
               <ul>
                 <li>اسمك كما كتبتِه.</li>
                 <li>الدولة والمدينة، والحي إن كتبتِه.</li>
@@ -47,7 +53,7 @@ export default async function PrivacyPage({ searchParams }: Props) {
                 <li><strong>رقم واتساب، ورقم الهاتف، واسم حساب إنستغرام</strong> — ما تضيفينه منها، كاملًا وظاهرًا للجميع.</li>
                 <li>وقت النشر (يظهر مثل «قبل ساعة»).</li>
               </ul>
-              <p>لا يحفظ الموقع عن الإعلان شيئًا غير ما سبق.</p>
+              <p>قبل النشر لا يرى إعلانك إلا أنتِ وفريق برينسيس الذي يراجعه.</p>
             </>
           ),
         },
@@ -62,22 +68,56 @@ export default async function PrivacyPage({ searchParams }: Props) {
           ),
         },
         {
-          id: 'no-account',
-          title: 'بلا حساب وبلا تحقق',
+          id: 'account',
+          title: 'حسابك',
+          body: (
+            <>
+              <p>
+                لإرسال إعلان تنشئين حسابًا ببريد إلكتروني وكلمة مرور. لا يظهر بريدك على أي إعلان ولا لأي زائر. نستعمله لنرسل إليكِ رابط
+                تأكيده، ورابط تعيين كلمة مرور جديدة إن طلبتِه. وتُحفظ كلمة المرور مشفّرة، فلا يستطيع أحد قراءتها.
+              </p>
+              <p>
+                حين تسجّلين الدخول يضع الموقع ملف تعريف ارتباط (كوكي) يبقيكِ مسجّلة الدخول، ولا شيء غيره، ويحفظ مع جلستك عنوان الإنترنت (IP) ونوع المتصفح حتى تنتهي الجلسة. لا يستخدم الموقع أي أدوات تتبّع.
+              </p>
+              <p>إن لم تؤكّدي بريدك خلال ٧ أيام، يُحذف الحساب وما أرسلتِه معه.</p>
+              <p>لا يتحقق الموقع من هوية من تنشر، ولا من عمرها، ولا من صحة ما تكتبه.</p>
+            </>
+          ),
+        },
+        {
+          id: 'photo',
+          title: 'صورتك',
           body: (
             <p>
-              لا حساب، ولا بريد إلكتروني، ولا كلمة مرور. ولا يتحقق الموقع من هوية من تنشر، ولا من عمرها، ولا من صحة ما تكتبه.
-              ولا يستخدم الموقع ملفات تعريف الارتباط (الكوكيز) ولا أدوات تتبّع.
+              لا نحفظ الصورة كما أرسلتِها: نعيد رسمها بحجم أصغر، فلا يبقى منها إلا الصورة نفسها، دون موقع التصوير ولا اسم الجهاز ولا أي
+              معلومات أخرى. وقبل نشر الإعلان لا يراها إلا أنتِ وفريق برينسيس الذي يراجعه.
             </p>
+          ),
+        },
+        {
+          id: 'reports',
+          title: 'البلاغات والمخالفات',
+          body: (
+            <>
+              <p>
+                يمكن لأي زائرة الإبلاغ عن إعلان. لا نحتفظ بأي شيء عن مُرسلة البلاغ. ويُستعمل عنوان الإنترنت (IP) لأي زائرة مؤقتًا لمنع
+                الإساءة، لمدة لا تتجاوز ٢٤ ساعة، ولا يُحفظ مع إعلان ولا مع بلاغ.
+              </p>
+              <p>إن أُوقف حساب لمخالفة، تبقى أرقامه وحساب إنستغرام الخاص به في قائمة الحظر، حتى بعد حذف الحساب.</p>
+            </>
           ),
         },
         {
           id: 'removal',
           title: 'التعديل والحذف',
           body: (
-            <p>
-              لا يمكن تعديل الإعلان بعد نشره، ولا حذفه من الموقع نفسه. لحذفه، راسلينا على {email} مع رابط الإعلان، وتُراجَع الطلبات يدويًا.
-            </p>
+            <>
+              <p>
+                لا يمكن تعديل الإعلان بعد إرساله. تحذفين أي إعلان من إعلاناتك، أو حسابك كله، من صفحة «إعلاناتي». الحذف نهائي، والصور
+                تُحذف معه، ولا نحتفظ بشيء منه.
+              </p>
+              <p>إن لم يُنشر إعلان أو أُزيل، تُحذف صورته بعد ١٤ يومًا، ويبقى نصه في صفحة «إعلاناتي» حتى تحذفيه.</p>
+            </>
           ),
         },
         {

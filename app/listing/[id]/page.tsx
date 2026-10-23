@@ -10,8 +10,7 @@ import { SiteHeader } from '@/components/SiteHeader.tsx';
 import { boardHref, boardHrefAt, readBoardContext, withBoardContext } from '@princess/shared/board-url.ts';
 import { getCategory, getCountry } from '@princess/shared/constants.ts';
 import { areaText, contactLinks, listingCountLabel, relativeDate } from '@princess/shared/format.ts';
-import { fetchListing, fetchOthers, photoUrl } from '@/lib/listings.ts';
-import { getSupabase } from '@/lib/supabase.ts';
+import { fetchListing, fetchOthers } from '@/lib/listings.ts';
 import tones from '@/components/tones.module.css';
 import styles from './page.module.css';
 
@@ -20,14 +19,13 @@ export const dynamic = 'force-dynamic';
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const db = getSupabase();
-  const listing = await fetchListing(db, (await params).id);
+  const listing = await fetchListing((await params).id);
   if (!listing) return { title: 'برينسيس' };
   const title = `${listing.title} — برينسيس`;
   // Shared on WhatsApp, her own photo is the preview. Without one, nothing is set here and
   // the site image (app/opengraph-image.png) stands.
   if (!listing.photo) return { title };
-  const images = [{ url: photoUrl(db, listing.photo), alt: listing.title }];
+  const images = [{ url: listing.photo.url, width: listing.photo.width, height: listing.photo.height, alt: listing.title }];
   return { title, openGraph: { title, images }, twitter: { card: 'summary_large_image', title, images } };
 }
 
@@ -36,11 +34,10 @@ export default async function ListingPage({ params, searchParams }: Props) {
   const posted = sp.posted;
   // where she came from on the board (country / category / search), carried in the URL
   const ctx = readBoardContext(sp);
-  const db = getSupabase();
-  const listing = await fetchListing(db, id);
+  const listing = await fetchListing(id);
   if (!listing) notFound();
 
-  const others = await fetchOthers(db, listing);
+  const others = await fetchOthers(listing);
   const now = new Date();
   const country = getCountry(listing.country);
   const category = getCategory(listing.category);
@@ -66,7 +63,7 @@ export default async function ListingPage({ params, searchParams }: Props) {
           <div className={styles.media}>
             {listing.photo ? (
               <div className={styles.photo}>
-                <img src={photoUrl(db, listing.photo)} alt={listing.title} />
+                <img src={listing.photo.url} alt={listing.title} />
               </div>
             ) : (
               <div className={`${styles.monogramPanel} ${tones[category.tone]}`} aria-hidden="true">
@@ -111,7 +108,9 @@ export default async function ListingPage({ params, searchParams }: Props) {
             </div>
 
             <div className={styles.date}>
-              نُشر <time dateTime={listing.created_at}>{relativeDate(listing.created_at, now)}</time>
+              نُشر <time dateTime={listing.published_at}>{relativeDate(listing.published_at, now)}</time>
+              {/* anyone may report a listing, with no account. ARABIC COPY: DRAFT */}
+              {' · '}<a href={`/listing/${listing.id}/report`}>الإبلاغ عن هذا الإعلان</a>
             </div>
           </div>
         </article>
@@ -129,7 +128,7 @@ export default async function ListingPage({ params, searchParams }: Props) {
                     listing={o}
                     variant="compact"
                     href={withBoardContext(`/listing/${o.id}`, ctx)}
-                    photoSrc={o.photo ? photoUrl(db, o.photo) : null}
+                    photoSrc={o.photo?.url ?? null}
                     now={now}
                   />
                 </div>
