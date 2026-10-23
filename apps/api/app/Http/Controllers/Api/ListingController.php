@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ListListingsRequest;
 use App\Listings\ListingInput;
 use App\Listings\PublishDecision;
+use App\Models\Ban;
 use App\Models\Listing;
 use App\Models\Photo;
 use App\Models\User;
@@ -35,6 +36,10 @@ class ListingController extends Controller
     public function store(Request $request): JsonResponse
     {
         $user = $request->user('sanctum');
+        // a banned account may still sign in, see its listings and delete itself; not post
+        if ($user !== null && Ban::accountIsBanned($user)) {
+            return response()->json(['error' => 'account_suspended'], 403);
+        }
         if ($user !== null && ($wait = $this->postingLimitWait($user)) !== null) {
             return $this->postingLimitReached($wait);
         }

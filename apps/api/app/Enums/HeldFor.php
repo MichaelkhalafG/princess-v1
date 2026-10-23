@@ -11,6 +11,9 @@ enum HeldFor: string
     /** The launch phase: every listing is reviewed until the filter has been measured. */
     case Launch = 'launch';
 
-    /** A signal fired on this listing (the signals themselves come with the filter). */
+    /** The filter raised a signal on it (App\Moderation\Signals). */
     case Signal = 'signal';
+
+    /** It was on the board and enough reports took it down until a moderator looks (off by default). */
+    case Reports = 'reports';
 }

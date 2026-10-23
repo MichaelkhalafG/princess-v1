@@ -36,6 +36,7 @@ class Listing extends Model
             'held_for' => HeldFor::class,
             'published_at' => 'datetime',
             'reviewed_at' => 'datetime',
+            'signals' => 'array',
         ];
     }
 
@@ -102,6 +103,11 @@ class Listing extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(Moderator::class, 'reviewed_by');
     }
 
     /** @param Builder<Listing> $query */

@@ -4,7 +4,9 @@ namespace Tests;
 
 use App\Enums\ListingStatus;
 use App\Models\Listing;
+use App\Models\Moderator;
 use App\Models\User;
+use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
@@ -74,6 +76,19 @@ abstract class TestCase extends BaseTestCase
         }
 
         return $user;
+    }
+
+    /** A moderator with the password "moderator-password", and an authenticator app set up unless a test says otherwise. */
+    protected function makeModerator(bool $authenticatorApp = true): Moderator
+    {
+        $n = ++self::$serial;
+        $moderator = Moderator::create(['email' => "moderator{$n}@example.test", 'password' => 'moderator-password']);
+        if ($authenticatorApp) {
+            $moderator->saveAppAuthenticationSecret(AppAuthentication::make()->generateSecret());
+            $moderator->save();
+        }
+
+        return $moderator;
     }
 
     /**

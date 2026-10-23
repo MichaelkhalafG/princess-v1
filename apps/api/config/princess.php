@@ -62,6 +62,29 @@ return [
     'moderation' => [
         // every listing waits for a moderator, trusted or not, until this is switched off
         'launch_phase' => (bool) env('MODERATION_LAUNCH_PHASE', true),
+
+        // The filter (App\Moderation\Signals). A signal never refuses a listing: it sends it to a
+        // moderator instead of straight onto the board.
+        // DRAFT, to be rewritten: words that send a listing to review. Matched as whole words after
+        // the Arabic fold, with "و", "ال", "بال"... in front still matching.
+        'banned_words' => [
+            'جنس', 'سكس', 'دعارة', 'مساج للرجال', 'مساج رجالي', 'مخدرات', 'حشيش', 'ترامادول',
+            'سلاح', 'اسلحة', 'قمار', 'مراهنات', 'sex', 'escort', 'porn', 'xxx', 'casino',
+        ],
+        // this many listings from one account within 24 hours (counting the new one) is a signal
+        'many_listings_per_day' => 3,
+
+        // DRAFT, to be rewritten: why a moderator refuses or removes a listing. The codes reach her
+        // listings page, which words them (the web app); these labels are for the admin.
+        'reasons' => [
+            'not_a_service' => 'Not a service or product offered by a woman',
+            'prohibited' => 'Prohibited content',
+            'misleading' => 'Misleading or false',
+            'contact' => 'Contact details wrong or not hers',
+            'duplicate' => 'Duplicate',
+            'photo' => 'Unsuitable photo',
+            'other' => 'Other',
+        ],
     ],
 
     'posting' => [
