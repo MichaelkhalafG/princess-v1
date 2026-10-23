@@ -6,3 +6,4 @@ use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('princess:prune-unverified')->hourly();
 Schedule::command('princess:prune-photos')->hourly();
+Schedule::command('princess:moderation-alerts')->hourly();

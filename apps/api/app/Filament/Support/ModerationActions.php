@@ -2,6 +2,7 @@
 
 namespace App\Filament\Support;
 
+use App\Enums\HeldFor;
 use App\Enums\ListingStatus;
 use App\Models\Listing;
 use App\Models\Moderator;
@@ -30,10 +31,21 @@ final class ModerationActions
             ->successRedirectUrl($then);
     }
 
+    /** The reports were looked at; the listing stays (or, hidden by reports, goes back on the board). */
+    public static function dismissReports(?string $then = null): Action
+    {
+        return Action::make('dismissReports')->label('Dismiss the reports')->color('gray')->icon('heroicon-o-check-circle')
+            ->requiresConfirmation()->modalDescription('The listing stays on the board and its open reports are closed.')
+            ->action(fn (Listing $record) => Moderation::dismissReports($record, self::moderator()))
+            ->successNotificationTitle('Reports dismissed')
+            ->successRedirectUrl($then);
+    }
+
     public static function reject(?string $then = null): Action
     {
         return Action::make('reject')->label('Reject')->color('danger')->icon('heroicon-o-x-mark')
-            ->visible(fn (Listing $record) => $record->status === ListingStatus::Pending)
+            // a listing hidden by reports was published once: it is removed, not rejected
+            ->visible(fn (Listing $record) => $record->status === ListingStatus::Pending && $record->held_for !== HeldFor::Reports)
             ->schema([
                 Select::make('reason')->options(Labels::reasons())->required(),
                 Toggle::make('ban')->label('Also ban her account, numbers and handle'),

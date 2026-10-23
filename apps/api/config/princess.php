@@ -74,6 +74,27 @@ return [
         // this many listings from one account within 24 hours (counting the new one) is a signal
         'many_listings_per_day' => 3,
 
+        // DRAFT, to be rewritten: why a visitor reports a listing. The web app words them for her;
+        // these labels are for the admin.
+        'report_reasons' => [
+            'scam' => 'Scam or fraud',
+            'offensive' => 'Offensive or inappropriate',
+            'wrong_contact' => 'The number is not hers',
+            'misleading' => 'Misleading',
+            'spam' => 'Spam or repeated',
+            'other' => 'Other',
+        ],
+        // a report's note, in characters
+        'report_note_max' => 500,
+        // Hide a listing from the board (back to the queue) once it has this many open reports.
+        // Off (0) by default: a competitor could take a rival's listing down with a few reports.
+        'auto_hide_reports' => (int) env('MODERATION_AUTO_HIDE_REPORTS', 0),
+
+        // Email to the moderators: new reports, and a queue that has waited too long. Unset: the
+        // alerts are only written to the log.
+        'alert_email' => env('MODERATION_ALERT_EMAIL'),
+        'alert_backlog_hours' => 24,
+
         // DRAFT, to be rewritten: why a moderator refuses or removes a listing. The codes reach her
         // listings page, which words them (the web app); these labels are for the admin.
         'reasons' => [
@@ -101,9 +122,12 @@ return [
         // the longest side kept, as the web form already shrinks to
         'max_edge' => 1600,
         'jpeg_quality' => 85,
-        // refused from the header alone above this: decoding takes about 5 bytes a pixel, so
-        // 4096 × 4096 needs about 85 MB of the 128 MB a PHP request has by default
+        // refused from the header alone above this. Measured in a fresh process (the app booted,
+        // about 32 MB): a 12-megapixel phone photo peaks at 96 MB, 4096 × 4096 at 118 MB
         'max_pixels' => 4096 * 4096,
+        // the upload request raises its own memory limit to this (never lowers it), to leave room
+        // above those peaks; a host that refuses still fits a 12-megapixel photo in 128 MB
+        'memory_limit' => env('PHOTOS_MEMORY_LIMIT', '192M'),
         // an upload that no listing claims is deleted after this
         'unclaimed_hours' => 24,
         // the photo of a rejected or removed listing, kept privately for the moderators, then deleted
@@ -119,6 +143,7 @@ return [
     // Abuse limits on the endpoints that create, sign in or send email.
     'rate_limits' => [
         'photo_uploads_per_ip_per_hour' => 30,
+        'reports_per_ip_per_hour' => 10,
         'accounts_per_ip_per_hour' => 10,
         'logins_per_minute' => 5,
         'password_emails_per_ip_per_hour' => 5,

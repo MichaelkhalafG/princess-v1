@@ -32,6 +32,7 @@ class PhotoController extends Controller
             return $this->refuse('too_large');
         }
 
+        self::raiseMemoryLimit((string) config('princess.photos.memory_limit'));
         try {
             $processed = PhotoProcessor::process((string) file_get_contents($file->getRealPath()));
         } catch (PhotoRejected $e) {
@@ -80,6 +81,15 @@ class PhotoController extends Controller
             'Cache-Control' => 'private, no-store',
             'X-Content-Type-Options' => 'nosniff',
         ]);
+    }
+
+    /** Raises PHP's memory limit for this request to $limit ("192M"); never lowers it. */
+    private static function raiseMemoryLimit(string $limit): void
+    {
+        $bytes = fn (string $v) => $v === '-1' ? PHP_INT_MAX : (int) $v * match (strtoupper(substr($v, -1))) { 'G' => 1 << 30, 'M' => 1 << 20, 'K' => 1 << 10, default => 1 };
+        if ($limit !== '' && $bytes($limit) > $bytes((string) ini_get('memory_limit'))) {
+            @ini_set('memory_limit', $limit);
+        }
     }
 
     private function refuse(string $code): JsonResponse

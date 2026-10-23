@@ -2,6 +2,7 @@
 
 namespace App\Moderation;
 
+use App\Enums\ListingStatus;
 use App\Models\Ban;
 use App\Models\Listing;
 use App\Support\ArabicFold;
@@ -28,6 +29,9 @@ final class Signals
 
     /** Her account has posted many listings in the last 24 hours. */
     public const MANY_LISTINGS = 'many_listings';
+
+    /** Another listing of hers has open reports, or was removed since a moderator last approved her. */
+    public const REPORTED_BEFORE = 'reported_before';
 
     /** @return list<string> */
     public static function for(Listing $listing): array
@@ -70,6 +74,21 @@ final class Signals
             ->count() + 1;
         if ($recent >= config('princess.moderation.many_listings_per_day')) {
             $signals[] = self::MANY_LISTINGS;
+        }
+
+        // open reports on another listing of hers, or a removal since a moderator last approved her
+        // (a later approval clears an old removal, as it restores her trust)
+        $lastApproval = Listing::query()->where('user_id', $listing->user_id)
+            ->where('status', ListingStatus::Published)->whereNotNull('reviewed_at')->max('reviewed_at');
+        $reportedBefore = Listing::query()->where('user_id', $listing->user_id)
+            ->when($listing->exists, fn ($q) => $q->whereKeyNot($listing->getKey()))
+            ->where(fn ($q) => $q
+                ->whereHas('reports', fn ($r) => $r->open())
+                ->orWhere(fn ($q) => $q->where('status', ListingStatus::Removed)
+                    ->when($lastApproval !== null, fn ($q) => $q->where('reviewed_at', '>', $lastApproval))))
+            ->exists();
+        if ($reportedBefore) {
+            $signals[] = self::REPORTED_BEFORE;
         }
 
         return $signals;

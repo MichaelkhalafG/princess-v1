@@ -4,6 +4,7 @@ namespace App\Filament\Support;
 
 use App\Models\Listing;
 use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -45,6 +46,21 @@ final class ListingInfolist
                 TextEntry::make('created_at')->label('Submitted')->dateTime()->since(),
                 TextEntry::make('reviewed_at')->label('Decided')->dateTime()->placeholder('-'),
                 TextEntry::make('reject_reason')->label('Reason')->formatStateUsing(fn (?string $state) => Labels::reason($state))->placeholder('-'),
+            ]),
+            Section::make('Signals panel')->columns(1)->columnSpanFull()->schema([
+                TextEntry::make('panel_same_contacts')->label('Other listings with her numbers or handle')->listWithLineBreaks()->placeholder('None')
+                    ->state(fn (Listing $record) => SignalsPanel::sameContacts($record)),
+                TextEntry::make('panel_account')->label('Her account')->listWithLineBreaks()
+                    ->state(fn (Listing $record) => SignalsPanel::account($record)),
+                TextEntry::make('panel_bans')->label('Bans that match')->listWithLineBreaks()->placeholder('None')->color('danger')
+                    ->state(fn (Listing $record) => SignalsPanel::bans($record)),
+            ]),
+            Section::make('Reports')->columnSpanFull()->visible(fn (Listing $record) => $record->reports()->exists())->schema([
+                RepeatableEntry::make('reports')->hiddenLabel()->columns(4)->schema([
+                    TextEntry::make('reason')->formatStateUsing(fn (string $state) => config("princess.moderation.report_reasons.$state") ?? $state),
+                    TextEntry::make('note')->placeholder('-')->columnSpan(2),
+                    TextEntry::make('status')->badge()->helperText(fn ($record) => $record?->created_at?->diffForHumans()),
+                ]),
             ]),
         ]);
     }

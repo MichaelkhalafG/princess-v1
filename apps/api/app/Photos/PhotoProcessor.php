@@ -34,17 +34,23 @@ final class PhotoProcessor
             throw new PhotoRejected('too_many_pixels');
         }
 
+        $orientation = $info[2] === IMAGETYPE_JPEG ? self::orientation($bytes) : 1;
         $source = @imagecreatefromstring($bytes);
         if (! $source instanceof GdImage) {
             throw new PhotoRejected('invalid');
         }
-        $source = self::upright($source, $info[2] === IMAGETYPE_JPEG ? self::orientation($bytes) : 1);
 
+        // shrink first, turn after: the turning then works on the small picture, so the full-size
+        // one is the only large thing ever in memory
         [$width, $height] = self::fit(imagesx($source), imagesy($source), config('princess.photos.max_edge'));
         $photo = imagecreatetruecolor($width, $height);
         // a transparent PNG or WebP lands on white, not black
         imagefill($photo, 0, 0, imagecolorallocate($photo, 255, 255, 255));
         imagecopyresampled($photo, $source, 0, 0, 0, 0, $width, $height, imagesx($source), imagesy($source));
+        imagedestroy($source);
+        unset($source);
+        $photo = self::upright($photo, $orientation);
+        [$width, $height] = [imagesx($photo), imagesy($photo)];
         imageinterlace($photo, true);
 
         ob_start();

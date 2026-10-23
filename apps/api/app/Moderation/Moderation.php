@@ -2,11 +2,13 @@
 
 namespace App\Moderation;
 
+use App\Enums\HeldFor;
 use App\Enums\ListingStatus;
 use App\Models\Ban;
 use App\Models\Listing;
 use App\Models\ModerationEvent;
 use App\Models\Moderator;
+use App\Models\Report;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -21,17 +23,53 @@ final class Moderation
 {
     public const BANNED_ACCOUNT_REASON = 'account_banned';
 
-    /** A waiting listing goes on the board. Her account becomes trusted (User::isTrusted). */
+    /**
+     * A waiting listing goes on the board, and her account becomes trusted (User::isTrusted).
+     * One hidden by reports goes back where it was, at its first publication time, and its reports
+     * are closed as dismissed.
+     */
     public static function approve(Listing $listing, Moderator $moderator): void
     {
         self::expect($listing, [ListingStatus::Pending]);
         DB::transaction(function () use ($listing, $moderator) {
             $now = Carbon::now();
+            $closed = $listing->held_for === HeldFor::Reports ? self::closeReports($listing, $moderator, Report::DISMISSED) : null;
             $listing->forceFill([
-                'status' => ListingStatus::Published, 'held_for' => null, 'published_at' => $now,
+                'status' => ListingStatus::Published, 'held_for' => null, 'published_at' => $listing->published_at ?? $now,
                 'reviewed_at' => $now, 'reviewed_by' => $moderator->getKey(), 'reject_reason' => null,
             ])->save();
-            self::log($moderator, 'approved', listing: $listing);
+            self::log($moderator, 'approved', listing: $listing, reports: $closed);
+        });
+    }
+
+    /** A report arrives. With auto-hide on, enough open reports take the listing off the board until a moderator looks. */
+    public static function receiveReport(Listing $listing, string $reason, ?string $note): Report
+    {
+        return DB::transaction(function () use ($listing, $reason, $note) {
+            $report = Report::create(['listing_id' => $listing->getKey(), 'reason' => $reason, 'note' => $note, 'status' => Report::OPEN]);
+            $threshold = config('princess.moderation.auto_hide_reports');
+            $locked = Listing::query()->whereKey($listing->getKey())->lockForUpdate()->first();
+            if ($threshold > 0 && $locked->status === ListingStatus::Published
+                && Report::query()->open()->where('listing_id', $listing->getKey())->count() >= $threshold) {
+                $locked->forceFill(['status' => ListingStatus::Pending, 'held_for' => HeldFor::Reports])->save();
+                self::log(null, 'auto_hidden', listing: $locked);
+            }
+
+            return $report;
+        });
+    }
+
+    /** The reports were looked at and the listing stays as it is. */
+    public static function dismissReports(Listing $listing, Moderator $moderator): void
+    {
+        DB::transaction(function () use ($listing, $moderator) {
+            if ($listing->status === ListingStatus::Pending && $listing->held_for === HeldFor::Reports) {
+                self::approve($listing, $moderator);
+
+                return;
+            }
+            $closed = self::closeReports($listing, $moderator, Report::DISMISSED);
+            self::log($moderator, 'reports_dismissed', listing: $listing, reports: $closed);
         });
     }
 
@@ -42,7 +80,7 @@ final class Moderation
         self::expectReason($reason);
         DB::transaction(function () use ($listing, $moderator, $reason, $ban) {
             self::close($listing, $moderator, ListingStatus::Rejected, $reason);
-            self::log($moderator, 'rejected', listing: $listing, reason: $reason);
+            self::log($moderator, 'rejected', listing: $listing, reason: $reason, reports: self::closeReports($listing, $moderator, Report::ACTIONED));
             if ($ban) {
                 self::banAccount($listing->user, $moderator, $reason);
             }
@@ -59,7 +97,7 @@ final class Moderation
         self::expectReason($reason);
         DB::transaction(function () use ($listing, $moderator, $reason, $ban) {
             self::close($listing, $moderator, ListingStatus::Removed, $reason);
-            self::log($moderator, 'removed', listing: $listing, reason: $reason);
+            self::log($moderator, 'removed', listing: $listing, reason: $reason, reports: self::closeReports($listing, $moderator, Report::ACTIONED));
             if ($ban) {
                 self::banAccount($listing->user, $moderator, $reason);
             }
@@ -96,7 +134,8 @@ final class Moderation
             foreach ($user->listings()->whereIn('status', [ListingStatus::Published, ListingStatus::Pending, ListingStatus::Unverified])->get() as $listing) {
                 $status = $listing->status === ListingStatus::Published ? ListingStatus::Removed : ListingStatus::Rejected;
                 self::close($listing, $moderator, $status, self::BANNED_ACCOUNT_REASON);
-                self::log($moderator, $status === ListingStatus::Removed ? 'removed' : 'rejected', listing: $listing, reason: self::BANNED_ACCOUNT_REASON);
+                $closed = self::closeReports($listing, $moderator, Report::ACTIONED);
+                self::log($moderator, $status === ListingStatus::Removed ? 'removed' : 'rejected', listing: $listing, reason: self::BANNED_ACCOUNT_REASON, reports: $closed);
             }
         });
     }
@@ -128,7 +167,7 @@ final class Moderation
         });
     }
 
-    public static function log(?Moderator $moderator, string $action, ?Listing $listing = null, ?User $user = null, ?Ban $ban = null, ?string $reason = null): void
+    public static function log(?Moderator $moderator, string $action, ?Listing $listing = null, ?User $user = null, ?Ban $ban = null, ?string $reason = null, ?int $reports = null): void
     {
         ModerationEvent::create([
             'moderator_id' => $moderator?->getKey(),
@@ -137,8 +176,16 @@ final class Moderation
             'user_id' => $user?->getKey() ?? $listing?->user_id,
             'ban_id' => $ban?->getKey(),
             'reason' => $reason,
+            'reports' => $reports ?: null,
             'created_at' => Carbon::now(),
         ]);
+    }
+
+    /** Closes a listing's open reports; returns how many. */
+    private static function closeReports(Listing $listing, Moderator $moderator, string $status): int
+    {
+        return Report::query()->open()->where('listing_id', $listing->getKey())
+            ->update(['status' => $status, 'handled_by' => $moderator->getKey(), 'handled_at' => Carbon::now()]);
     }
 
     private static function close(Listing $listing, Moderator $moderator, ListingStatus $status, string $reason): void
