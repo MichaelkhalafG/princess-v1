@@ -122,10 +122,10 @@ test('required text fields refuse blank and non-string values', () => {
   }
 });
 
-test('photo must be a "<uuid>.<ext>" object path, never a URL', () => {
-  assert.ok(validateListing({ ...valid(), photo: '0f8fad5b-d9cb-469f-a165-70867728950e.webp' }).ok);
+test('photo must be the id the API gave the upload, never a URL or a file name', () => {
+  assert.ok(validateListing({ ...valid(), photo: '0f8fad5b-d9cb-469f-a165-70867728950e' }).ok);
   assert.equal(errorsOf(validateListing({ ...valid(), photo: 'https://evil.example/x.jpg' })).photo, 'invalid');
-  assert.equal(errorsOf(validateListing({ ...valid(), photo: '0f8fad5b-d9cb-469f-a165-70867728950e.gif' })).photo, 'invalid');
+  assert.equal(errorsOf(validateListing({ ...valid(), photo: '0f8fad5b-d9cb-469f-a165-70867728950e.webp' })).photo, 'invalid');
 });
 
 test('a non-object payload is refused', () => {

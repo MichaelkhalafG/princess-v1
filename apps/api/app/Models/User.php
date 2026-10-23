@@ -32,6 +32,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'trust_revoked_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -52,9 +53,13 @@ class User extends Authenticatable implements MustVerifyEmail
         if ($approved === null) {
             return false;
         }
-        $removed = $this->listings()->where('status', ListingStatus::Removed)->max('reviewed_at');
+        // a removal counts even when she has since deleted the removed listing herself
+        $removed = max(
+            (string) $this->listings()->where('status', ListingStatus::Removed)->max('reviewed_at'),
+            (string) $this->trust_revoked_at?->format('Y-m-d H:i:s'),
+        );
 
-        return $removed === null || $removed < $approved;
+        return $removed === '' || $removed < $approved;
     }
 
     public function sendEmailVerificationNotification(): void

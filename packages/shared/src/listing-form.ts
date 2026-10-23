@@ -77,7 +77,8 @@ export function parsePhone(raw: string, country: CountryCode, field: 'whatsapp' 
   return { kind: 'ok', e164: `${k.dialCode}${digits}` };
 }
 
-export const PUBLISH_FAILED_MESSAGE = 'تعذّر نشر الإعلان الآن. حاولي مرة أخرى بعد لحظات.';
+// ARABIC COPY (this line and the two button labels below): DRAFT, NOT YET APPROVED.
+export const PUBLISH_FAILED_MESSAGE = 'تعذّر إرسال الإعلان الآن. حاولي مرة أخرى بعد لحظات.';
 
 export const INSTAGRAM_MESSAGE = 'اكتبي اسم الحساب فقط بحروف إنجليزية وأرقام ونقاط، بلا رابط وبلا مسافات.';
 export const CONTACTS_MISSING_MESSAGE =
@@ -143,12 +144,12 @@ export type SubmitGate = { blocked: boolean; label: string; reason: 'contacts' |
  * Presentation only: the server refuses the same cases on its own.
  */
 export function submitGate(v: FormValues, photo: UploadState, phase: SubmitPhase): SubmitGate {
-  if (phase === 'publishing') return { blocked: true, label: 'جارٍ النشر، لحظات…', reason: 'submitting' };
+  if (phase === 'publishing') return { blocked: true, label: 'جارٍ الإرسال، لحظات…', reason: 'submitting' };
   if (phase) return { blocked: true, label: `جارٍ رفع الصورة… ${toArabicDigits(phase.uploading)}٪`, reason: 'uploading' };
   // short enough to stay on one line at 380px
   if (!hasAnyContact(v)) return { blocked: true, label: 'أضيفي طريقة تواصل أولًا', reason: 'contacts' };
   if (photo === 'preparing') return { blocked: true, label: 'انتظري تجهيز الصورة', reason: 'preparing' };
-  return { blocked: false, label: 'انشري الإعلان', reason: null };
+  return { blocked: false, label: 'أرسلي الإعلان', reason: null };
 }
 
 /** What the server action receives. Phones become E.164; empty strings become absent. */

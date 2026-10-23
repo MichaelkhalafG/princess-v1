@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\HeldFor;
 use App\Enums\ListingStatus;
 use App\Models\Listing;
+use App\Models\Photo;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -35,13 +36,21 @@ class PublishTest extends TestCase
     public function test_the_shared_case_through_the_endpoint(array $case): void
     {
         $this->signIn($user = $this->makeUser());
-        $res = $this->postJson('/api/v1/listings', ListingCasesTest::inputOf($case));
+        $input = ListingCasesTest::inputOf($case);
+        // a passing case with a photo id assumes the upload it names: build it, unclaimed and hers
+        if ($case['ok'] && is_string($input['photo'] ?? null)) {
+            $photo = Photo::create(['user_id' => $user->id, 'visibility' => Photo::PRIVATE, 'width' => 1, 'height' => 1, 'bytes' => 1]);
+            Photo::query()->whereKey($photo->id)->update(['id' => $input['photo']]);
+        }
+        $res = $this->postJson('/api/v1/listings', $input);
 
         if ($case['ok']) {
             $res->assertCreated();
             $stored = Listing::query()->findOrFail($res->json('id'));
             foreach ($case['expect'] as $key => $value) {
-                $this->assertSame($value, $stored->getAttribute($key), $key);
+                // the photo is the upload the listing claimed, not a column of its own
+                $actual = $key === 'photo' ? $stored->photo?->id : $stored->getAttribute($key);
+                $this->assertSame($value, $actual, $key);
             }
             $this->assertSame($user->id, $stored->user_id, 'the listing is hers, whatever the body says');
         } else {

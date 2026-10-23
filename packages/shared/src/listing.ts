@@ -1,7 +1,7 @@
-// The shape of a listing, and the one validator every write goes through before it
-// reaches Supabase. The database enforces the same rules independently (CHECK
-// constraints + column grants in supabase/migrations) because the anon key can insert
-// without ever passing through this file.
+// The shape of a listing, and the validator the form and the app check her listing with
+// before sending it. Not the enforcement: the API checks the same rules on its own
+// (apps/api/app/Listings/ListingInput.php), and packages/shared/cases/listing-validation.json
+// holds the two together.
 //
 // Validation is a filter: the output is built field by field from the rules below, so
 // any key without a rule is dropped, never passed through.
@@ -44,7 +44,7 @@ export type NewListing = {
   district: string | null;
   description: string;
   price: string | null;
-  /** Object path inside the listing-photos bucket, e.g. "<uuid>.webp". Never a full URL. */
+  /** The id the API gave her photo when she uploaded it (POST /api/v1/photos). Never a URL. */
   photo: string | null;
   whatsapp: string | null;
   phone: string | null;
@@ -66,7 +66,8 @@ export type ValidationResult =
 
 export const PHONE_PATTERN = /^\+[1-9][0-9]{6,14}$/;
 export const INSTAGRAM_PATTERN = /^[A-Za-z0-9._]{1,30}$/;
-export const PHOTO_PATH_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|png|webp)$/;
+/** A photo id from the API: a UUID, in lower case as the API writes it. */
+export const PHOTO_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 /**
  * The server's own messages, returned when it refuses a submission. The form shows
@@ -174,7 +175,7 @@ export function validateListing(input: unknown): ValidationResult {
   if (country === undefined || country === null || country === '') errors.country = 'required';
   else if (!isCountryCode(country)) errors.country = 'invalid';
 
-  const photo = optionalPattern('photo', PHOTO_PATH_PATTERN);
+  const photo = optionalPattern('photo', PHOTO_ID_PATTERN);
   const whatsapp = optionalPattern('whatsapp', PHONE_PATTERN, normalizePhone);
   const phone = optionalPattern('phone', PHONE_PATTERN, normalizePhone);
   const social = optionalPattern('social', INSTAGRAM_PATTERN, normalizeInstagram);

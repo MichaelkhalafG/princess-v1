@@ -17,6 +17,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { CATEGORIES, COUNTRIES } from '@princess/shared/constants.ts';
 import { areaText, formatPhone } from '@princess/shared/format.ts';
+import { REPORT_REASONS } from '@princess/shared/moderation.ts';
 import { CONTACT_EMAIL, INDEXABLE } from '../../lib/site.ts';
 
 const API_DIR = join(import.meta.dirname, '../../../api');
@@ -251,13 +252,13 @@ test('the page links keep the board context she came with', async () => {
   assert.equal(contact, `/about?country=${COUNTRIES[1].code}#contact`);
 });
 
-test('/about: the steps in order, and #contact gives the address as a mail link and says where removal requests go', async () => {
+test('/about: the steps in order, and #contact gives the address as a mail link and says how she removes a listing', async () => {
   const { status, html } = await get('/about');
   assert.equal(status, 200);
   const steps = ['اعرضي خدمتك', 'تظهر لكل سيدة', 'تتواصل معك مباشرة', 'بلا وسيط ولا عمولة'].map((t) => html.indexOf(`>${t}</h3>`));
   assert.ok(steps.every((i, n) => i > 0 && (n === 0 || i > steps[n - 1])), 'the four steps, in order');
   assert.ok(html.includes(`href="mailto:${CONTACT_EMAIL}"`));
-  assert.ok(html.includes('طلبات حذف الإعلانات'));
+  assert.ok(html.includes('تحذفين إعلاناتك بنفسك من صفحة «إعلاناتي»'));
 });
 
 test('an unknown address is a 404 with the Arabic page in the server HTML', async () => {
@@ -289,4 +290,40 @@ test('one search-engine switch: every kind of page follows lib/site.ts INDEXABLE
     if (INDEXABLE) assert.equal(robots, undefined, `${path}: indexable, so no robots tag`);
     else assert.equal(robots, 'noindex, nofollow', path);
   }
+});
+
+// ── Accounts, her listings, reports (the pages render; their forms run in the browser) ─────
+
+test('the account pages render: sign in, a forgotten password, a new password, the email link, her listings', async () => {
+  const pages: [string, string][] = [
+    ['/sign-in', 'تسجيل الدخول'],
+    ['/forgot-password', 'نسيتِ كلمة المرور؟'],
+    ['/reset-password?token=t&email=a%40b.c', 'كلمة مرور جديدة'],
+    ['/verify-email?id=1&hash=h&expires=1&signature=s', 'تأكيد البريد الإلكتروني'],
+    ['/my-listings', 'إعلاناتي'],
+  ];
+  for (const [path, title] of pages) {
+    const { status, html } = await get(path);
+    assert.equal(status, 200, path);
+    assert.ok(html.includes(`>${title}</h1>`), `${path}: its heading`);
+  }
+});
+
+test('a published listing links to its report page, which offers every reason', async () => {
+  const { html } = await get(`/listing/${ids.withAll}`);
+  assert.ok(html.includes(`href="/listing/${ids.withAll}/report"`), 'the report link');
+  const report = await get(`/listing/${ids.withAll}/report`);
+  assert.equal(report.status, 200);
+  for (const reason of Object.values(REPORT_REASONS)) assert.ok(report.html.includes(`>${reason}</option>`), reason);
+});
+
+test('a listing that is not published cannot be reported', async () => {
+  assert.equal((await get(`/listing/${ids.pending}/report`)).status, 404);
+  assert.equal((await get(`/listing/${randomUUID()}/report`)).status, 404);
+});
+
+test('the form names its button for sending, not publishing', async () => {
+  const { html } = await get('/new');
+  assert.ok(!html.includes('انشري الإعلان'), 'the old label');
+  assert.ok(html.includes('بإرسالك الإعلان توافقين'), 'the note under the button');
 });

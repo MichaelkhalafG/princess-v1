@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('me', [AccountController::class, 'show']);
     Route::get('me/listings', [AccountController::class, 'listings']);
+    Route::delete('me/listings/{id}', [AccountController::class, 'withdraw'])->whereUuid('id');
     Route::delete('me', [AccountController::class, 'destroy'])->middleware('throttle:login');
     Route::post('email/resend', [EmailVerificationController::class, 'resend'])->middleware('throttle:verification-emails');
 });

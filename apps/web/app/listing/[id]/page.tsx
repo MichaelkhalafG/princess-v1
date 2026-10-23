@@ -109,6 +109,8 @@ export default async function ListingPage({ params, searchParams }: Props) {
 
             <div className={styles.date}>
               نُشر <time dateTime={listing.published_at}>{relativeDate(listing.published_at, now)}</time>
+              {/* anyone may report a listing, with no account. ARABIC COPY: DRAFT */}
+              {' · '}<a href={`/listing/${listing.id}/report`}>الإبلاغ عن هذا الإعلان</a>
             </div>
           </div>
         </article>

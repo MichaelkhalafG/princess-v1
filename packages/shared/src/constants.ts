@@ -85,7 +85,7 @@ export const LIMITS = {
   price: 40,
 } as const;
 
-// Listing photos: public Supabase Storage bucket.
-export const PHOTO_BUCKET = 'listing-photos';
+// Listing photos: what the form takes before it sends one to the API (which checks again,
+// by decoding the file).
 export const PHOTO_MAX_BYTES = 5 * 1024 * 1024;
 export const PHOTO_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;

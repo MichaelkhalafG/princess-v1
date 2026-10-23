@@ -208,7 +208,8 @@ export function Board({
 
             <div className={styles.ctaRow}>
               <Button variant="cta" href={postHref}>اعرضي خدمتك</Button>
-              <span className={styles.ctaNote}>مجاني، بلا حساب أو تسجيل</span>
+              {/* ARABIC COPY: DRAFT */}
+              <span className={styles.ctaNote}>مجاني، وبلا عمولة</span>
             </div>
           </div>
 

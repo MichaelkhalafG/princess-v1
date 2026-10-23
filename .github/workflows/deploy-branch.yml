@@ -55,8 +55,8 @@ jobs:
       - name: Build the deploy folder on its own
         env:
           SITE_URL: https://example.com
-          NEXT_PUBLIC_SUPABASE_URL: https://example.invalid
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder
+          API_URL: https://api.example.invalid
+          NEXT_PUBLIC_API_URL: https://api.example.invalid
           NEXT_TELEMETRY_DISABLED: 1
         run: |
           node .github/scripts/assemble-deploy.mjs . "$RUNNER_TEMP/check"

@@ -190,10 +190,14 @@ final class Moderation
 
     private static function close(Listing $listing, Moderator $moderator, ListingStatus $status, string $reason): void
     {
+        $now = Carbon::now();
         $listing->forceFill([
-            'status' => $status, 'held_for' => null, 'reviewed_at' => Carbon::now(),
+            'status' => $status, 'held_for' => null, 'reviewed_at' => $now,
             'reviewed_by' => $moderator->getKey(), 'reject_reason' => $reason,
         ])->save();
+        if ($status === ListingStatus::Removed) {
+            $listing->user?->forceFill(['trust_revoked_at' => $now])->save();
+        }
     }
 
     /** @param list<ListingStatus> $allowed */

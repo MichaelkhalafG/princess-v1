@@ -5,9 +5,8 @@
 // The filter set is country + category + search. Nothing else: no city or district
 // filter, and price is free text, so it is never filtered or sorted.
 
-import type { SupabaseClient } from '@supabase/supabase-js';
 import type { CategorySlug, CountryCode } from '@princess/shared/constants.ts';
-import { validateListing, type Listing, type ValidationErrors } from '@princess/shared/listing.ts';
+import type { Listing } from '@princess/shared/listing.ts';
 import { apiUrl } from './api.ts';
 
 export type ListingFilters = {
@@ -63,15 +62,3 @@ export async function fetchOthers(l: Pick<Listing, 'id'>): Promise<Listing[]> {
   return (await get<{ items: Listing[] }>(`/listings/${l.id}/others`))?.items ?? [];
 }
 
-// ── Posting: still the Supabase path until the form posts to the API ─────────────────────
-
-export type InsertResult = { ok: true; listing: { id: string; country: CountryCode } } | { ok: false; errors: ValidationErrors } | { ok: false; dbError: string };
-
-/** Validates, then inserts. The database re-checks everything independently. */
-export async function insertListing(db: SupabaseClient, input: unknown): Promise<InsertResult> {
-  const v = validateListing(input);
-  if (!v.ok) return v;
-  const { data, error } = await db.from('listings').insert(v.value).select('id,country').single();
-  if (error) return { ok: false, dbError: error.message };
-  return { ok: true, listing: data as { id: string; country: CountryCode } };
-}

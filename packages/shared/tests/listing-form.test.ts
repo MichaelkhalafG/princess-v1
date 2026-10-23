@@ -36,7 +36,7 @@ test('any one contact unblocks submit — each of the three on its own', () => {
     assert.ok(hasAnyContact(v));
     const g = submitGate(v, 'idle', null);
     assert.equal(g.blocked, false, JSON.stringify(only));
-    assert.equal(g.label, 'انشري الإعلان');
+    assert.equal(g.label, 'أرسلي الإعلان');
   }
 });
 

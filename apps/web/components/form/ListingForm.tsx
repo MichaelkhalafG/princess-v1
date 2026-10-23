@@ -1,11 +1,15 @@
 'use client';
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
-import { createListing } from '@/app/new/actions.ts';
+import { useRouter } from 'next/navigation';
+import { readBoardContext, withBoardContext } from '@princess/shared/board-url.ts';
 import { CATEGORIES, getCountry, type CategorySlug, type CountryCode } from '@princess/shared/constants.ts';
+import { SERVER_MESSAGES } from '@princess/shared/listing.ts';
 import { phonePlaceholder, pricePlaceholder } from '@princess/shared/format.ts';
 import { nextRadioIndex, radioTabIndex } from '@/lib/radio.ts';
-import { UPLOAD_FAILED_MESSAGE, uploadPhoto } from '@/lib/upload.ts';
+import { UPLOAD_FAILED_MESSAGE, UploadError, uploadPhoto } from '@/lib/upload.ts';
+import { api, getMe, type Me } from '@/lib/client.ts';
+import { ACCOUNT_MESSAGES, PHOTO_MESSAGES, failureMessage } from '@/lib/messages.ts';
 import {
   CONTACTS_REQUIREMENT, PUBLISH_FAILED_MESSAGE, counter, emptyForm, hasValidContact, submitGate, toPayload, validateForm,
   type FormErrors, type FormField, type FormValues, type SubmitPhase, type UploadState,
@@ -24,9 +28,19 @@ const FOCUS_ORDER: [FormField, string][] = [
   ['social', '#f-social'], ['contacts', '#f-whatsapp'],
 ];
 
-function isRedirect(err: unknown): boolean {
-  const digest = (err as { digest?: unknown } | null)?.digest;
-  return typeof digest === 'string' && digest.startsWith('NEXT_REDIRECT');
+type AccountErrors = { email?: string; password?: string };
+
+/** The API's codes for the listing's fields, as the form's messages. */
+function listingErrors(codes: Record<string, string>): { errors: FormErrors; photo: string | null } {
+  const errors: FormErrors = {};
+  let photo: string | null = null;
+  for (const [key, code] of Object.entries(codes)) {
+    const messages = (SERVER_MESSAGES as Record<string, Record<string, string>>)[key];
+    if (key === 'contact') errors.contacts = SERVER_MESSAGES.contact.contact_required;
+    else if (key === 'photo') photo = PHOTO_MESSAGES[code] ?? SERVER_MESSAGES.photo.invalid;
+    else if (messages && key in emptyForm('EG')) errors[key as keyof FormErrors] = messages[code] ?? messages.invalid;
+  }
+  return { errors, photo };
 }
 
 export function ListingForm({ initialCountry, contextQuery = '' }: { initialCountry: CountryCode; contextQuery?: string }) {
@@ -37,9 +51,22 @@ export function ListingForm({ initialCountry, contextQuery = '' }: { initialCoun
   const [phase, setPhase] = useState<SubmitPhase>(null);
   // The photo goes up only when she publishes. If it went up but the listing was then not
   // saved, the next attempt reuses it rather than uploading (and orphaning) a second copy.
-  const uploaded = useRef<{ file: File; path: string } | null>(null);
+  const uploaded = useRef<{ file: File; id: string } | null>(null);
   const abortUpload = useRef<(() => void) | null>(null);
   useEffect(() => () => abortUpload.current?.(), []);
+  const router = useRouter();
+
+  // Her account: signed in already, or she signs up (or in) at the end of the form.
+  // undefined while it is being asked.
+  const [me, setMe] = useState<Me | null | undefined>(undefined);
+  const [accountMode, setAccountMode] = useState<'new' | 'existing'>('new');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [accountErrors, setAccountErrors] = useState<AccountErrors>({});
+  useEffect(() => {
+    getMe().then(setMe);
+  }, []);
+  const signedIn = Boolean(me);
 
   const country = getCountry(values.country);
   const contactsOk = hasValidContact(values);
@@ -78,29 +105,54 @@ export function ListingForm({ initialCountry, contextQuery = '' }: { initialCoun
     // every field is checked BEFORE the photo is sent, so a form with a mistake in it
     // never uploads anything
     const errs = validateForm(values);
+    const accErrs: AccountErrors = signedIn ? {} : {
+      ...(email.trim() === '' ? { email: ACCOUNT_MESSAGES.email.required } : {}),
+      ...(password === '' ? { password: ACCOUNT_MESSAGES.password.required }
+        : accountMode === 'new' && [...password].length < 8 ? { password: ACCOUNT_MESSAGES.password.too_short } : {}),
+    };
+    setAccountErrors(accErrs);
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       focusFirst(errs);
       return;
     }
+    if (Object.keys(accErrs).length > 0) {
+      document.getElementById(accErrs.email ? 'f-email' : 'f-password')?.focus();
+      return;
+    }
     setFormMessage(null);
 
+    // 0. she has an account and signs in with it first
+    if (!signedIn && accountMode === 'existing') {
+      setPhase('publishing');
+      const login = await api<Me>('POST', '/login', { email, password });
+      if (!login.ok) {
+        setPhase(null);
+        if (login.errors.email) setAccountErrors({ email: ACCOUNT_MESSAGES.email[login.errors.email] ?? ACCOUNT_MESSAGES.email.wrong_credentials });
+        else setFormMessage(failureMessage(login));
+        return;
+      }
+      setMe(login.data);
+      setPhase(null);
+    }
+
     // 1. her photo, if she chose one (and it is not already up from a failed attempt)
-    let path: string | null = null;
+    let photoId: string | null = null;
     if (photo.file) {
       if (uploaded.current?.file === photo.file) {
-        path = uploaded.current.path;
+        photoId = uploaded.current.id;
       } else {
         setPhase({ uploading: 0 });
         const job = uploadPhoto(photo.file, (p) => setPhase({ uploading: p }));
         abortUpload.current = job.abort;
         try {
-          path = await job.promise;
-          uploaded.current = { file: photo.file, path };
-        } catch {
+          photoId = await job.promise;
+          uploaded.current = { file: photo.file, id: photoId };
+        } catch (err) {
           // nothing she typed is lost: the form and the photo are still here
           setPhase(null);
-          setFormMessage(UPLOAD_FAILED_MESSAGE);
+          const code = err instanceof UploadError ? err.code : 'network';
+          setFormMessage(PHOTO_MESSAGES[code] ?? UPLOAD_FAILED_MESSAGE);
           return;
         } finally {
           abortUpload.current = null;
@@ -108,19 +160,34 @@ export function ListingForm({ initialCountry, contextQuery = '' }: { initialCoun
       }
     }
 
-    // 2. the listing itself
+    // 2. the listing itself, with her new account when she has none
     setPhase('publishing');
-    try {
-      // On success the action redirects to the new listing's page.
-      const res = await createListing(toPayload(values, path), contextQuery);
-      setErrors(res.errors);
-      setFormMessage(res.message);
-      focusFirst(res.errors);
-    } catch (err) {
-      if (isRedirect(err)) throw err;
-      setFormMessage(PUBLISH_FAILED_MESSAGE);
+    const account = signedIn || accountMode === 'existing' ? {} : { email, password };
+    const res = await api<{ id: string; status: string }>('POST', '/listings', { ...toPayload(values, photoId), ...account });
+    if (res.ok) {
+      const ctx = readBoardContext(new URLSearchParams(contextQuery));
+      // on the board at once: its own page, with the "posted" banner; otherwise her listings page
+      router.push(res.data.status === 'published'
+        ? withBoardContext(`/listing/${res.data.id}`, { ...ctx, country: ctx.country ?? values.country }, { posted: '1' })
+        : `/my-listings?sent=${res.data.status}`);
+      return;
     }
     setPhase(null);
+    if (res.status === 422) {
+      const { errors: fieldErrors, photo: photoMessage } = listingErrors(res.errors);
+      if (photoMessage) uploaded.current = null;
+      const acc: AccountErrors = {
+        ...(res.errors.email ? { email: ACCOUNT_MESSAGES.email[res.errors.email] ?? ACCOUNT_MESSAGES.email.invalid } : {}),
+        ...(res.errors.password ? { password: ACCOUNT_MESSAGES.password[res.errors.password] ?? ACCOUNT_MESSAGES.password.invalid } : {}),
+      };
+      setErrors(fieldErrors);
+      setAccountErrors(acc);
+      setFormMessage(photoMessage ?? (Object.keys(fieldErrors).length || Object.keys(acc).length ? null : PUBLISH_FAILED_MESSAGE));
+      if (Object.keys(fieldErrors).length) focusFirst(fieldErrors);
+      else if (acc.email || acc.password) document.getElementById(acc.email ? 'f-email' : 'f-password')?.focus();
+      return;
+    }
+    setFormMessage(failureMessage(res));
   };
 
   // the category radios: one Tab stop, the arrows move the choice (lib/radio.ts)
@@ -166,7 +233,8 @@ export function ListingForm({ initialCountry, contextQuery = '' }: { initialCoun
     <>
       <div className={styles.intro}>
         <h1 className={styles.title}>اعرضي خدمتك</h1>
-        <p className={styles.lead}>دقيقتان، ويظهر إعلانك لكل سيدة في بلدك. بلا حساب، وبلا عمولة.</p>
+        {/* ARABIC COPY: DRAFT */}
+        <p className={styles.lead}>دقيقتان، ونراجع إعلانك قبل أن يظهر لكل سيدة في بلدك. بلا عمولة.</p>
       </div>
 
       <form className={styles.card} onSubmit={onSubmit} noValidate>
@@ -275,6 +343,39 @@ export function ListingForm({ initialCountry, contextQuery = '' }: { initialCoun
           {prefixed('social', '@', 'إنستغرام', { autoComplete: 'off', placeholder: 'اسم الحساب فقط، بلا رابط' })}
         </fieldset>
 
+        {/* 4. her account, at the end: she signs up (or in) with the listing. ARABIC COPY: DRAFT */}
+        {me === undefined ? null : signedIn ? (
+          <section className={styles.section} aria-labelledby="s-account">
+            <h2 id="s-account" className={styles.sectionTitle}>حسابك</h2>
+            <p className={fs.hint}>يُرسل الإعلان من حسابك <bdi dir="ltr">{me?.email}</bdi>.</p>
+          </section>
+        ) : (
+          <section className={styles.section} aria-labelledby="s-account">
+            <h2 id="s-account" className={styles.sectionTitle}>{accountMode === 'new' ? 'أنشئي حسابك' : 'سجّلي الدخول'}</h2>
+            <p className={fs.hint}>
+              {accountMode === 'new'
+                ? 'بالبريد الإلكتروني وكلمة مرور، لتتابعي إعلاناتك وتحذفيها متى شئتِ. ستصلكِ رسالة لتأكيد بريدك، ثم يصلنا إعلانك للمراجعة. لا يظهر بريدك لأحد.'
+                : 'سجّلي الدخول بحسابك، ويُرسل الإعلان منه.'}
+            </p>
+            <div className={styles.two}>
+              <Field id="f-email" label="البريد الإلكتروني" error={accountErrors.email}>
+                <input id="f-email" className={fs.input} type="email" dir="ltr" autoComplete="email" value={email}
+                  onChange={(e) => { setEmail(e.target.value); setAccountErrors((a) => ({ ...a, email: undefined })); }}
+                  {...describedBy('f-email', { error: accountErrors.email })} />
+              </Field>
+              <Field id="f-password" label="كلمة المرور" error={accountErrors.password} hint={accountMode === 'new' ? '٨ أحرف على الأقل.' : undefined}>
+                <input id="f-password" className={fs.input} type="password" dir="ltr" autoComplete={accountMode === 'new' ? 'new-password' : 'current-password'} value={password}
+                  onChange={(e) => { setPassword(e.target.value); setAccountErrors((a) => ({ ...a, password: undefined })); }}
+                  {...describedBy('f-password', { error: accountErrors.password, hint: accountMode === 'new' })} />
+              </Field>
+            </div>
+            <Button variant="text" onClick={() => { setAccountMode((m) => (m === 'new' ? 'existing' : 'new')); setAccountErrors({}); }}>
+              {accountMode === 'new' ? 'لديكِ حساب؟ سجّلي الدخول' : 'ليس لديكِ حساب؟ أنشئي حسابًا'}
+            </Button>
+            {accountMode === 'existing' && <a href="/forgot-password" className={fs.hint}>نسيتِ كلمة المرور؟</a>}
+          </section>
+        )}
+
         <div className={styles.submit}>
           {formMessage && <FieldError id="e-form" size="lg" alert>{formMessage}</FieldError>}
           <Button
@@ -285,7 +386,8 @@ export function ListingForm({ initialCountry, contextQuery = '' }: { initialCoun
           >
             {gate.label}
           </Button>
-          <p className={styles.note}>بنشرك الإعلان توافقين على أن برينسيس لوحة إعلانات فقط، والاتفاق يتم بينك وبين العميلة مباشرة.</p>
+          {/* ARABIC COPY: DRAFT */}
+          <p className={styles.note}>بإرسالك الإعلان توافقين على أن برينسيس لوحة إعلانات فقط، والاتفاق يتم بينك وبين العميلة مباشرة. نراجع كل إعلان قبل أن يظهر على اللوحة.</p>
         </div>
       </form>
     </>

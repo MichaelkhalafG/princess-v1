@@ -70,7 +70,8 @@ class ListingController extends Controller
                 'password' => $request->input('password'),
             ]);
             $model = new Listing;
-            $model->forceFill([...$listing['value'], 'user_id' => $user->getKey()]);
+            // the photo is not a column: it is claimed below
+            $model->forceFill([...array_diff_key($listing['value'], ['photo' => true]), 'user_id' => $user->getKey()]);
             PublishDecision::apply($model, $user);
             $model->save();
             if ($photo !== null) {

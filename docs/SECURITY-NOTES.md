@@ -1,47 +1,45 @@
-# Security notes — known, accepted gaps
+# Security notes: what is enforced, and the gaps we know about
 
-The board has no accounts, so anyone can post and anyone can upload. These are the
-consequences we know about and have chosen not to solve yet.
+Since the move to the Laravel API (apps/api), every write goes through the API: no public
+credential reaches the database or the file storage. This file says what the API enforces,
+where it is proved, and what is still open.
 
-## Photos (bucket `listing-photos`)
+## What the API enforces
 
-- **Orphan photos — now rare.** The form uploads her photo only when she publishes, after
-  every field has passed its checks (choosing, changing or removing a photo uploads
-  nothing). One case still leaves a file behind: the photo uploads and then saving the
-  listing fails (the connection drops). Retrying reuses the uploaded file, so an orphan
-  remains only if she gives up after that. Files uploaded by a script straight to the
-  bucket (next point) are orphans too.
+- **Posting needs an account whose email is verified.** Unverified accounts post into no
+  queue and are deleted after 7 days. (`tests/Feature/AccountsTest.php`, `PublishTest.php`)
+- **Line B moderation.** A listing reaches the board only after a moderator approves it,
+  unless the account is trusted (a moderator approved one of its listings and removed none
+  since), the launch phase is off, and the filter raised no signal. Moderators approve, reject
+  and remove; they cannot edit. Every decision is in the audit log.
+  (`ModerationTest.php`, `AdminPanelTest.php`)
+- **Validation.** The same 70 cases pass in the PHP and TypeScript validators
+  (`packages/shared/cases/listing-validation.json`).
+- **Photos.** Decoded and re-encoded by GD on the server: no EXIF, GPS, XMP or IPTC survives
+  (`PhotoPrivacyTest.php`, the gate). Type is decided by decoding, not by the client's
+  Content-Type; a size cap (5 MB) and a pixel cap (4096 × 4096, checked from the header before
+  decoding) stop memory exhaustion. A photo is public exactly while its listing is published;
+  otherwise only a signed, expiring address reaches it.
+- **Rate limits**, by the visitor's address (the real one behind the host's proxy once
+  `CLIENT_IP_HEADER` is set): sign-ups, sign-in attempts, password emails, verification emails,
+  photo uploads, reports; and 5 listings per account per 24 hours.
+- **Bans** on an account, a number (WhatsApp or phone) or an Instagram handle. A banned account
+  cannot post; a banned number or handle sends any listing carrying it to a moderator. Bans
+  outlive the account.
+- **Admin access**: moderators only (a separate table), password plus a required authenticator
+  app.
 
-  **Finding them** — read-only; run in the SQL editor of the project:
+## Known gaps
 
-  ```sql
-  -- Photos in listing-photos that no listing uses, oldest first. The one-day margin
-  -- leaves alone a photo that is being published right now.
-  select o.name, o.created_at, (o.metadata->>'size')::int / 1024 as kb
-  from storage.objects o
-  where o.bucket_id = 'listing-photos'
-    and not exists (select 1 from public.listings l where l.photo = o.name)
-    and o.created_at < now() - interval '1 day'
-  order by o.created_at;
-  ```
-
-  **Removing them:** in the dashboard (Storage → listing-photos), by name. Not with
-  `delete from storage.objects` — that removes the row and leaves the file itself in
-  storage.
-- **Anonymous upload means anyone can fill the bucket without ever visiting the site.**
-  The anon key is public by design (it ships to every browser). With it, a script can
-  upload up to 5 MB per request directly to Storage, as many times as it likes, without
-  loading a page or submitting a listing.
-- **The type check trusts the client.** The bucket's allowed MIME types are checked
-  against the `Content-Type` the uploader declares, not the file's bytes.
-
-What *is* enforced (proved in `apps/web/tests/db/listings.test.ts`): uploads only,
-5 MB maximum, JPEG/PNG/WebP declared types only, object names must be
-`<uuid>.<jpg|png|webp>`, and the public cannot list, overwrite or delete objects.
-
-## Listings
-
-- **Instant publish, no moderation.** Anything that passes the CHECK constraints is live
-  immediately. Removal is by the developer, with the service role, from the dashboard.
-- **No rate limiting.** The same anon key can insert rows directly through the Supabase
-  API without the site's form; the database constraints are the only gate.
+- **Orphan uploads.** `POST /photos` needs no account (she signs up at the end of the form),
+  so a script can upload photos without posting. Limited per address per hour, deleted after
+  24 hours if no listing claims them (`princess:prune-photos`).
+- **Shared addresses.** Mobile carriers put many people behind one address; the per-address
+  limits can catch several real people at once. The numbers are in `config/princess.php`.
+- **Reports can be abused.** Auto-hide after reports is off by default for that reason
+  (`MODERATION_AUTO_HIDE_REPORTS`).
+- **A victim's number.** Someone can post another woman's number. The `contact_elsewhere`
+  signal shows the moderator a number on more than one account; banning such a number bans
+  the victim's too. Nothing verifies that a number belongs to the poster.
+- **The live site until cutover** still runs on Supabase (`supabase/`), with that design's
+  gaps: instant publishing and anonymous writes with the public key.

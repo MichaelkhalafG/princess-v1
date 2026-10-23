@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Enums\ListingStatus;
 use App\Listings\ListingInput;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -45,6 +46,14 @@ class ListingCasesTest extends TestCase
         $this->assertSame($rules['countries'], config('princess.countries'));
         $this->assertSame($rules['limits'], config('princess.limits'));
         $this->assertSame($rules['writable'], ListingInput::WRITABLE);
+    }
+
+    public function test_the_api_answers_with_exactly_the_moderation_codes_the_clients_word(): void
+    {
+        $rules = self::caseFile()['rules'];
+        $this->assertSame($rules['moderation_reasons'], array_keys(config('princess.moderation.reasons')));
+        $this->assertSame($rules['report_reasons'], array_keys(config('princess.moderation.report_reasons')));
+        $this->assertSame($rules['statuses'], array_map(fn (ListingStatus $s) => $s->value, ListingStatus::cases()));
     }
 
     /** @param array<string, mixed> $case */

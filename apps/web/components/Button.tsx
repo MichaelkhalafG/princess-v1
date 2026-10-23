@@ -10,7 +10,7 @@ import styles from './Button.module.css';
  *             always with the dot
  *   round   — the card's round contact buttons
  *   text    — bare text buttons in the sticky filter bar
- *   submit  — the form's full-width "انشري الإعلان"; aria-disabled shows it blocked or busy
+ *   submit  — the form's full-width "أرسلي الإعلان"; aria-disabled shows it blocked or busy
  *   soft    — tint pill: status-panel secondary action (size "compact": detail page
  *             secondary contacts and the "browse all" link)
  *   surface — white pill: the "posted" banner's link (size "compact": photo change/remove)

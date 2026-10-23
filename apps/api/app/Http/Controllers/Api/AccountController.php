@@ -33,11 +33,24 @@ class AccountController extends Controller
                 ...$listing->toPublic(),
                 // she sees her own photo whatever its state, through a signed address
                 'photo' => $listing->photo?->toClient(privateAllowed: true),
+                'created_at' => $listing->created_at->toIso8601ZuluString(),
                 'status' => $listing->status->value,
                 'reject_reason' => $listing->reject_reason,
             ]);
 
         return response()->json(['items' => $items->all()]);
+    }
+
+    /**
+     * She removes one of her listings, in whatever state it is. Permanent: the listing and its
+     * photo are deleted, not hidden. Someone else's listing, or none, is "not found".
+     */
+    public function withdraw(Request $request, string $id): Response
+    {
+        $listing = $request->user()->listings()->whereKey($id)->firstOrFail();
+        $listing->delete(); // its photo goes with it (Listing::booted)
+
+        return response()->noContent();
     }
 
     /**

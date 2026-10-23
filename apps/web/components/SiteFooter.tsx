@@ -13,6 +13,8 @@ const PAGES = [
   { path: '/about', hash: '#contact', label: 'تواصلي معنا' },
   { path: '/terms', hash: '', label: 'الشروط' },
   { path: '/privacy', hash: '', label: 'الخصوصية' },
+  // her account's page (signed out, it asks her to sign in). ARABIC COPY: DRAFT
+  { path: '/my-listings', hash: '', label: 'إعلاناتي' },
 ];
 
 /**

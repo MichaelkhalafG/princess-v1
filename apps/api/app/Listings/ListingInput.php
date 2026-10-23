@@ -19,10 +19,16 @@ final class ListingInput
 
     public const INSTAGRAM_PATTERN = '/^[A-Za-z0-9._]{1,30}$/D';
 
-    /** The fields she writes. Everything else on a listing is the API's to set. */
+    /** A photo id from POST /photos: a UUID in lower case, as the API writes them. */
+    public const PHOTO_ID_PATTERN = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/D';
+
+    /**
+     * The fields she writes. Everything else on a listing is the API's to set. "photo" is the id
+     * of her upload; whether she may use it is checked when the listing claims it.
+     */
     public const WRITABLE = [
         'name', 'title', 'category', 'country', 'city', 'district', 'description',
-        'price', 'whatsapp', 'phone', 'social',
+        'price', 'photo', 'whatsapp', 'phone', 'social',
     ];
 
     /** @var array<string, string> field => error code */
@@ -89,6 +95,7 @@ final class ListingInput
             $this->errors['country'] = 'invalid';
         }
 
+        $photo = $this->optionalPattern('photo', self::PHOTO_ID_PATTERN, fn (string $s) => $s);
         $whatsapp = $this->optionalPattern('whatsapp', self::PHONE_PATTERN, self::normalizePhone(...));
         $phone = $this->optionalPattern('phone', self::PHONE_PATTERN, self::normalizePhone(...));
         $social = $this->optionalPattern('social', self::INSTAGRAM_PATTERN, self::normalizeInstagram(...));
@@ -118,7 +125,7 @@ final class ListingInput
         }
 
         return ['ok' => true, 'value' => compact(
-            'name', 'title', 'category', 'country', 'city', 'district', 'description', 'price', 'whatsapp', 'phone', 'social',
+            'name', 'title', 'category', 'country', 'city', 'district', 'description', 'price', 'photo', 'whatsapp', 'phone', 'social',
         )];
     }
 

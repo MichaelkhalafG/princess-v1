@@ -12,10 +12,11 @@ export const metadata: Metadata = { title: 'عن برينسيس — برينسي
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-/** How it works, in the order it happens — numbered because it is a sequence. */
+/** How it works, in the order it happens — numbered because it is a sequence. ARABIC COPY: the
+    first two steps and the line under #contact are DRAFTS. */
 const STEPS = [
-  { title: 'اعرضي خدمتك', body: 'دقيقتان: اسمك، ومدينتك، ووصف قصير، وطريقة تواصل. بلا حساب وبلا تسجيل.' },
-  { title: 'تظهر لكل سيدة', body: 'يظهر إعلانك فورًا على اللوحة لكل من تزورها في بلدك.' },
+  { title: 'اعرضي خدمتك', body: 'دقيقتان: اسمك، ومدينتك، ووصف قصير، وطريقة تواصل، وحساب بالبريد الإلكتروني لا يظهر لأحد.' },
+  { title: 'تظهر لكل سيدة', body: 'نراجع كل إعلان، ثم يظهر على اللوحة لكل من تزورها في بلدك.' },
   { title: 'تتواصل معك مباشرة', body: 'على واتساب أو الهاتف أو إنستغرام، وتتفقان معًا على كل شيء.' },
   { title: 'بلا وسيط ولا عمولة', body: 'برينسيس لا تتدخل في الاتفاق ولا في الدفع، ولا تأخذ أي عمولة.' },
 ];
@@ -64,7 +65,7 @@ export default async function AboutPage({ searchParams }: Props) {
         <section id="contact" className={styles.contact} aria-labelledby="contact-title">
           <div className={styles.contactText}>
             <h2 id="contact-title" className={styles.contactTitle}>تواصلي معنا</h2>
-            <p className={styles.contactBody}>طلبات حذف الإعلانات تُرسل إلى العنوان نفسه، مع رابط الإعلان.</p>
+            <p className={styles.contactBody}>تحذفين إعلاناتك بنفسك من صفحة «إعلاناتي». وللإبلاغ عن إعلان مخالف، استخدمي رابط «الإبلاغ عن هذا الإعلان» في صفحته.</p>
           </div>
           {/* the address is this section's one action: a full-size button */}
           <Button variant="accent" href={`mailto:${CONTACT_EMAIL}`}><bdi dir="ltr">{CONTACT_EMAIL}</bdi></Button>
