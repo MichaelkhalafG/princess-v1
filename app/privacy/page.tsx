@@ -17,6 +17,12 @@ import { CONTACT_EMAIL } from '@/lib/site.ts';
 // nothing about who sent them and the visitor's address only feeds rate limits; a ban keeps
 // the numbers and handle; she deletes her listings and her account herself; an account never
 // verified is deleted after 7 days; a refused listing's photo after 14.
+// The app (apps/mobile): its sign-in is a Sanctum token in the phone's secure storage, stored
+// hashed on the server with its last use and the fixed name "Princess app" (no IP, no device);
+// it is deleted on sign-out, a new password or the account's deletion, and refused after 90 days
+// unused (princess.accounts.app_token_idle_days), deleted within ten minutes by the prune; only
+// the form and «إعلاناتي» use it. Hidden posters are a file on the phone, never sent; Android
+// backup is off (app.json allowBackup).
 //
 // Deliberately absent, by the owner's decision (do not fill these in later): any claim
 // about the law in the three countries, and any sentence that assigns or disclaims legal
@@ -37,7 +43,7 @@ export default async function PrivacyPage({ searchParams }: Props) {
     <ReadingPage
       ctx={ctx}
       title="الخصوصية"
-      updated="آخر تحديث: ٢٣ أكتوبر ٢٠٢٦"
+      updated="آخر تحديث: ٢٤ أكتوبر ٢٠٢٦"
       summary={[
         <>كل ما تكتبينه في إعلانك يظهر للجميع بعد نشره، ومنه اسمك ومدينتك وصورتك، و<strong>أرقام واتساب والهاتف وحساب إنستغرام</strong>.</>,
         <>لإرسال إعلان تنشئين حسابًا ببريد إلكتروني وكلمة مرور. <strong>بريدك لا يظهر لأحد.</strong></>,
@@ -90,6 +96,24 @@ export default async function PrivacyPage({ searchParams }: Props) {
               </p>
               <p>إن لم تؤكّدي بريدك خلال ٧ أيام، يُحذف الحساب وما أرسلتِه معه.</p>
               <p>لا يتحقق الموقع من هوية من تنشر، ولا من عمرها، ولا من صحة ما تكتبه.</p>
+            </>
+          ),
+        },
+        {
+          id: 'app',
+          title: 'تطبيق الهاتف',
+          body: (
+            <>
+              <p>
+                حين تسجّلين الدخول في تطبيق برينسيس، يحفظ التطبيق على هاتفك رمز دخول في المخزن الآمن للهاتف، فلا تحتاجين إلى كلمة
+                المرور في كل مرة. ونحفظ عندنا نسخة مشفّرة منه ووقت آخر استعمال له، ولا نحفظ معه عنوان الإنترنت (IP) ولا نوع الهاتف.
+                يُحذف الرمز حين تسجّلين الخروج، أو تعيّنين كلمة مرور جديدة، أو تحذفين حسابك. وإن مرّت ٩٠ يومًا لم تفتحي فيها نموذج
+                الإعلان ولا «إعلاناتي» في التطبيق، ينتهي الرمز ونحذفه، وتسجّلين الدخول من جديد.
+              </p>
+              <p>
+                وإن أخفيتِ في التطبيق إعلانات ناشرة ما، تُحفظ قائمة ما أخفيتِه على هاتفك وحده، ولا تُرسل إلينا أبدًا. تلغين الإخفاء من
+                «إعلاناتي»، وتُحذف القائمة إن حذفتِ التطبيق.
+              </p>
             </>
           ),
         },
