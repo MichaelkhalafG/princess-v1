@@ -20,18 +20,25 @@ export function ForgotPasswordForm() {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (busy) return;
-    if (email.trim() === '') return setError(ACCOUNT_MESSAGES.email.required);
+    if (email.trim() === '') {
+      setError(ACCOUNT_MESSAGES.email.required);
+      return document.getElementById('f-email')?.focus();
+    }
     setBusy(true);
     const res = await api('POST', '/password/forgot', { email });
     setBusy(false);
     if (res.ok) setSent(true);
-    else setMessage(failureMessage(res));
+    else if (res.errors.email) {
+      setError(ACCOUNT_MESSAGES.email[res.errors.email] ?? ACCOUNT_MESSAGES.email.invalid);
+      document.getElementById('f-email')?.focus();
+    } else setMessage(failureMessage(res));
   };
 
   if (sent) {
     return (
       <AccountCard>
         <p className={formStyles.lead} role="status">إن كان لهذا البريد حساب، فقد أرسلنا إليه رابطًا لتعيين كلمة مرور جديدة. الرابط صالح لمدة ٦٠ دقيقة.</p>
+        <Button variant="soft" href="/sign-in">سجّلي الدخول</Button>
       </AccountCard>
     );
   }
@@ -39,7 +46,7 @@ export function ForgotPasswordForm() {
     <AccountCard onSubmit={onSubmit}>
       <section className={formStyles.section}>
         <Field id="f-email" label="البريد الإلكتروني" error={error}>
-          <input id="f-email" className={fs.input} type="email" dir="ltr" autoComplete="email" value={email}
+          <input id="f-email" className={fs.input} type="email" dir="ltr" autoComplete="email" placeholder="name@example.com" spellCheck={false} value={email}
             onChange={(e) => { setEmail(e.target.value); setError(undefined); }} {...describedBy('f-email', { error })} />
         </Field>
       </section>
@@ -57,22 +64,38 @@ export function ResetPasswordForm({ token, email }: { token: string; email: stri
   const [error, setError] = useState<string | undefined>();
   const [message, setMessage] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [expired, setExpired] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  if (!token || !email) {
-    return <AccountCard><p className={formStyles.lead}>هذا الرابط غير مكتمل. اطلبي رابطًا جديدًا من صفحة «نسيتِ كلمة المرور».</p></AccountCard>;
+  // a link that cannot work: say so, and lead to the page that sends a new one (no form to retry)
+  if (!token || !email || expired) {
+    return (
+      <AccountCard>
+        <p className={formStyles.lead} role={expired ? 'alert' : undefined}>
+          {expired
+            ? 'انتهت صلاحية هذا الرابط أو استُخدم من قبل. اطلبي رابطًا جديدًا من صفحة «نسيتِ كلمة المرور».'
+            : 'هذا الرابط غير مكتمل. اطلبي رابطًا جديدًا من صفحة «نسيتِ كلمة المرور».'}
+        </p>
+        <Button variant="accent" href="/forgot-password">اطلبي رابطًا جديدًا</Button>
+      </AccountCard>
+    );
   }
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (busy) return;
-    if ([...password].length < 8) return setError(ACCOUNT_MESSAGES.password.too_short);
+    if ([...password].length < 8) {
+      setError(ACCOUNT_MESSAGES.password.too_short);
+      return document.getElementById('f-password')?.focus();
+    }
     setBusy(true);
     const res = await api('POST', '/password/reset', { token, email, password });
     setBusy(false);
     if (res.ok) return setDone(true);
-    if (res.errors.password) setError(ACCOUNT_MESSAGES.password[res.errors.password] ?? ACCOUNT_MESSAGES.password.invalid);
-    else if (res.errors.token) setMessage('انتهت صلاحية هذا الرابط أو استُخدم من قبل. اطلبي رابطًا جديدًا من صفحة «نسيتِ كلمة المرور».');
+    if (res.errors.password) {
+      setError(ACCOUNT_MESSAGES.password[res.errors.password] ?? ACCOUNT_MESSAGES.password.invalid);
+      document.getElementById('f-password')?.focus();
+    } else if (res.errors.token) setExpired(true);
     else setMessage(failureMessage(res));
   };
 

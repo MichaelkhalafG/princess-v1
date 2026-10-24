@@ -258,7 +258,7 @@ test('/about: the steps in order, and #contact gives the address as a mail link 
   const steps = ['اعرضي خدمتك', 'تظهر لكل سيدة', 'تتواصل معك مباشرة', 'بلا وسيط ولا عمولة'].map((t) => html.indexOf(`>${t}</h3>`));
   assert.ok(steps.every((i, n) => i > 0 && (n === 0 || i > steps[n - 1])), 'the four steps, in order');
   assert.ok(html.includes(`href="mailto:${CONTACT_EMAIL}"`));
-  assert.ok(html.includes('تحذفين إعلاناتك بنفسك من صفحة «إعلاناتي»'));
+  assert.ok(html.includes('تحذفين إعلاناتك بنفسك من صفحة «<a href="/my-listings">إعلاناتي</a>»'), 'and the page is a link');
 });
 
 test('an unknown address is a 404 with the Arabic page in the server HTML', async () => {

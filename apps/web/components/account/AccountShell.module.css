@@ -1,0 +1,61 @@
+/* Her listings page: the one account page with more than one block on it. Everything else
+   on these pages is the posting form's card (ListingForm.module.css). */
+
+/* the blocks of the page (a confirmation, her listings, her account), apart like the board's
+   sections, above the page's blob */
+.stack {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-15);
+}
+
+/* one listing of hers: the card at its board size, and beside it where it stands and what she
+   can do about it; listings apart by the form's section rule */
+.item {
+  display: grid;
+  grid-template-columns: var(--width-card-compact) minmax(0, 1fr);
+  gap: var(--space-15);
+  align-items: start;
+}
+
+.item + .item {
+  border-top: var(--size-hairline) solid var(--color-tint);
+  padding-top: var(--space-16);
+}
+
+.itemSide {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-8);
+}
+
+/* where it stands: the line she came to this page for, so the strongest one — a pill in the
+   state's colour (waiting amber, on the board teal, refused or removed blush) */
+.state {
+  font-size: var(--text-body-sm);
+  font-weight: var(--weight-bold);
+  padding: var(--space-5) var(--space-11);
+  border-radius: var(--radius-pill);
+  background: var(--color-tint-amber);
+  color: var(--color-ink);
+}
+
+.stateLive {
+  background: var(--color-secondary);
+  color: var(--color-on-accent);
+}
+
+.stateRefused {
+  background: var(--color-tint);
+}
+
+/* phones: the card full width, its state and actions under it */
+@media (max-width: 600px) {
+  .item {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-11);
+  }
+}

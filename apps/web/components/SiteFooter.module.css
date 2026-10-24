@@ -46,13 +46,16 @@
 
 .links {
   display: flex;
-  gap: var(--space-13);
+  flex-wrap: wrap;
+  gap: var(--space-8) var(--space-13);
   font-size: var(--text-body-sm);
   font-weight: var(--weight-medium);
 }
 
+/* a link wraps to the next line whole, never mid-phrase («كيف / يعمل؟») */
 .links a {
   color: var(--color-footer-text);
+  white-space: nowrap;
 }
 
 .links a:focus-visible {

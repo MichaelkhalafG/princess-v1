@@ -20,7 +20,8 @@ type Props = { params: Promise<{ id: string }>; searchParams: Promise<Record<str
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const listing = await fetchListing((await params).id);
-  if (!listing) return { title: 'برينسيس' };
+  // the tab says what the page says (NotFoundView's heading)
+  if (!listing) return { title: 'هذا الإعلان لم يعد على اللوحة — برينسيس' };
   const title = `${listing.title} — برينسيس`;
   // Shared on WhatsApp, her own photo is the preview. Without one, nothing is set here and
   // the site image (app/opengraph-image.png) stands.

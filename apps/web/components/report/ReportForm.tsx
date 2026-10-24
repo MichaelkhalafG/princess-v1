@@ -21,26 +21,34 @@ export function ReportForm({ listingId, back }: { listingId: string; back: strin
   const [note, setNote] = useState('');
   const [error, setError] = useState<string | undefined>();
   const [message, setMessage] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
+  const [done, setDone] = useState<'sent' | 'already' | null>(null);
   const [busy, setBusy] = useState(false);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (busy) return;
-    if (!reason) return setError('اختاري سبب البلاغ.');
-    if ([...note.trim()].length > NOTE_MAX) return setMessage('الملاحظة أطول من المسموح: ٥٠٠ حرف على الأكثر.');
+    if (!reason) {
+      setError('اختاري سبب البلاغ.');
+      return document.getElementById('f-reason')?.focus();
+    }
+    if ([...note.trim()].length > NOTE_MAX) {
+      setMessage('الملاحظة أطول من المسموح: ٥٠٠ حرف على الأكثر.');
+      return document.getElementById('f-note')?.focus();
+    }
     setBusy(true);
     const res = await api('POST', `/listings/${listingId}/reports`, { reason, note: note.trim() || null });
     setBusy(false);
-    if (res.ok) return setDone(true);
-    if (res.error === 'already_reported') return setMessage('وصلنا بلاغك عن هذا الإعلان من قبل.');
+    if (res.ok) return setDone('sent');
+    if (res.error === 'already_reported') return setDone('already');
     setMessage(failureMessage(res));
   };
 
   if (done) {
     return (
       <AccountCard>
-        <p className={formStyles.lead} role="status">شكرًا. وصلنا بلاغك، ويراجعه فريق برينسيس.</p>
+        <p className={formStyles.lead} role="status">
+          {done === 'sent' ? 'شكرًا. وصلنا بلاغك، ويراجعه فريق برينسيس.' : 'وصلنا بلاغك عن هذا الإعلان من قبل.'}
+        </p>
         <Button variant="accent" href={back}>العودة إلى الإعلان</Button>
       </AccountCard>
     );
@@ -63,7 +71,7 @@ export function ReportForm({ listingId, back }: { listingId: string; back: strin
       <div className={formStyles.submit}>
         {message && <FieldError id="e-form" size="lg" alert>{message}</FieldError>}
         <Button type="submit" variant="submit" aria-disabled={busy}>{busy ? 'لحظات…' : 'أرسلي البلاغ'}</Button>
-        <p className={formStyles.note}>لا نحتفظ بأي شيء عن مُرسلة البلاغ.</p>
+        <p className={formStyles.note}>لا يُحفظ مع البلاغ أي شيء عنكِ.</p>
       </div>
     </AccountCard>
   );

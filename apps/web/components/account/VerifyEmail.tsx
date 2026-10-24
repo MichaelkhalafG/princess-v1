@@ -38,6 +38,8 @@ export function VerifyEmail({ link }: { link: Link | null }) {
       <p className={formStyles.lead} role="status">{text}</p>
       {state === 'done' && <Button variant="accent" href="/my-listings">إعلاناتي</Button>}
       {(state === 'expired' || state === 'invalid') && <Button variant="accent" href="/sign-in">سجّلي الدخول</Button>}
+      {/* the API could not answer: her listings page is where a new link is asked for */}
+      {state === 'failed' && <Button variant="soft" href="/my-listings">إعلاناتي</Button>}
     </AccountCard>
   );
 }

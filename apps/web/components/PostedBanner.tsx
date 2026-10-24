@@ -18,3 +18,16 @@ export function PostedBanner({ countryName, boardHref }: { countryName: string; 
     </div>
   );
 }
+
+/** The same strip on her listings page, right after she sends one that waits: the news, and
+    what happens next. */
+export function SentBanner({ title, body }: { title: string; body: string }) {
+  return (
+    <div role="status" className={styles.banner}>
+      <div className={styles.text}>
+        <span className={styles.title}>{title}</span>
+        <span className={styles.body}>{body}</span>
+      </div>
+    </div>
+  );
+}

@@ -30,7 +30,8 @@
   color: var(--color-text-secondary);
   line-height: var(--leading-body);
   max-width: var(--width-status-text);
-  text-wrap: pretty;
+  /* centred lines of even length, no word alone on the last one */
+  text-wrap: balance;
 }
 
 .actions {

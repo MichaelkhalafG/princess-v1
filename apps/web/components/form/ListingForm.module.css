@@ -46,7 +46,8 @@
   gap: var(--space-12);
 }
 
-.section + .section {
+.section + .section,
+.contacts + .section {
   border-top: var(--size-hairline) solid var(--color-tint);
   padding-top: var(--space-16);
 }
@@ -170,6 +171,8 @@
   color: var(--color-text-muted);
   text-align: center;
   line-height: var(--leading-note);
+  /* centred lines of even length: no word left alone on the last one */
+  text-wrap: balance;
 }
 
 @media (max-width: 860px) {
