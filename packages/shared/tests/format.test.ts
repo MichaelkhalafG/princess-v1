@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { COUNTRIES } from '../src/constants.ts';
 import {
-  areaText, charsLabel, charsOverLabel, contactLinks, digitsLabel, formatPhone, listingCountLabel, pricePlaceholder, relativeDate, toArabicDigits, megabytesLabel, phonePlaceholder,
+  ago as agoLabel, areaText, charsLabel, charsOverLabel, contactLinks, digitsLabel, formatPhone, listingCountLabel, pricePlaceholder, relativeDate, toArabicDigits, megabytesLabel, phonePlaceholder,
 } from '../src/format.ts';
 
 test('listingCountLabel: the decided boundaries', () => {
@@ -116,4 +116,16 @@ test('a small file is labelled in kilobytes, so it never reads "٠٫٠ ميغا�
   assert.equal(megabytesLabel(45 * 1024), '٤٥ كيلوبايت');
   assert.equal(megabytesLabel(300), '١ كيلوبايت');
   assert.equal(megabytesLabel(Math.round(1.8 * 1048576)), '١٫٨ ميغابايت');
+});
+
+test("the relative wording is Intl's Arabic for every count from 2 (the app's engine has no RelativeTimeFormat, so it is spelled out)", () => {
+  const intl = new Intl.RelativeTimeFormat('ar-u-nu-arab', { numeric: 'always' });
+  for (const unit of ['minute', 'hour', 'day', 'week', 'month', 'year'] as const) {
+    for (let n = 2; n <= 999; n++) assert.equal(agoLabel(n, unit), intl.format(-n, unit), `${n} ${unit}`);
+  }
+});
+
+test('format.ts constructs no Intl.RelativeTimeFormat (Hermes on Android has none)', async () => {
+  const { readFileSync } = await import('node:fs');
+  assert.ok(!readFileSync(new URL('../src/format.ts', import.meta.url), 'utf8').includes('new Intl.RelativeTimeFormat'));
 });

@@ -1,0 +1,13 @@
+{
+  "name": "@princess/tokens",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./src/*"
+  },
+  "scripts": {
+    "generate": "node scripts/generate.ts",
+    "test": "node --test \"tests/*.test.ts\""
+  }
+}
