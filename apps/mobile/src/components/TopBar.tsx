@@ -3,7 +3,7 @@ import Svg, { Path } from 'react-native-svg';
 import { useSafeAreaInsets, type EdgeInsets } from 'react-native-safe-area-context';
 import { router, type Href } from 'expo-router';
 import { num } from '@princess/tokens/native.ts';
-import { DRAFT } from '@/drafts';
+import { COPY } from '@/copy';
 import { c, r, s, shadows, sizes } from '@/theme';
 
 /** Back points to where the screen came from: the start side, the right in Arabic. */
@@ -25,7 +25,7 @@ export function TopBar({ kind = 'back', fallback = '/' }: { kind?: 'back' | 'clo
     <View pointerEvents="box-none" style={[styles.bar, { paddingTop: insets.top + s[3] }]}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={kind === 'close' ? DRAFT.close : DRAFT.back}
+        accessibilityLabel={kind === 'close' ? COPY.close : COPY.back}
         onPress={leave}
         hitSlop={8}
         style={({ pressed }) => [styles.button, pressed && { transform: [{ scale: num('scale-press') }] }]}
