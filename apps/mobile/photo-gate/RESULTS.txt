@@ -1,0 +1,63 @@
+PHOTO GATE — Expo image picker + image manipulator, Android 16 emulator (API 36, google_apis x86_64), Expo Go 58.0.5, 2026-10-24T01:30Z
+Inputs built by make.php from apps/api/tests/Support/ImageFixtures.php; checked by check.php (PHP 8.3.15 exif).
+
+gps-real.jpg
+  183936 bytes, 1200x1800, orientation tag: 1
+  segments before the image: FFE1(160) FFE1(275) FFED(44) FFE1(128) FFE1(250) FFED(36) FFDB(67) FFDB(67) FFC0(17) FFC4(29) FFC4(74) FFC4(26) FFC4(49)
+  EXIF reader GPS: {"GPSLatitude":["30\/1","2\/1","405\/10"],"GPSLongitude":["31\/1","14\/1","86\/10"]}
+  found in the bytes: EXIF block (APP1 "Exif"), XMP block, XMP GPS value, IPTC block (Photoshop 3.0), IPTC caption ("Home, Cairo"), GPS latitude rationals, GPS longitude rationals
+  VERDICT: CARRIES METADATA
+
+real-picker-copy.jpg
+  183936 bytes, 1200x1800, orientation tag: 1
+  segments before the image: FFE1(160) FFE1(275) FFED(44) FFE1(128) FFE1(250) FFED(36) FFDB(67) FFDB(67) FFC0(17) FFC4(29) FFC4(74) FFC4(26) FFC4(49)
+  EXIF reader GPS: {"GPSLatitude":["0\/0","0\/0","0\/0"],"GPSLongitude":["0\/0","0\/0","0\/0"]}
+  found in the bytes: EXIF block (APP1 "Exif"), XMP block, XMP GPS value, IPTC block (Photoshop 3.0), IPTC caption ("Home, Cairo")
+  VERDICT: CARRIES METADATA
+
+real-app-output.jpg
+  176920 bytes, 1066x1600, orientation tag: none
+  segments before the image: FFE0(16) FFE2(472) FFDB(67) FFDB(67) FFC0(17) FFC4(29) FFC4(76) FFC4(27) FFC4(48)
+  EXIF reader GPS: none
+  found in the bytes: nothing
+  VERDICT: CLEAN
+
+gps-rotated.jpg
+  78041 bytes, 2400x1800, orientation tag: 6
+  segments before the image: FFE1(160) FFE1(275) FFED(44) FFE0(16) FFFE(59) FFDB(67) FFDB(67) FFC0(17) FFC4(31) FFC4(181) FFC4(31) FFC4(181)
+  EXIF reader GPS: {"GPSLatitude":["30\/1","2\/1","405\/10"],"GPSLongitude":["31\/1","14\/1","86\/10"]}
+  found in the bytes: EXIF block (APP1 "Exif"), XMP block, XMP GPS value, IPTC block (Photoshop 3.0), IPTC caption ("Home, Cairo"), GPS latitude rationals, GPS longitude rationals
+  VERDICT: CARRIES METADATA
+
+rotated-picker-copy.jpg
+  78041 bytes, 2400x1800, orientation tag: 6
+  segments before the image: FFE1(160) FFE1(275) FFED(44) FFE0(16) FFFE(59) FFDB(67) FFDB(67) FFC0(17) FFC4(31) FFC4(181) FFC4(31) FFC4(181)
+  EXIF reader GPS: {"GPSLatitude":["0\/0","0\/0","0\/0"],"GPSLongitude":["0\/0","0\/0","0\/0"]}
+  found in the bytes: EXIF block (APP1 "Exif"), XMP block, XMP GPS value, IPTC block (Photoshop 3.0), IPTC caption ("Home, Cairo")
+  VERDICT: CARRIES METADATA
+
+rotated-app-output.jpg
+  15163 bytes, 1200x1600, orientation tag: none
+  segments before the image: FFE0(16) FFE2(472) FFDB(67) FFDB(67) FFC0(17) FFC4(23) FFC4(24) FFC4(24) FFC4(40)
+  EXIF reader GPS: none
+  found in the bytes: nothing
+  VERDICT: CLEAN
+
+f7d510447cffb52ff4612e029a4bb989a3c409f35af9aab98cb5dd0fbee41916 *gps-real.jpg
+8dd9a8427facfb946eacb84d52aee1fbc0de1c4872625a93040e019c19d33039 *gps-rotated.jpg
+df0946b59f3dde5b38414d509f2df291c37c567cea76f6eb7c5f591a9723301e *real-app-output.jpg
+4c8ad5dcd019d6ebf466b2d42686df60362eff6169a512dad2a2960204d0ac83 *real-picker-copy.jpg
+e84010580e43df3ef0a3c8b6b8f1503141f05e85f0a3acb72d9a41c7441de284 *rotated-app-output.jpg
+4adcd56e35a6dc54cbab9be90ea6744d3c8decdbd737de6ca19a559346e4197f *rotated-picker-copy.jpg
+
+END TO END, 2026-10-24T02:57Z: rotated-picker-copy chosen in the app's posting form, sent with a new
+listing to the local API (POST /api/v1/photos, then POST /api/v1/listings), the file the server stored:
+067875d8-b2d7-4ced-8a30-c6688970506c.jpg (storage/app/photos/private)
+  17577 bytes, 1200x1600, orientation tag: none
+  segments before the image: FFE0(16) FFFE(59) FFDB(67) FFDB(67) FFC2(17) FFC4(23) FFC4(24)
+  EXIF reader GPS: none
+  found in the bytes: nothing
+  VERDICT: CLEAN
+  (FFFE is the encoder's comment: "CREATOR: gd-jpeg v1.0 (using IJG JPEG v80), quality = 85")
+  Shown in the app upright: top left blue, top right red, bottom right green.
+  The test account was then deleted in the app; the file is gone with it.

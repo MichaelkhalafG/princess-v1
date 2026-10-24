@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "برينسيس",
+    "slug": "princess",
+    "scheme": "princess",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#FCF8F6",
+    "ios": {
+      "bundleIdentifier": "com.mdneg.princess",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.mdneg.princess",
+      "adaptiveIcon": {
+        "backgroundColor": "#FFF6F1",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "blockedPermissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ],
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-localization",
+        {
+          "forcesRTL": true
+        }
+      ],
+      "expo-secure-store",
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "تحتاج برينسيس إلى صورك لتختاري منها صورة لإعلانك.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ],
+      "expo-status-bar"
+    ]
+  }
+}
