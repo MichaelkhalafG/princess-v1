@@ -92,11 +92,11 @@ export function phonePlaceholder(country: CountryCode): string {
   return `${digitsLabel(phone.length)} تبدأ بـ ${toArabicDigits(phone.lead)}`;
 }
 
-// Intl gives the design's wording from 2 upwards ("قبل ساعتين", "قبل ٣ ساعات",
-// "قبل يومين"), but for 1 it says "قبل ساعة واحدة" where the design says "قبل ساعة",
-// and "auto" turns 2 days into "أول أمس". So singulars are spelled out here.
-const relative = new Intl.RelativeTimeFormat('ar-u-nu-arab', { numeric: 'always' });
-
+// The wording is spelled out here, not taken from Intl.RelativeTimeFormat: the app's JavaScript
+// engine (Hermes, on Android) has no RelativeTimeFormat, and the web and the app must say the
+// same thing. From 2 upwards it is exactly what Intl says in Arabic (tests/format.test.ts
+// compares every count with Node's Intl); for 1 the design says "قبل ساعة" where Intl says
+// "قبل ساعة واحدة", and "أمس" for a day.
 type Unit = 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year';
 const ONE: Record<Unit, string> = {
   minute: 'قبل دقيقة',
@@ -107,12 +107,30 @@ const ONE: Record<Unit, string> = {
   year: 'قبل سنة',
 };
 
+// Arabic counts its nouns in classes (CLDR's plural rules): 2 takes the dual; a number ending
+// in 3–10 the plural; ending in 11–99 the singular, with tanwin where the noun takes it; the
+// rest (100, 101, 102 …) the bare singular.
+const FORMS: Record<Unit, { two: string; few: string; many: string; other: string }> = {
+  minute: { two: 'دقيقتين', few: 'دقائق', many: 'دقيقة', other: 'دقيقة' },
+  hour: { two: 'ساعتين', few: 'ساعات', many: 'ساعة', other: 'ساعة' },
+  day: { two: 'يومين', few: 'أيام', many: 'يومًا', other: 'يوم' },
+  week: { two: 'أسبوعين', few: 'أسابيع', many: 'أسبوعًا', other: 'أسبوع' },
+  month: { two: 'شهرين', few: 'أشهر', many: 'شهرًا', other: 'شهر' },
+  year: { two: 'سنتين', few: 'سنوات', many: 'سنة', other: 'سنة' },
+};
+
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
 
-function ago(n: number, unit: Unit): string {
-  return n === 1 ? ONE[unit] : relative.format(-n, unit);
+/** "قبل ساعتين", "قبل ٣ ساعات", "قبل ١١ ساعة" … for n ≥ 1. */
+export function ago(n: number, unit: Unit): string {
+  if (n === 1) return ONE[unit];
+  const f = FORMS[unit];
+  if (n === 2) return `قبل ${f.two}`;
+  const tail = n % 100;
+  const noun = tail >= 3 && tail <= 10 ? f.few : tail >= 11 ? f.many : f.other;
+  return `قبل ${toArabicDigits(n)} ${noun}`;
 }
 
 /** "قبل ساعة", "قبل ٣ ساعات", "أمس", "قبل يومين" … relative to `now`. */
