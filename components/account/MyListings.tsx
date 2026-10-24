@@ -9,17 +9,25 @@ import type { Listing } from '@princess/shared/listing.ts';
 import { LISTING_STATUSES, reasonLabel, type ListingStatus } from '@princess/shared/moderation.ts';
 import { api, getMe, type Me } from '@/lib/client.ts';
 import { ACCOUNT_MESSAGES, failureMessage } from '@/lib/messages.ts';
-import rowStyles from '@/app/listing/[id]/page.module.css';
+import { SentBanner } from '@/components/PostedBanner.tsx';
 import { AccountCard, formStyles } from './AccountShell.tsx';
+import styles from './AccountShell.module.css';
 
 // ARABIC COPY in this file: DRAFT, NOT YET APPROVED.
 
 type Mine = Omit<Listing, 'published_at'> & { published_at: string | null; created_at: string; status: ListingStatus; reject_reason: string | null };
 
-/** Right after she sends one: what happens next, in one line. */
-const SENT: Record<string, string> = {
-  unverified: 'وصلنا إعلانك. أكّدي بريدك الإلكتروني من الرسالة التي أرسلناها إليكِ، ثم نراجع الإعلان قبل أن يظهر على اللوحة.',
-  pending: 'وصلنا إعلانك. نراجع كل إعلان قبل أن يظهر على اللوحة، وتجدين حالته هنا.',
+/** Right after she sends one: the news, and what happens next. */
+const SENT: Record<string, { title: string; body: string }> = {
+  unverified: { title: 'وصلنا إعلانك', body: 'أكّدي بريدك الإلكتروني من الرسالة التي أرسلناها إليكِ، ثم نراجع الإعلان قبل أن يظهر على اللوحة.' },
+  pending: { title: 'وصلنا إعلانك', body: 'نراجع كل إعلان قبل أن يظهر على اللوحة، وتجدين حالته هنا.' },
+};
+
+/** The status pill's colour: waiting (the default), on the board, or refused. */
+const STATE_CLASS: Partial<Record<ListingStatus, string>> = {
+  published: styles.stateLive,
+  rejected: styles.stateRefused,
+  removed: styles.stateRefused,
 };
 
 /**
@@ -77,9 +85,10 @@ export function MyListings({ sent }: { sent?: string }) {
   }
 
   const now = new Date();
+  const sentBanner = sent ? SENT[sent] : undefined;
   return (
-    <>
-      {sent && SENT[sent] && <AccountCard><p className={formStyles.lead} role="status">{SENT[sent]}</p></AccountCard>}
+    <div className={styles.stack}>
+      {sentBanner && <SentBanner title={sentBanner.title} body={sentBanner.body} />}
 
       {!me.verified && (
         <AccountCard>
@@ -101,37 +110,39 @@ export function MyListings({ sent }: { sent?: string }) {
             <Button variant="accent" href="/new">اعرضي خدمتك</Button>
           </>
         ) : (
-          <div className={rowStyles.row}>
-            {items.map((l) => (
-              <div key={l.id} className={rowStyles.rowItem}>
-                {/* card, where it is, and the button, stacked (the form field's column) */}
-                <div className={fs.field}>
+          items.map((l) => {
+            const live = l.status === 'published';
+            return (
+              <div key={l.id} className={styles.item}>
+                {/* only a listing on the board has a public page, and a date that means "on the board since" */}
                 <ListingCard
                   listing={{ ...l, published_at: l.published_at ?? l.created_at }}
                   variant="compact"
-                  href={l.status === 'published' ? `/listing/${l.id}` : '/my-listings'}
+                  href={live ? `/listing/${l.id}` : null}
+                  showDate={live}
                   photoSrc={l.photo?.url ?? null}
                   now={now}
                 />
-                <p className={fs.hint}>{LISTING_STATUSES[l.status]}</p>
-                {reasonLabel(l.reject_reason) && <FieldError id={`e-${l.id}`}>{reasonLabel(l.reject_reason)}</FieldError>}
-                <Button variant="soft" size="compact" onClick={() => withdraw(l.id)}>
-                  {confirming === l.id ? 'تأكيد: احذفيه نهائيًا' : 'احذفي الإعلان'}
-                </Button>
+                <div className={styles.itemSide}>
+                  <span className={`${styles.state} ${STATE_CLASS[l.status] ?? ''}`}>{LISTING_STATUSES[l.status]}</span>
+                  {reasonLabel(l.reject_reason) && <FieldError id={`e-${l.id}`}>{reasonLabel(l.reject_reason)}</FieldError>}
+                  <Button variant="soft" size="compact" onClick={() => withdraw(l.id)}>
+                    {confirming === l.id ? 'تأكيد: احذفيه نهائيًا' : 'احذفي الإعلان'}
+                  </Button>
                 </div>
               </div>
-            ))}
-          </div>
+            );
+          })
         )}
       </AccountCard>
 
+      {/* her account: signing out is the everyday action; deleting it, the quiet one under it */}
       <AccountCard>
         <p className={fs.hint}>الحساب: <bdi dir="ltr">{me.email}</bdi></p>
         <Button variant="soft" onClick={signOut}>سجّلي الخروج</Button>
+        <DeleteAccount onDeleted={() => router.push('/')} />
       </AccountCard>
-
-      <DeleteAccount onDeleted={() => router.push('/')} />
-    </>
+    </div>
   );
 }
 
@@ -145,19 +156,23 @@ function DeleteAccount({ onDeleted }: { onDeleted: () => void }) {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (busy) return;
-    if (password === '') return setError(ACCOUNT_MESSAGES.password.required);
+    if (password === '') {
+      setError(ACCOUNT_MESSAGES.password.required);
+      return document.getElementById('f-delete-password')?.focus();
+    }
     setBusy(true);
     const res = await api('DELETE', '/me', { password });
     setBusy(false);
     if (res.ok) return onDeleted();
     setError(res.errors.password ? ACCOUNT_MESSAGES.password[res.errors.password] ?? ACCOUNT_MESSAGES.password.invalid : failureMessage(res));
+    document.getElementById('f-delete-password')?.focus();
   };
 
   if (!open) {
-    return <AccountCard><Button variant="soft" onClick={() => setOpen(true)}>احذفي حسابي</Button></AccountCard>;
+    return <Button variant="text" onClick={() => setOpen(true)}>احذفي حسابي</Button>;
   }
   return (
-    <AccountCard onSubmit={onSubmit}>
+    <form onSubmit={onSubmit} noValidate className={formStyles.section}>
       <p className={formStyles.lead}>يُحذف حسابك وكل إعلاناتك وصورها نهائيًا، ولا يمكن استرجاعها.</p>
       <Field id="f-delete-password" label="كلمة المرور، للتأكيد" error={error}>
         <input id="f-delete-password" className={fs.input} type="password" dir="ltr" autoComplete="current-password" value={password}
@@ -166,6 +181,6 @@ function DeleteAccount({ onDeleted }: { onDeleted: () => void }) {
       <div className={formStyles.submit}>
         <Button type="submit" variant="submit" aria-disabled={busy}>{busy ? 'لحظات…' : 'احذفي الحساب نهائيًا'}</Button>
       </div>
-    </AccountCard>
+    </form>
   );
 }

@@ -419,6 +419,13 @@ a {
   text-decoration: none;
 }
 
+/* a link in running text (a sentence, a hint, the date line) — the only links without a class
+   of their own — looks like one: underlined, in the text's colour, as the reading pages' contents */
+a:not([class]) {
+  text-decoration: underline;
+  text-underline-offset: var(--space-2);
+}
+
 /* pointer devices only, so a tapped link does not stay underlined on a phone */
 @media (hover: hover) {
   a:hover {
@@ -431,6 +438,7 @@ img {
 }
 
 input,
+select,
 textarea {
   font: inherit;
 }

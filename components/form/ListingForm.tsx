@@ -9,7 +9,7 @@ import { phonePlaceholder, pricePlaceholder } from '@princess/shared/format.ts';
 import { nextRadioIndex, radioTabIndex } from '@/lib/radio.ts';
 import { UPLOAD_FAILED_MESSAGE, UploadError, uploadPhoto } from '@/lib/upload.ts';
 import { api, getMe, type Me } from '@/lib/client.ts';
-import { ACCOUNT_MESSAGES, PHOTO_MESSAGES, failureMessage } from '@/lib/messages.ts';
+import { ACCOUNT_MESSAGES, PHOTO_MESSAGES, failureMessage, signInErrors, type SignInErrors } from '@/lib/messages.ts';
 import {
   CONTACTS_REQUIREMENT, PUBLISH_FAILED_MESSAGE, counter, emptyForm, hasValidContact, submitGate, toPayload, validateForm,
   type FormErrors, type FormField, type FormValues, type SubmitPhase, type UploadState,
@@ -17,7 +17,7 @@ import {
 import { Button } from '../Button.tsx';
 import { CategoryChip } from '../CategoryChip.tsx';
 import { CountrySelector } from '../CountrySelector.tsx';
-import { Field, FieldError, describedBy, fieldStyles as fs } from './Field.tsx';
+import { Field, FieldError, credentialsDescribedBy, describedBy, fieldStyles as fs } from './Field.tsx';
 import { PhotoPicker } from './PhotoPicker.tsx';
 import styles from './ListingForm.module.css';
 
@@ -28,7 +28,7 @@ const FOCUS_ORDER: [FormField, string][] = [
   ['social', '#f-social'], ['contacts', '#f-whatsapp'],
 ];
 
-type AccountErrors = { email?: string; password?: string };
+type AccountErrors = SignInErrors;
 
 /** The API's codes for the listing's fields, as the form's messages. */
 function listingErrors(codes: Record<string, string>): { errors: FormErrors; photo: string | null } {
@@ -128,8 +128,11 @@ export function ListingForm({ initialCountry, contextQuery = '' }: { initialCoun
       const login = await api<Me>('POST', '/login', { email, password });
       if (!login.ok) {
         setPhase(null);
-        if (login.errors.email) setAccountErrors({ email: ACCOUNT_MESSAGES.email[login.errors.email] ?? ACCOUNT_MESSAGES.email.wrong_credentials });
-        else setFormMessage(failureMessage(login));
+        const errs = signInErrors(login.errors);
+        if (errs) {
+          setAccountErrors(errs);
+          document.getElementById(errs.email || errs.both ? 'f-email' : 'f-password')?.focus();
+        } else setFormMessage(failureMessage(login));
         return;
       }
       setMe(login.data);
@@ -351,28 +354,31 @@ export function ListingForm({ initialCountry, contextQuery = '' }: { initialCoun
           </section>
         ) : (
           <section className={styles.section} aria-labelledby="s-account">
-            <h2 id="s-account" className={styles.sectionTitle}>{accountMode === 'new' ? 'أنشئي حسابك' : 'سجّلي الدخول'}</h2>
+            {/* the heading, and the switch to the other way in beside it (as the contacts' heading and pill) */}
+            <div className={styles.contactsHead}>
+              <h2 id="s-account" className={styles.sectionTitle}>{accountMode === 'new' ? 'أنشئي حسابك' : 'سجّلي الدخول'}</h2>
+              <Button variant="text" onClick={() => { setAccountMode((m) => (m === 'new' ? 'existing' : 'new')); setAccountErrors({}); }}>
+                {accountMode === 'new' ? 'لديكِ حساب؟ سجّلي الدخول' : 'ليس لديكِ حساب؟ أنشئي حسابًا'}
+              </Button>
+            </div>
             <p className={fs.hint}>
               {accountMode === 'new'
-                ? 'بالبريد الإلكتروني وكلمة مرور، لتتابعي إعلاناتك وتحذفيها متى شئتِ. ستصلكِ رسالة لتأكيد بريدك، ثم يصلنا إعلانك للمراجعة. لا يظهر بريدك لأحد.'
+                ? 'بالبريد الإلكتروني وكلمة مرور، لتتابعي إعلاناتك وتحذفيها متى شئتِ. ستصلكِ رسالة لتأكيد بريدك، ثم يصلنا إعلانك للمراجعة. لا\u00a0يظهر بريدك لأحد.'
                 : 'سجّلي الدخول بحسابك، ويُرسل الإعلان منه.'}
             </p>
             <div className={styles.two}>
               <Field id="f-email" label="البريد الإلكتروني" error={accountErrors.email}>
-                <input id="f-email" className={fs.input} type="email" dir="ltr" autoComplete="email" value={email}
-                  onChange={(e) => { setEmail(e.target.value); setAccountErrors((a) => ({ ...a, email: undefined })); }}
-                  {...describedBy('f-email', { error: accountErrors.email })} />
+                <input id="f-email" className={fs.input} type="email" dir="ltr" autoComplete="email" placeholder="name@example.com" spellCheck={false} value={email}
+                  onChange={(e) => { setEmail(e.target.value); setAccountErrors((a) => ({ ...a, email: undefined, both: false })); }}
+                  {...credentialsDescribedBy('f-email', accountErrors.email, accountErrors.both)} />
               </Field>
-              <Field id="f-password" label="كلمة المرور" error={accountErrors.password} hint={accountMode === 'new' ? '٨ أحرف على الأقل.' : undefined}>
+              <Field id="f-password" label="كلمة المرور" error={accountErrors.password}
+                hint={accountMode === 'new' ? '٨ أحرف على الأقل.' : <a href="/forgot-password">نسيتِ كلمة المرور؟</a>}>
                 <input id="f-password" className={fs.input} type="password" dir="ltr" autoComplete={accountMode === 'new' ? 'new-password' : 'current-password'} value={password}
-                  onChange={(e) => { setPassword(e.target.value); setAccountErrors((a) => ({ ...a, password: undefined })); }}
+                  onChange={(e) => { setPassword(e.target.value); setAccountErrors((a) => ({ ...a, password: undefined, both: false })); }}
                   {...describedBy('f-password', { error: accountErrors.password, hint: accountMode === 'new' })} />
               </Field>
             </div>
-            <Button variant="text" onClick={() => { setAccountMode((m) => (m === 'new' ? 'existing' : 'new')); setAccountErrors({}); }}>
-              {accountMode === 'new' ? 'لديكِ حساب؟ سجّلي الدخول' : 'ليس لديكِ حساب؟ أنشئي حسابًا'}
-            </Button>
-            {accountMode === 'existing' && <a href="/forgot-password" className={fs.hint}>نسيتِ كلمة المرور؟</a>}
           </section>
         )}
 

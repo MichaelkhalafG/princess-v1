@@ -52,6 +52,7 @@ export function ListingCard({
   now,
   variant = 'full',
   href,
+  showDate = true,
   contextQuery,
 }: {
   listing: Listing;
@@ -59,8 +60,11 @@ export function ListingCard({
   photoSrc: string | null;
   now: Date;
   variant?: 'full' | 'compact';
-  /** Where the card opens. Defaults to the listing's own page. */
-  href?: string;
+  /** Where the card opens. Defaults to the listing's own page; null: it opens nothing (a
+      listing of hers that is not on the board has no public page). Compact only. */
+  href?: string | null;
+  /** The date line says when it reached the board; off for a listing that has not. */
+  showDate?: boolean;
   /** The board context (country/category/search) the card was opened from, carried in the
       listing link so the listing page can offer a real way back. */
   contextQuery?: string;
@@ -68,7 +72,7 @@ export function ListingCard({
   const { tone, icon } = getCategory(listing.category);
   const priceLong = listing.price !== null && [...listing.price].length > PRICE_LONG_CHARS ? true : undefined;
   const compact = variant === 'compact';
-  const target = href ?? `/listing/${listing.id}${contextQuery ? `?${contextQuery}` : ''}`;
+  const target = href === null ? null : href ?? `/listing/${listing.id}${contextQuery ? `?${contextQuery}` : ''}`;
 
   const media = (
     <div className={styles.media}>
@@ -103,17 +107,20 @@ export function ListingCard({
   );
 
   if (compact) {
-    return (
-      <a href={target} className={`${styles.card} ${styles.compact}`}>
+    const inside = (
+      <>
         {media}
         <div className={styles.body}>
           {meta}
           <span className={styles.title}>{listing.title}</span>
           {listing.price && <span className={styles.price} data-long={priceLong}>{listing.price}</span>}
-          {date}
+          {showDate && date}
         </div>
-      </a>
+      </>
     );
+    return target === null
+      ? <div className={`${styles.card} ${styles.compact}`}>{inside}</div>
+      : <a href={target} className={`${styles.card} ${styles.compact}`}>{inside}</a>;
   }
 
   const [primary, ...secondary] = contactLinks(listing);
@@ -130,7 +137,7 @@ export function ListingCard({
       <div className={styles.body}>
         {meta}
         <h3 className={styles.title}>
-          <a href={target} className={styles.cardLink}>{listing.title}</a>
+          <a href={target ?? undefined} className={styles.cardLink}>{listing.title}</a>
         </h3>
         <p className={styles.description}>{listing.description}</p>
         {listing.price && <div className={styles.price} data-long={priceLong}>{listing.price}</div>}
@@ -148,7 +155,7 @@ export function ListingCard({
           ))}
         </div>
 
-        {date}
+        {showDate && date}
       </div>
     </article>
   );

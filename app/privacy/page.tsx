@@ -6,8 +6,14 @@ import { CONTACT_EMAIL } from '@/lib/site.ts';
 // The privacy page as published. It states only what is fact about the site today, each
 // checked in the code (apps/api):
 // every listing field is public (Listing::PUBLIC_FIELDS); posting needs an account (an email
-// and a password; the email is never shown); a signed-in visitor gets a session cookie and
-// nothing tracks anyone; photos are re-encoded with no location or camera data; reports keep
+// and a password; the email is never shown); a page whose browser code calls the API (the form
+// and «إعلاناتي» on load, sign-in, password and report forms on sending) sets session cookies,
+// and before she signs in nothing of that session is on the server (session driver "signed-in");
+// signed in, the sessions table keeps the IP and the browser until sign-out, or within the hour
+// after it ends (princess:prune-expired, every ten minutes); nothing tracks anyone; rate limits
+// keep only keyed hashes of an address, all gone within 24 hours (same command); the decision log
+// keeps a decision's kind, reason and time after the listing is gone; photos are re-encoded with
+// no location or camera data; reports keep
 // nothing about who sent them and the visitor's address only feeds rate limits; a ban keeps
 // the numbers and handle; she deletes her listings and her account herself; an account never
 // verified is deleted after 7 days; a refused listing's photo after 14.
@@ -77,7 +83,10 @@ export default async function PrivacyPage({ searchParams }: Props) {
                 تأكيده، ورابط تعيين كلمة مرور جديدة إن طلبتِه. وتُحفظ كلمة المرور مشفّرة، فلا يستطيع أحد قراءتها.
               </p>
               <p>
-                حين تسجّلين الدخول يضع الموقع ملف تعريف ارتباط (كوكي) يبقيكِ مسجّلة الدخول، ولا شيء غيره، ويحفظ مع جلستك عنوان الإنترنت (IP) ونوع المتصفح حتى تنتهي الجلسة. لا يستخدم الموقع أي أدوات تتبّع.
+                حين تفتحين نموذج الإعلان أو صفحة «إعلاناتي»، أو ترسلين أي نموذج في الموقع، يضع الموقع ملفات تعريف ارتباط (كوكيز)
+                للجلسة ولحماية النماذج، ولا شيء غيرها. قبل تسجيل الدخول تبقى الجلسة في هذه الملفات على جهازك وحده، ولا نحفظ عنها شيئًا
+                عندنا. وحين تسجّلين الدخول نحفظ مع جلستك عنوان الإنترنت (IP) ونوع المتصفح، ونحذفهما حين تسجّلين الخروج، أو خلال ساعة
+                من انتهاء الجلسة. لا يستخدم الموقع أي أدوات تتبّع.
               </p>
               <p>إن لم تؤكّدي بريدك خلال ٧ أيام، يُحذف الحساب وما أرسلتِه معه.</p>
               <p>لا يتحقق الموقع من هوية من تنشر، ولا من عمرها، ولا من صحة ما تكتبه.</p>
@@ -100,8 +109,8 @@ export default async function PrivacyPage({ searchParams }: Props) {
           body: (
             <>
               <p>
-                يمكن لأي زائرة الإبلاغ عن إعلان. لا نحتفظ بأي شيء عن مُرسلة البلاغ. ويُستعمل عنوان الإنترنت (IP) لأي زائرة مؤقتًا لمنع
-                الإساءة، لمدة لا تتجاوز ٢٤ ساعة، ولا يُحفظ مع إعلان ولا مع بلاغ.
+                يمكن لأي زائرة الإبلاغ عن إعلان، ولا يُحفظ مع البلاغ أي شيء عن مُرسلته. ولمنع الإساءة نحفظ مؤقتًا رمزًا مشتقًا من
+                عنوان الإنترنت (IP)، لا يُقرأ منه العنوان نفسه، ويُحذف خلال ٢٤ ساعة على الأكثر، ولا يُحفظ مع إعلان ولا مع بلاغ.
               </p>
               <p>إن أُوقف حساب لمخالفة، تبقى أرقامه وحساب إنستغرام الخاص به في قائمة الحظر، حتى بعد حذف الحساب.</p>
             </>
@@ -114,7 +123,8 @@ export default async function PrivacyPage({ searchParams }: Props) {
             <>
               <p>
                 لا يمكن تعديل الإعلان بعد إرساله. تحذفين أي إعلان من إعلاناتك، أو حسابك كله، من صفحة «إعلاناتي». الحذف نهائي، والصور
-                تُحذف معه، ولا نحتفظ بشيء منه.
+                تُحذف معه، ولا نحتفظ بشيء من محتواه. وإن كان فريق برينسيس قد اتخذ قرارًا بشأنه، يبقى في سجلّ القرارات نوع القرار وسببه
+                ووقته، دون أي شيء من الإعلان نفسه.
               </p>
               <p>إن لم يُنشر إعلان أو أُزيل، تُحذف صورته بعد ١٤ يومًا، ويبقى نصه في صفحة «إعلاناتي» حتى تحذفيه.</p>
             </>

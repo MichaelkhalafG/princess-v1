@@ -23,6 +23,21 @@ export const ACCOUNT_MESSAGES: Record<'email' | 'password', Record<string, strin
   },
 };
 
+/** Sign-in errors, from the API's codes. "Wrong email or password" is about both fields: the
+    message appears once, under the password, and the email field is marked with it too. */
+export type SignInErrors = { email?: string; password?: string; both?: boolean };
+
+export function signInErrors(errors: Record<string, string>): SignInErrors | null {
+  if (errors.email === 'wrong_credentials') return { password: ACCOUNT_MESSAGES.email.wrong_credentials, both: true };
+  if (errors.email || errors.password) {
+    return {
+      ...(errors.email ? { email: ACCOUNT_MESSAGES.email[errors.email] ?? ACCOUNT_MESSAGES.email.invalid } : {}),
+      ...(errors.password ? { password: ACCOUNT_MESSAGES.password[errors.password] ?? ACCOUNT_MESSAGES.password.invalid } : {}),
+    };
+  }
+  return null;
+}
+
 export const PHOTO_MESSAGES: Record<string, string> = {
   too_large: 'الصورة أكبر من المسموح. صغّريها إلى ٥ ميغابايت أو أقل ثم اختاريها من جديد.',
   too_many_pixels: 'أبعاد الصورة كبيرة جدًا. اختاري صورة أصغر.',

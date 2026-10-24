@@ -269,12 +269,13 @@
 
 @media (hover: hover) {
   .cardLink:hover,
-  .compact:hover {
+  a.compact:hover {
     text-decoration: none;
   }
 
+  /* a compact card that opens nothing (her listing off the board) does not lift */
   .linked:hover,
-  .compact:hover {
+  a.compact:hover {
     box-shadow: var(--shadow-card-hover);
   }
 }

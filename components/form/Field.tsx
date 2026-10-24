@@ -53,4 +53,10 @@ export function describedBy(id: string, { error, hint }: { error?: string; hint?
   return { 'aria-invalid': Boolean(error), ...(ids ? { 'aria-describedby': ids } : {}) };
 }
 
+/** The email field when "wrong email or password" sits under the password: marked too, and
+    described by that one message. */
+export function credentialsDescribedBy(id: string, error: string | undefined, both: boolean | undefined) {
+  return both ? { 'aria-invalid': true, 'aria-describedby': 'e-f-password' } : describedBy(id, { error });
+}
+
 export const fieldStyles = styles;

@@ -216,6 +216,13 @@
   margin: 0 0 var(--space-8);
 }
 
+/* no word left alone on the last line of a paragraph or a point («منتج.») */
+.summary li,
+.section p,
+.section li {
+  text-wrap: pretty;
+}
+
 .section > :last-child {
   margin-bottom: 0;
 }

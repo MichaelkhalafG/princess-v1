@@ -16,6 +16,8 @@ import { CONTACT_EMAIL } from '@/lib/site.ts';
 //
 // ARABIC COPY: everything about accounts, review, removal, reports and the daily limit (the
 // fourth summary point and the posting and removal sections) is a DRAFT, not yet approved.
+// Review is worded as what Princess may do ("قد نراجع"), not what it always does: once the launch
+// phase ends, a trusted account's listing goes up without a moderator unless a signal holds it.
 export const metadata: Metadata = { title: 'الشروط — برينسيس' };
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
@@ -32,7 +34,7 @@ export default async function TermsPage({ searchParams }: Props) {
       summary={[
         <>برينسيس لوحة إعلانات فقط: لا تبيع ولا تشتري ولا تتوسط بينكِ وبين العميلة.</>,
         <>الاتفاق والدفع بينكما مباشرة. برينسيس لا تأخذ أي عمولة، ولا تضمن أي خدمة أو منتج.</>,
-        <>نراجع كل إعلان قبل أن يظهر على اللوحة. ما يُنشر يظهر للجميع كما كتبتِه، ومنه أرقام التواصل، ولا يمكن تعديله بعد نشره.</>,
+        <>قد نراجع إعلانك قبل أن يظهر على اللوحة. ما يُنشر يظهر للجميع كما كتبتِه، ومنه أرقام التواصل، ولا يمكن تعديله بعد نشره.</>,
         <>تحذفين إعلاناتك، أو حسابك كله، بنفسك من صفحة «إعلاناتي».</>,
       ]}
       sections={[
@@ -67,7 +69,7 @@ export default async function TermsPage({ searchParams }: Props) {
                 توافقين على أن يُنشر كل ما كتبتِه للجميع، ومنه أرقام التواصل (انظري{' '}
                 <a href={withBoardContext('/privacy', ctx)}>صفحة الخصوصية</a>).
               </li>
-              <li>نراجع كل إعلان قبل أن يظهر على اللوحة، وقد نرفض إعلانًا دون نشره، وتجدين السبب في صفحة «إعلاناتي».</li>
+              <li>قد نراجع إعلانك قبل أن يظهر على اللوحة، وقد نرفضه فلا يُنشر، وتجدين السبب في صفحة «إعلاناتي».</li>
               <li><strong>لا يمكن تعديل الإعلان بعد نشره.</strong> إن أردتِ تغيير شيء، احذفيه من صفحة «إعلاناتي» ثم أرسلي إعلانًا جديدًا.</li>
               <li>يمكنكِ إرسال ٥ إعلانات على الأكثر خلال ٢٤ ساعة.</li>
               <li>تؤكدين أن المعلومات صحيحة وأن الخدمة أو المنتج لكِ.</li>

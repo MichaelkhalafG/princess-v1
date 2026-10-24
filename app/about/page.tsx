@@ -65,7 +65,7 @@ export default async function AboutPage({ searchParams }: Props) {
         <section id="contact" className={styles.contact} aria-labelledby="contact-title">
           <div className={styles.contactText}>
             <h2 id="contact-title" className={styles.contactTitle}>تواصلي معنا</h2>
-            <p className={styles.contactBody}>تحذفين إعلاناتك بنفسك من صفحة «إعلاناتي». وللإبلاغ عن إعلان مخالف، استخدمي رابط «الإبلاغ عن هذا الإعلان» في صفحته.</p>
+            <p className={styles.contactBody}>تحذفين إعلاناتك بنفسك من صفحة «<a href="/my-listings">إعلاناتي</a>». وللإبلاغ عن إعلان مخالف، استخدمي رابط «الإبلاغ عن هذا الإعلان» في صفحته.</p>
           </div>
           {/* the address is this section's one action: a full-size button */}
           <Button variant="accent" href={`mailto:${CONTACT_EMAIL}`}><bdi dir="ltr">{CONTACT_EMAIL}</bdi></Button>

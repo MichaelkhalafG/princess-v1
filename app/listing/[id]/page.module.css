@@ -273,6 +273,7 @@
   font-size: var(--text-control);
   color: var(--color-text-secondary);
   line-height: var(--leading-snug);
+  text-wrap: pretty;
 }
 
 @media (max-width: 860px) {
