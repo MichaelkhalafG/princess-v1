@@ -86,6 +86,10 @@ return [
         ],
         // a report's note, in characters
         'report_note_max' => 500,
+        // One report per listing per address in this long. Under a day on purpose: pruned every
+        // ten minutes (princess:prune-expired), the trace is gone within the 24 hours the privacy
+        // page promises.
+        'report_once_seconds' => 23 * 3600,
         // Hide a listing from the board (back to the queue) once it has this many open reports.
         // Off (0) by default: a competitor could take a rival's listing down with a few reports.
         'auto_hide_reports' => (int) env('MODERATION_AUTO_HIDE_REPORTS', 0),

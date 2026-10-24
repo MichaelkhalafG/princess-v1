@@ -17,6 +17,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Schema;
 use Livewire\Livewire;
@@ -77,6 +78,45 @@ class ReportsTest extends TestCase
         $this->report($this->makeListing(), from: '203.0.113.3')->assertStatus(202);
         $this->report($this->makeListing(), from: '203.0.113.3')->assertStatus(202);
         $this->report($this->makeListing(), from: '203.0.113.3')->assertStatus(429)->assertJsonPath('error', 'too_many_attempts');
+    }
+
+    public function test_the_limits_keep_no_address_and_every_trace_is_gone_within_24_hours(): void
+    {
+        $listing = $this->makeListing();
+        $this->report($listing, from: '203.0.113.77')->assertStatus(202);
+
+        // the limits sit in the database store (whatever CACHE_STORE says), as keyed hashes
+        $rows = DB::table('cache')->get(['key', 'value']);
+        $this->assertNotEmpty($rows);
+        foreach ($rows as $row) {
+            $this->assertStringNotContainsString('203.0.113.77', $row->key.$row->value);
+            $this->assertStringNotContainsString($listing->id, $row->key, 'nor which listing she reported');
+            // nor a key anyone could rebuild from the address alone (Laravel's md5 of a plain key)
+            foreach (['ip:203.0.113.77', '203.0.113.77'] as $plain) {
+                $this->assertStringNotContainsString(md5('reports'.$plain), $row->key);
+            }
+        }
+
+        // the once-a-listing window is shorter than a day by more than the prune's ten minutes…
+        $this->assertLessThanOrEqual(86400 - 600, config('princess.moderation.report_once_seconds'));
+        $prune = collect(app(Schedule::class)->events())->first(fn ($e) => str_contains((string) $e->command, 'princess:prune-expired'));
+        $this->assertSame('*/10 * * * *', $prune?->expression);
+
+        // …so 24 hours on, the prune has left nothing, and she may report it again
+        $this->travel(24)->hours();
+        $this->assertSame(0, $this->artisan('princess:prune-expired'));
+        $this->assertSame(0, DB::table('cache')->count());
+        $this->report($listing, from: '203.0.113.77')->assertStatus(202);
+    }
+
+    public function test_the_prune_keeps_what_has_not_expired(): void
+    {
+        $this->report($this->makeListing(), from: '203.0.113.78')->assertStatus(202);
+        $count = DB::table('cache')->count();
+
+        $this->travel(30)->minutes();
+        $this->artisan('princess:prune-expired');
+        $this->assertSame($count, DB::table('cache')->count());
     }
 
     // ── Auto-hide ───────────────────────────────────────────────────────────────────────

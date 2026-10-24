@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Listing;
 use App\Moderation\Moderation;
+use App\Support\ClientKey;
 use App\Support\JsText;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,8 +15,9 @@ class ReportController extends Controller
 {
     /**
      * A visitor reports a published listing: a reason from the list and an optional note. No
-     * account is needed and nothing about her is kept; her address only counts toward a limit:
-     * reports_per_ip_per_hour in all, and one report per listing a day.
+     * account is needed and nothing about her is kept with the report; her address only counts
+     * toward a limit, as a keyed hash: reports_per_ip_per_hour in all, and one report per listing
+     * in report_once_seconds (under a day, so with princess:prune-expired it is gone within 24 hours).
      */
     public function store(Request $request, string $id): JsonResponse
     {
@@ -41,11 +43,12 @@ class ReportController extends Controller
             return response()->json(['errors' => $errors], 422);
         }
 
-        $once = 'report:'.$listing->getKey().':'.$request->ip();
+        // a keyed hash of the listing and her address: the cache cannot tell who reported what
+        $once = 'report:'.ClientKey::of('report', $listing->getKey(), (string) $request->ip());
         if (RateLimiter::tooManyAttempts($once, 1)) {
             return response()->json(['error' => 'already_reported'], 429, ['Retry-After' => RateLimiter::availableIn($once)]);
         }
-        RateLimiter::hit($once, 86400);
+        RateLimiter::hit($once, config('princess.moderation.report_once_seconds'));
 
         Moderation::receiveReport($listing, $reason, $note === '' ? null : $note);
 

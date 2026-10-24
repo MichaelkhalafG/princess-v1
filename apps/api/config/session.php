@@ -18,7 +18,9 @@ return [
     |
     */
 
-    'driver' => env('SESSION_DRIVER', 'database'),
+    // "signed-in" (App\Session\SignedInSessionHandler): a session row only once someone is signed
+    // in; before that, an encrypted cookie on her own device. The privacy page depends on it.
+    'driver' => env('SESSION_DRIVER', 'signed-in'),
 
     /*
     |--------------------------------------------------------------------------

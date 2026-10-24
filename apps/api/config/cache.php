@@ -17,6 +17,10 @@ return [
 
     'default' => env('CACHE_STORE', 'database'),
 
+    // Rate limits always in the database store, whatever CACHE_STORE says: princess:prune-expired
+    // deletes their expired rows there, which keeps the privacy page's 24 hours true.
+    'limiter' => 'database',
+
     /*
     |--------------------------------------------------------------------------
     | Cache Stores
