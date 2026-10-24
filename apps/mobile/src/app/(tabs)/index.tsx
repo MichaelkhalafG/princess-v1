@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { COUNTRIES, getCategory, getCountry, type CategorySlug, type CountryCode } from '@princess/shared/constants.ts';
@@ -16,7 +16,7 @@ import { HeroCollage } from '@/components/HeroCollage';
 import { ListingCard } from '@/components/ListingCard';
 import { Logo } from '@/components/Logo';
 import { SearchField } from '@/components/SearchField';
-import { StatusShade } from '@/components/StatusShade';
+import { StatusShade, useScrolled } from '@/components/StatusShade';
 import { Txt } from '@/components/Txt';
 import { DRAFT } from '@/drafts';
 import { c, s } from '@/theme';
@@ -27,19 +27,27 @@ type Board = { items: Listing[]; total: number; launch: boolean; elsewhere: Coun
 const LOADING_LABEL = 'جارٍ التحديث…';
 
 /**
- * The board (web: app/page.tsx + components/board/Board.tsx at phone width): the country, the
- * search, the category bar, then the newest listings two to a row. A country with no listing at all
- * gets the launch state, with the countries that do have some to offer instead.
+ * The board (web: app/page.tsx + components/board/Board.tsx at phone width): the hero — what this
+ * is and how to find someone, the country, the search, the collage, filling the first screen —
+ * then the category bar and the newest listings two to a row. A country with no listing at all gets
+ * the launch state, with the countries that do have some to offer instead.
  *
- * Where the app parts from the web page: the web's collage opens the page for a visitor arriving
- * from a link; the app is opened again and again by someone who knows what it is, so the board
- * starts with the logo and the listings, and the collage is kept for the launch state, where it
- * still introduces a board with nothing on it. And the next PAGE_SIZE listings load as she nears
- * the end, as a phone's lists do, instead of behind «عرض المزيد».
+ * Where the app parts from the web page: the first screen speaks to a woman looking for someone
+ * (most of the people opening the app), not to one posting: a headline and lead of its own (drafts),
+ * the search right under them; posting is in the tab bar, reachable but not the loudest thing. And
+ * the next PAGE_SIZE listings load as she nears the end, as a phone's lists do, instead of behind
+ * «عرض المزيد».
  */
 export default function BoardScreen() {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const [scrolled, onScroll] = useScrolled();
+  // the first screen's heights (page, logo row, words and controls): the collage takes what is left
+  const [fit, setFit] = useState({ page: 0, logo: 0, rest: 0 });
+  const measure = (key: keyof typeof fit) => (e: LayoutChangeEvent) => {
+    const h = Math.round(e.nativeEvent.layout.height);
+    setFit((f) => (f[key] === h ? f : { ...f, [key]: h }));
+  };
   const [country, setCountry] = useState<CountryCode>(COUNTRIES[0].code);
   const [category, setCategory] = useState<CategorySlug | null>(null);
   const [query, setQuery] = useState('');
@@ -111,18 +119,20 @@ export default function BoardScreen() {
   const head = (
     <View>
       <View style={[styles.hero, { paddingHorizontal: gutter, paddingTop: insets.top + s[8] }]}>
-        <View style={styles.logo}>
+        <View style={styles.logo} onLayout={measure('logo')}>
           <Logo size={px('text-logo-header-sm')} />
         </View>
-        {board?.launch && <HeroCollage />}
-        {board?.launch && (
-          <View style={styles.launchText}>
-            <Txt f="heading800" size="text-h1-mobile" leading="leading-display">عملكِ يصل{'\n'}إلى كل سيدة حولك</Txt>
-            <Txt size="text-lead" color={c.textSecondary}>اعرضي خدمتك أو ملابسك، وتتواصل معك من تحتاجها عبر واتساب مباشرة. بلا وسيط وبلا عمولة.</Txt>
+        {/* the first screen, together: the collage (what this is), the words, the country and the search */}
+        {fit.page > 0 && <HeroCollage maxHeight={fit.page - insets.top - s[8] - fit.logo - fit.rest - 3 * s[11]} />}
+        <View style={styles.heroRest} onLayout={measure('rest')}>
+          {/* ARABIC COPY: DRAFT (drafts.ts), written for a woman looking, not for one posting */}
+          <View style={styles.heroText}>
+            <Txt f="heading800" size="text-h2" leading="leading-title" accessibilityRole="header">{DRAFT.heroTitle}</Txt>
+            <Txt size="text-body" color={c.textSecondary}>{DRAFT.heroLead}</Txt>
           </View>
-        )}
-        <CountrySelector value={country} onChange={(code) => pick({ country: code, category: null, q: '' })} />
-        {!board?.launch && <SearchField value={query} placeholder={searchPlaceholder(country)} onChange={setQuery} onSubmit={submitSearch} />}
+          <CountrySelector value={country} onChange={(code) => pick({ country: code, category: null, q: '' })} />
+          {!board?.launch && <SearchField value={query} placeholder={searchPlaceholder(country)} onChange={setQuery} onSubmit={submitSearch} />}
+        </View>
       </View>
       {!board?.launch && <CategoryBar value={category} onChange={(slug) => pick({ category: slug })} />}
       {board && !board.launch && (
@@ -150,9 +160,10 @@ export default function BoardScreen() {
             `هنا ستجدين سيدات من ${k.name} يعرضن خدماتهن وملابسهن، وتتواصلين معهن مباشرة على واتساب أو الهاتف، بلا وسيط.`,
             'لم يُنشر أي إعلان بعد. إن كانت لديكِ خدمة أو ملابس تعرضينها، كوني أول من تنشر: الإعلان مجاني ويستغرق دقيقتين. وإن كنتِ تبحثين عن خدمة، فأرسلي الرابط لمن تعرفين ممن تقدّم واحدة.',
           ]}
+          // a woman looking comes first: where she can find listings, then posting (the web: the reverse)
           actions={[
-            { label: 'اعرضي خدمتك الآن', onPress: toPost },
             board.elsewhere[0] ? { label: `تصفحي إعلانات ${getCountry(board.elsewhere[0]).name}`, onPress: () => pick({ country: board.elsewhere[0], category: null, q: '' }) } : undefined,
+            { label: 'اعرضي خدمتك الآن', onPress: toPost },
           ]}
         />
       );
@@ -173,9 +184,10 @@ export default function BoardScreen() {
       <EmptyState
         title={category ? `لا توجد إعلانات في «${activeLabel}» في ${k.name} بعد` : `لا توجد إعلانات في ${k.name} بعد`}
         body="كوني أول من تعرض هنا، فالإعلان يستغرق دقيقتين."
+        // browsing first, posting second (the web: the reverse)
         actions={[
-          { label: 'اعرضي خدمتك الآن', onPress: toPost },
           category ? { label: 'تصفحي كل الفئات', onPress: () => pick({ category: null }) } : undefined,
+          { label: 'اعرضي خدمتك الآن', onPress: toPost },
         ]}
       />
     );
@@ -185,7 +197,7 @@ export default function BoardScreen() {
   const more = () => canMore && !pending && setShown((n) => Math.min(n + PAGE_SIZE, MAX_SHOWN));
 
   return (
-    <View style={styles.page}>
+    <View style={styles.page} onLayout={measure('page')}>
       <FlatList
         data={failed ? [] : visible}
         keyExtractor={(l) => l.id}
@@ -199,6 +211,8 @@ export default function BoardScreen() {
             <ListingCard listing={item} variant="board" now={now} onOpen={() => router.push({ pathname: '/listing/[id]', params: { id: item.id } })} />
           </View>
         )}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
         onEndReached={more}
         onEndReachedThreshold={0.6}
         ListFooterComponent={
@@ -209,7 +223,7 @@ export default function BoardScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} colors={[c.accent]} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} />}
         keyboardShouldPersistTaps="handled"
       />
-      <StatusShade />
+      <StatusShade shown={scrolled} />
     </View>
   );
 }
@@ -219,7 +233,8 @@ const styles = StyleSheet.create({
   hero: { gap: s[11], paddingBottom: s[15] },
   // the lockup is a left-to-right island: shrink it to its width so it starts on the right
   logo: { alignSelf: 'flex-start', paddingVertical: s[3] },
-  launchText: { gap: s[8] },
+  heroRest: { gap: s[11] },
+  heroText: { gap: s[5] },
   gridHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: s[11], flexWrap: 'wrap', marginTop: s[15], marginBottom: s[12] },
   gridTitle: { flex: 1, minWidth: 0 },
   content: { flexGrow: 1 },

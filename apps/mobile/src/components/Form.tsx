@@ -5,7 +5,7 @@ import type { Href } from 'expo-router';
 import { edges, fluid, px } from '@princess/tokens/native.ts';
 import { c, font, r, s, shadows, sizes } from '@/theme';
 import { Blob } from './Blob';
-import { StatusShade } from './StatusShade';
+import { StatusShade, useScrolled } from './StatusShade';
 import { TopBar, topBarSpace } from './TopBar';
 import { Txt } from './Txt';
 
@@ -27,10 +27,11 @@ export function FormScreen({ title, lead, bar = 'back', fallback, amber = false,
 }) {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const [scrolled, onScroll] = useScrolled();
   const gutter = fluid('gutter-page', width);
   return (
     <KeyboardAvoidingView style={styles.page} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView ref={scrollRef} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}>
+      <ScrollView ref={scrollRef} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll} onScroll={onScroll} scrollEventThrottle={16}>
         <View style={[styles.main, { paddingHorizontal: gutter, paddingBottom: fluid('pad-section-bottom', width), paddingTop: bar === 'none' ? insets.top + s[5] : topBarSpace(insets) }]}>
           <Blob kind="form" />
           {amber && <Blob kind="amber" />}
@@ -41,7 +42,7 @@ export function FormScreen({ title, lead, bar = 'back', fallback, amber = false,
           {children}
         </View>
       </ScrollView>
-      <StatusShade />
+      <StatusShade shown={scrolled} />
       {bar !== 'none' && <TopBar kind={bar} fallback={fallback} />}
     </KeyboardAvoidingView>
   );

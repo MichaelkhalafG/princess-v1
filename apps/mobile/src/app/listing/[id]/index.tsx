@@ -13,7 +13,7 @@ import { ListingCard, ListingMedia } from '@/components/ListingCard';
 import { Banner, BannerLine, StatusPanel } from '@/components/Panels';
 import { Txt, ltr } from '@/components/Txt';
 import { Blob } from '@/components/Blob';
-import { StatusShade } from '@/components/StatusShade';
+import { StatusShade, useScrolled } from '@/components/StatusShade';
 import { TopBar, topBarSpace } from '@/components/TopBar';
 import { DRAFT } from '@/drafts';
 import { c, r, ratios, s, shadows, sizes } from '@/theme';
@@ -32,6 +32,7 @@ export default function ListingScreen() {
   const { id, posted } = useLocalSearchParams<{ id: string; posted?: string }>();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const [scrolled, onScroll] = useScrolled();
   const [state, setState] = useState<{ listing: Listing | null; others: Listing[] } | 'loading' | 'failed'>('loading');
   const hidden = useHidden();
 
@@ -77,10 +78,18 @@ export default function ListingScreen() {
     const visibleOthers = others.filter((o) => !hidden || !isHidden(hidden, o));
     contactBar = primary && (
       <View style={[styles.contactBar, { paddingBottom: Math.max(insets.bottom, s[8]) }]}>
-        <Button variant="contact" value={primary.display} onPress={() => Linking.openURL(primary.href)}>{primary.label}</Button>
-        {secondary.map((k) => (
-          <Button key={k.kind} variant="soft" compact accessibilityLabel={`${k.label} ${k.display}`} onPress={() => Linking.openURL(k.href)}>{k.label}</Button>
-        ))}
+        {/* the first contact on its own row; the others side by side under it, each as wide as its
+            number needs, onto another row when two do not fit: a number is never cut */}
+        <View style={styles.contactRow}>
+          <Button variant="contact" value={primary.display} onPress={() => Linking.openURL(primary.href)}>{primary.label}</Button>
+        </View>
+        {secondary.length > 0 && (
+          <View style={[styles.contactRow, styles.contactWrap]}>
+            {secondary.map((k) => (
+              <Button key={k.kind} variant="soft" compact value={k.display} onPress={() => Linking.openURL(k.href)} style={styles.secondaryContact}>{k.label}</Button>
+            ))}
+          </View>
+        )}
       </View>
     );
     const hide = () =>
@@ -155,13 +164,13 @@ export default function ListingScreen() {
 
   return (
     <View style={styles.page}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView contentContainerStyle={styles.scroll} onScroll={onScroll} scrollEventThrottle={16}>
         <View style={[{ paddingTop: topBarSpace(insets), paddingHorizontal: gutter, gap: fluid('gap-detail-sections', width), paddingBottom: fluid('pad-section-bottom', width) }]}>
           <Blob kind="detail" />
           {body}
         </View>
       </ScrollView>
-      <StatusShade />
+      <StatusShade shown={scrolled} />
       <TopBar />
       {contactBar}
     </View>
@@ -180,8 +189,6 @@ const styles = StyleSheet.create({
   // the bar her contact buttons live in: white, rounded at the top like the tab bar, lifted by the
   // design's warm shadow over the page scrolling under it
   contactBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: s[5],
     backgroundColor: c.surface,
     paddingTop: s[8],
@@ -190,6 +197,9 @@ const styles = StyleSheet.create({
     borderTopEndRadius: r.panel,
     boxShadow: shadows.barUp,
   },
+  contactRow: { flexDirection: 'row', gap: s[5] },
+  contactWrap: { flexWrap: 'wrap' },
+  secondaryContact: { flexGrow: 1 },
   link: { textDecorationLine: 'underline' },
   hide: { alignSelf: 'flex-start' },
   others: { gap: s[12] },

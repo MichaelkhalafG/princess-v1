@@ -21,11 +21,10 @@ export const DRAFT = {
   // a screen whose listing was hidden, opened from a link
   hiddenListing: 'أخفيتِ إعلانات هذه السيدة على هذا الهاتف.',
 
-  // the app's own navigation (components/TabBar, TopBar): the board's tab ("«إعلاناتي»" and
-  // "«اعرضي خدمتك»" are the web's own), and the bar's back and close buttons, read by screen readers
-  tabBoard: 'اللوحة',
-  back: 'رجوع',
-  close: 'إغلاق',
+  // the board's hero (app only, for now), written for a woman looking for someone: what she can
+  // find here and how. The website's hero speaks to a woman posting; these do not reuse it.
+  heroTitle: 'ما تحتاجينه،\nعند سيدة في مدينتك',
+  heroLead: 'كوافير وخياطة وطبخ بيتي ودروس ورعاية أطفال وغيرها، تقدّمها سيدات من مدينتك. ابحثي أو تصفّحي الفئات، ثم تواصلي معها مباشرة، بلا وسيط.',
 
   // the board could not load (the API unreachable)
   boardFailedTitle: 'تعذّر تحميل الإعلانات',

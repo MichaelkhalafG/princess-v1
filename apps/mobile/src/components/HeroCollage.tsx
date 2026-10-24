@@ -13,10 +13,12 @@ const PHOTOS = [
   { src: require('../../assets/hero/cooking.jpg'), alt: 'يدان تطبخان في المطبخ', box: { left: '20%', bottom: 0, width: '48%', height: '42%' }, bottom: 0.1, shadow: 'shadow-photo-secondary', z: 3 },
 ] as const;
 
-export function HeroCollage() {
+/** `maxHeight`: the room left for it (the board fits it into its first screen); never under half size. */
+export function HeroCollage({ maxHeight = Infinity }: { maxHeight?: number }) {
   const { width } = useWindowDimensions();
-  // the web: full width up to --width-collage-mobile, then centred
-  const w = Math.min(width - 2 * px('space-11'), px('width-collage-mobile'));
+  // the web: full width up to --width-collage-mobile, then centred; here also no taller than maxHeight
+  const full = Math.min(width - 2 * px('space-11'), px('width-collage-mobile'));
+  const w = Math.max(full / 2, Math.min(full, maxHeight * ratio('ratio-collage')));
   const h = w / ratio('ratio-collage');
   return (
     // physical positions, as the design's (direction: 'ltr' keeps left as left in the RTL app)
