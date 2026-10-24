@@ -74,6 +74,8 @@ export const shadows = {
   badge: shadow('shadow-badge'),
   monogram: shadow('shadow-monogram'),
   photoAccent: shadow('shadow-photo-accent'),
+  /** the category bar's shadow turned upward, for the app's bars at the bottom of the screen */
+  barUp: shadow('shadow-catbar').replace(/^0 (\d)/, '0 -$1'),
 } as const;
 
 export const sizes = {
@@ -100,6 +102,14 @@ export const sizes = {
   icon: px('size-icon'),
   header: px('size-header'),
   hitMin: px('size-hit-min'),
+} as const;
+
+/** Sizes for the app's own components, which the web has no use for, built from the scale above. */
+export const appSizes = {
+  /** a tab's icon: the category icons' 24-unit box at 1:1 */
+  tabIcon: s[15],
+  /** her listing's photo in its row (her listings): two controls wide */
+  thumb: sizes.control * 2,
 } as const;
 
 export const ratios = {

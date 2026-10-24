@@ -38,7 +38,7 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <FormScreen title="نسيتِ كلمة المرور؟" lead="اكتبي بريدك الإلكتروني، ونرسل إليه رابطًا لتعيين كلمة مرور جديدة." post={false}>
+    <FormScreen title="نسيتِ كلمة المرور؟" lead="اكتبي بريدك الإلكتروني، ونرسل إليه رابطًا لتعيين كلمة مرور جديدة.">
       <Card>
         {sent ? (
           <>

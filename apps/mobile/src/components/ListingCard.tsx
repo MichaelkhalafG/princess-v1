@@ -37,7 +37,8 @@ export function ListingMedia({ listing, photoSrc, aspect = ratios.media, iconSha
   aspect?: number;
   iconShare?: number;
   iconRange?: [number, number];
-  badge?: 'default' | 'small' | 'lg';
+  /** none: a thumbnail (her listings' rows) */
+  badge?: 'default' | 'small' | 'lg' | 'none';
   /** the listing page's photo: larger corners, a fixed sweep (--radius-media-lg-shoulder), no echo */
   large?: boolean;
 }) {
@@ -64,7 +65,7 @@ export function ListingMedia({ listing, photoSrc, aspect = ratios.media, iconSha
           </Svg>
         </View>
       )}
-      <CategoryBadge category={listing.category} size={badge} style={[styles.badge, badge === 'small' && styles.badgeSmall, large && styles.badgeLarge]} />
+      {badge !== 'none' && <CategoryBadge category={listing.category} size={badge} style={[styles.badge, badge === 'small' && styles.badgeSmall, large && styles.badgeLarge]} />}
     </View>
   );
 }

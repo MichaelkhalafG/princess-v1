@@ -1,25 +1,37 @@
 import type { ComponentRef, ReactNode, Ref } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View, useWindowDimensions, type TextInputProps } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { Href } from 'expo-router';
 import { edges, fluid, px } from '@princess/tokens/native.ts';
 import { c, font, r, s, shadows, sizes } from '@/theme';
 import { Blob } from './Blob';
-import { Footer } from './Footer';
-import { Header } from './Header';
+import { StatusShade } from './StatusShade';
+import { TopBar, topBarSpace } from './TopBar';
 import { Txt } from './Txt';
 
 /**
- * A form screen (web: the posting form's page, and AccountShell for her account's pages): the header,
- * a large title and a lead, then the white form card(s), the footer under them. The keyboard pushes
- * the content up instead of covering the field she is typing in.
+ * A form screen (web: the posting form's page, and AccountShell for her account's pages): the
+ * app's top bar (`back`, or `close` for the form, a task; `none` on her listings, a tab), a large
+ * title and a lead, then the white form card(s). The keyboard pushes the content up instead of
+ * covering the field she is typing in.
  */
-export function FormScreen({ title, lead, post = true, amber = false, children, scrollRef }: { title: string; lead?: ReactNode; post?: boolean; amber?: boolean; children: ReactNode; scrollRef?: Ref<ComponentRef<typeof ScrollView>> }) {
+export function FormScreen({ title, lead, bar = 'back', fallback, amber = false, children, scrollRef }: {
+  title: string;
+  lead?: ReactNode;
+  bar?: 'back' | 'close' | 'none';
+  /** where the bar's button leads when there is nothing to go back to (opened from a link) */
+  fallback?: Href;
+  amber?: boolean;
+  children: ReactNode;
+  scrollRef?: Ref<ComponentRef<typeof ScrollView>>;
+}) {
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const gutter = fluid('gutter-page', width);
   return (
     <KeyboardAvoidingView style={styles.page} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Header back post={post} />
       <ScrollView ref={scrollRef} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}>
-        <View style={[styles.main, { paddingHorizontal: gutter, paddingBottom: fluid('pad-section-bottom', width) }]}>
+        <View style={[styles.main, { paddingHorizontal: gutter, paddingBottom: fluid('pad-section-bottom', width), paddingTop: bar === 'none' ? insets.top + s[5] : topBarSpace(insets) }]}>
           <Blob kind="form" />
           {amber && <Blob kind="amber" />}
           <View style={styles.intro}>
@@ -28,8 +40,9 @@ export function FormScreen({ title, lead, post = true, amber = false, children, 
           </View>
           {children}
         </View>
-        <Footer />
       </ScrollView>
+      <StatusShade />
+      {bar !== 'none' && <TopBar kind={bar} fallback={fallback} />}
     </KeyboardAvoidingView>
   );
 }
@@ -122,8 +135,8 @@ export function Choices<T extends string>({ options, value, onChange, invalid = 
 
 const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: c.canvas },
-  scroll: { flexGrow: 1, justifyContent: 'space-between' },
-  main: { paddingTop: s[5], gap: s[15] },
+  scroll: { flexGrow: 1 },
+  main: { gap: s[15] },
   intro: { gap: s[7], paddingTop: s[11], paddingHorizontal: s[2] },
   card: {
     backgroundColor: c.surface,

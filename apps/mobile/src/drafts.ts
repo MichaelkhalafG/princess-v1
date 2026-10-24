@@ -21,6 +21,12 @@ export const DRAFT = {
   // a screen whose listing was hidden, opened from a link
   hiddenListing: 'أخفيتِ إعلانات هذه السيدة على هذا الهاتف.',
 
+  // the app's own navigation (components/TabBar, TopBar): the board's tab ("«إعلاناتي»" and
+  // "«اعرضي خدمتك»" are the web's own), and the bar's back and close buttons, read by screen readers
+  tabBoard: 'اللوحة',
+  back: 'رجوع',
+  close: 'إغلاق',
+
   // the board could not load (the API unreachable)
   boardFailedTitle: 'تعذّر تحميل الإعلانات',
   retry: 'حاولي مرة أخرى',

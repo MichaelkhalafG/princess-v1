@@ -9,7 +9,10 @@ import { Gabarito_700Bold } from '@expo-google-fonts/gabarito';
 import { ensureRtl } from '@/lib/rtl';
 import { c } from '@/theme';
 
-/** The app: the web's three typefaces (only the weights the design uses), right to left, one stack. */
+/**
+ * The app: the web's three typefaces (only the weights the design uses), right to left. One stack:
+ * the two tabs at the bottom of it ((tabs)/_layout.tsx), every other screen pushed over them.
+ */
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     Alexandria_700Bold,
@@ -29,7 +32,11 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.canvas }, animation: 'slide_from_right' }} />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.canvas }, animation: 'slide_from_right' }}>
+        <Stack.Screen name="(tabs)" />
+        {/* posting is a task over wherever she was: it rises from the bottom and closes back down */}
+        <Stack.Screen name="new" options={{ animation: 'slide_from_bottom' }} />
+      </Stack>
     </SafeAreaProvider>
   );
 }

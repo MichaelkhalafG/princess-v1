@@ -39,7 +39,10 @@ export default function SignInScreen() {
     const res = await api<{ token?: string }>('POST', '/login', { email, password, device_name: DEVICE_NAME });
     if (res.ok) {
       if (res.data.token) await setToken(res.data.token);
-      router.replace(safeNext(next));
+      // her listings is a tab under this screen: go back down to it; the form is pushed in its place
+      const to = safeNext(next);
+      if (to === '/my-listings') router.dismissTo(to);
+      else router.replace(to);
       return;
     }
     setBusy(false);
@@ -51,7 +54,7 @@ export default function SignInScreen() {
   };
 
   return (
-    <FormScreen title="تسجيل الدخول" lead="بالبريد الإلكتروني وكلمة المرور اللذين أنشأتِ بهما حسابك." post={false}>
+    <FormScreen title="تسجيل الدخول" lead="بالبريد الإلكتروني وكلمة المرور اللذين أنشأتِ بهما حسابك.">
       <Card>
         <Section first>
           <Field label="البريد الإلكتروني" error={errors.email}>

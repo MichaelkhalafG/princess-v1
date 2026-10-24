@@ -146,7 +146,8 @@ export default function NewListingScreen() {
       if (res.data.token) await setToken(res.data.token);
       // on the board at once: its own page, with the "posted" banner; otherwise her listings
       if (res.data.status === 'published') router.replace({ pathname: '/listing/[id]', params: { id: res.data.id, posted: '1' } });
-      else router.replace({ pathname: '/my-listings', params: { sent: res.data.status } });
+      // her listings is a tab under the form: close the form down onto it
+      else router.dismissTo({ pathname: '/my-listings', params: { sent: res.data.status } });
       return;
     }
     setPhase(null);
@@ -192,7 +193,7 @@ export default function NewListingScreen() {
   );
 
   return (
-    <FormScreen title="اعرضي خدمتك" lead="دقيقتان، ونراجع إعلانك قبل أن يظهر لكل سيدة في بلدك. بلا عمولة." post={false} amber>
+    <FormScreen title="اعرضي خدمتك" lead="دقيقتان، ونراجع إعلانك قبل أن يظهر لكل سيدة في بلدك. بلا عمولة." bar="close" amber>
       <Card>
         {/* 1. who and where */}
         <Section title="عنكِ ومكانك" first>

@@ -1,22 +1,22 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { COUNTRIES, getCategory, getCountry, type CategorySlug, type CountryCode } from '@princess/shared/constants.ts';
 import { MAX_SHOWN, PAGE_SIZE } from '@princess/shared/board-url.ts';
 import { listingCountLabel, searchPlaceholder } from '@princess/shared/format.ts';
 import type { Listing } from '@princess/shared/listing.ts';
-import { fluid } from '@princess/tokens/native.ts';
+import { fluid, px } from '@princess/tokens/native.ts';
 import { fetchBoard } from '@/lib/api';
 import { isHidden, useHidden } from '@/lib/hidden';
-import { Button } from '@/components/Button';
 import { CategoryBar } from '@/components/CategoryBar';
 import { CountrySelector } from '@/components/CountrySelector';
 import { EmptyState } from '@/components/EmptyState';
-import { Footer } from '@/components/Footer';
-import { Header } from '@/components/Header';
 import { HeroCollage } from '@/components/HeroCollage';
 import { ListingCard } from '@/components/ListingCard';
+import { Logo } from '@/components/Logo';
 import { SearchField } from '@/components/SearchField';
+import { StatusShade } from '@/components/StatusShade';
 import { Txt } from '@/components/Txt';
 import { DRAFT } from '@/drafts';
 import { c, s } from '@/theme';
@@ -27,13 +27,19 @@ type Board = { items: Listing[]; total: number; launch: boolean; elsewhere: Coun
 const LOADING_LABEL = 'جارٍ التحديث…';
 
 /**
- * The board (web: app/page.tsx + components/board/Board.tsx at phone width): the collage, the
- * country, the search, the category bar, then the newest listings two to a row, PAGE_SIZE at a
- * time («عرض المزيد»). A country with no listing at all gets the launch state, with the countries
- * that do have some to offer instead.
+ * The board (web: app/page.tsx + components/board/Board.tsx at phone width): the country, the
+ * search, the category bar, then the newest listings two to a row. A country with no listing at all
+ * gets the launch state, with the countries that do have some to offer instead.
+ *
+ * Where the app parts from the web page: the web's collage opens the page for a visitor arriving
+ * from a link; the app is opened again and again by someone who knows what it is, so the board
+ * starts with the logo and the listings, and the collage is kept for the launch state, where it
+ * still introduces a board with nothing on it. And the next PAGE_SIZE listings load as she nears
+ * the end, as a phone's lists do, instead of behind «عرض المزيد».
  */
 export default function BoardScreen() {
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const [country, setCountry] = useState<CountryCode>(COUNTRIES[0].code);
   const [category, setCategory] = useState<CategorySlug | null>(null);
   const [query, setQuery] = useState('');
@@ -104,8 +110,11 @@ export default function BoardScreen() {
 
   const head = (
     <View>
-      <View style={[styles.hero, { paddingHorizontal: gutter }]}>
-        <HeroCollage />
+      <View style={[styles.hero, { paddingHorizontal: gutter, paddingTop: insets.top + s[8] }]}>
+        <View style={styles.logo}>
+          <Logo size={px('text-logo-header-sm')} />
+        </View>
+        {board?.launch && <HeroCollage />}
         {board?.launch && (
           <View style={styles.launchText}>
             <Txt f="heading800" size="text-h1-mobile" leading="leading-display">عملكِ يصل{'\n'}إلى كل سيدة حولك</Txt>
@@ -173,10 +182,10 @@ export default function BoardScreen() {
   };
 
   const canMore = board && !board.launch && board.items.length > 0 && board.items.length < board.total && shown < MAX_SHOWN;
+  const more = () => canMore && !pending && setShown((n) => Math.min(n + PAGE_SIZE, MAX_SHOWN));
 
   return (
     <View style={styles.page}>
-      <Header />
       <FlatList
         data={failed ? [] : visible}
         keyExtractor={(l) => l.id}
@@ -190,19 +199,17 @@ export default function BoardScreen() {
             <ListingCard listing={item} variant="board" now={now} onOpen={() => router.push({ pathname: '/listing/[id]', params: { id: item.id } })} />
           </View>
         )}
+        onEndReached={more}
+        onEndReachedThreshold={0.6}
         ListFooterComponent={
           <View style={styles.after}>
-            {canMore && (
-              <View style={styles.more}>
-                <Button variant="soft" blocked={pending} onPress={() => !pending && setShown((n) => n + PAGE_SIZE)}>{pending ? 'جارٍ التحميل…' : 'عرض المزيد'}</Button>
-              </View>
-            )}
-            <Footer />
+            {canMore && pending && <ActivityIndicator color={c.accent} accessibilityLabel="جارٍ التحميل…" />}
           </View>
         }
         refreshControl={<RefreshControl refreshing={refreshing} colors={[c.accent]} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} />}
         keyboardShouldPersistTaps="handled"
       />
+      <StatusShade />
     </View>
   );
 }
@@ -210,12 +217,13 @@ export default function BoardScreen() {
 const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: c.canvas },
   hero: { gap: s[11], paddingBottom: s[15] },
+  // the lockup is a left-to-right island: shrink it to its width so it starts on the right
+  logo: { alignSelf: 'flex-start', paddingVertical: s[3] },
   launchText: { gap: s[8] },
   gridHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: s[11], flexWrap: 'wrap', marginTop: s[15], marginBottom: s[12] },
   gridTitle: { flex: 1, minWidth: 0 },
   content: { flexGrow: 1 },
   row: { gap: s[11], marginBottom: s[11] },
   cell: { flex: 1, maxWidth: '50%' },
-  after: { marginTop: s[15], gap: s[17] },
-  more: { alignItems: 'center' },
+  after: { paddingTop: s[8], paddingBottom: s[17] },
 });

@@ -44,7 +44,7 @@ export default function ReportScreen() {
   };
 
   return (
-    <FormScreen title="الإبلاغ عن إعلان" lead={title ? `عن: ${title}` : undefined} post={false}>
+    <FormScreen title="الإبلاغ عن إعلان" lead={title ? `عن: ${title}` : undefined} fallback={{ pathname: '/listing/[id]', params: { id } }}>
       {done ? (
         <Card>
           <Txt size="text-lead-sm" color={c.textSecondary} accessibilityRole="alert">

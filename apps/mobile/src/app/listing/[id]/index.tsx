@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Alert, FlatList, Linking, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { getCategory, getCountry } from '@princess/shared/constants.ts';
 import { areaText, contactLinks, listingCountLabel, relativeDate } from '@princess/shared/format.ts';
@@ -8,24 +9,29 @@ import { fluid, px } from '@princess/tokens/native.ts';
 import { fetchListing, fetchOthers } from '@/lib/api';
 import { hidePoster, isHidden, useHidden } from '@/lib/hidden';
 import { Button } from '@/components/Button';
-import { Footer } from '@/components/Footer';
-import { Header } from '@/components/Header';
 import { ListingCard, ListingMedia } from '@/components/ListingCard';
 import { Banner, BannerLine, StatusPanel } from '@/components/Panels';
 import { Txt, ltr } from '@/components/Txt';
 import { Blob } from '@/components/Blob';
+import { StatusShade } from '@/components/StatusShade';
+import { TopBar, topBarSpace } from '@/components/TopBar';
 import { DRAFT } from '@/drafts';
 import { c, r, ratios, s, shadows, sizes } from '@/theme';
 
 /**
  * One listing (web: app/listing/[id]/page.tsx at phone width): the photo with its arch, her name,
- * the title, where, the description, the price, her contact methods opening WhatsApp, the phone
- * or Instagram, the date with «الإبلاغ عن هذا الإعلان», and the other listings in its category.
- * `posted=1`: she has just posted it and it went straight onto the board.
+ * the title, where, the description, the price, the date with «الإبلاغ عن هذا الإعلان», and the
+ * other listings in its category. `posted=1`: she has just posted it and it went straight onto
+ * the board.
+ *
+ * Her contact methods (WhatsApp, the phone, Instagram) are the reason the screen exists, so on a
+ * phone they leave the scrolling page for a bar fixed at the bottom, in reach of the thumb from
+ * the first line to the last (the web keeps them in the page, under the price).
  */
 export default function ListingScreen() {
   const { id, posted } = useLocalSearchParams<{ id: string; posted?: string }>();
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const [state, setState] = useState<{ listing: Listing | null; others: Listing[] } | 'loading' | 'failed'>('loading');
   const hidden = useHidden();
 
@@ -45,6 +51,7 @@ export default function ListingScreen() {
 
   const gutter = fluid('gutter-page', width);
   const home = () => router.dismissTo('/');
+  let contactBar: ReactNode = null;
   const body = (() => {
     if (state === 'loading') return null;
     if (state === 'failed') {
@@ -68,6 +75,14 @@ export default function ListingScreen() {
     const [primary, ...secondary] = contactLinks(listing);
     const now = new Date();
     const visibleOthers = others.filter((o) => !hidden || !isHidden(hidden, o));
+    contactBar = primary && (
+      <View style={[styles.contactBar, { paddingBottom: Math.max(insets.bottom, s[8]) }]}>
+        <Button variant="contact" value={primary.display} onPress={() => Linking.openURL(primary.href)}>{primary.label}</Button>
+        {secondary.map((k) => (
+          <Button key={k.kind} variant="soft" compact accessibilityLabel={`${k.label} ${k.display}`} onPress={() => Linking.openURL(k.href)}>{k.label}</Button>
+        ))}
+      </View>
+    );
     const hide = () =>
       Alert.alert(DRAFT.hidePosterTitle, DRAFT.hidePosterBody, [
         { text: DRAFT.cancel, style: 'cancel' },
@@ -96,16 +111,6 @@ export default function ListingScreen() {
             <Txt leading="leading-relaxed" color={c.textSecondary} selectable>{listing.description}</Txt>
             {listing.price && <Txt f="heading800" size="text-price-lg" leading="leading-price" color={c.accent}>{listing.price}</Txt>}
 
-            <View style={styles.contacts}>
-              {primary && <Button variant="contact" value={primary.display} onPress={() => Linking.openURL(primary.href)}>{primary.label}</Button>}
-              {secondary.length > 0 && (
-                <View style={styles.secondary}>
-                  {secondary.map((k) => (
-                    <Button key={k.kind} variant="soft" compact value={k.display} onPress={() => Linking.openURL(k.href)} style={styles.secondaryButton}>{k.label}</Button>
-                  ))}
-                </View>
-              )}
-            </View>
 
             <Txt size="text-small" leading="leading-snug" color={c.textSubtle}>
               {`نُشر ${relativeDate(listing.published_at, now)} · `}
@@ -150,31 +155,41 @@ export default function ListingScreen() {
 
   return (
     <View style={styles.page}>
-      <Header back />
       <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={[styles.main, { paddingHorizontal: gutter, gap: fluid('gap-detail-sections', width), paddingBottom: fluid('pad-section-bottom', width) }]}>
+        <View style={[{ paddingTop: topBarSpace(insets), paddingHorizontal: gutter, gap: fluid('gap-detail-sections', width), paddingBottom: fluid('pad-section-bottom', width) }]}>
           <Blob kind="detail" />
           {body}
         </View>
-        <Footer />
       </ScrollView>
+      <StatusShade />
+      <TopBar />
+      {contactBar}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: c.canvas },
-  scroll: { flexGrow: 1, justifyContent: 'space-between' },
-  main: { paddingTop: s[5] },
+  scroll: { flexGrow: 1 },
   detail: { backgroundColor: c.surface, borderRadius: r.card, padding: s[8], boxShadow: shadows.card, marginTop: s[5] },
   info: { gap: s[12], paddingTop: s[15], paddingBottom: s[8], paddingHorizontal: s[5] },
   heading: { gap: s[5] },
   where: { flexDirection: 'row', alignItems: 'center', gap: s[5] },
   whereDot: { width: sizes.dotSm, height: sizes.dotSm, borderRadius: sizes.dotSm / 2, backgroundColor: c.highlight },
   whereText: { flexShrink: 1 },
-  contacts: { gap: s[7], paddingTop: s[2] },
-  secondary: { flexDirection: 'row', flexWrap: 'wrap', gap: s[5] },
-  secondaryButton: { flexGrow: 1, flexBasis: px('width-action-basis') },
+  // the bar her contact buttons live in: white, rounded at the top like the tab bar, lifted by the
+  // design's warm shadow over the page scrolling under it
+  contactBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: s[5],
+    backgroundColor: c.surface,
+    paddingTop: s[8],
+    paddingHorizontal: s[11],
+    borderTopStartRadius: r.panel,
+    borderTopEndRadius: r.panel,
+    boxShadow: shadows.barUp,
+  },
   link: { textDecorationLine: 'underline' },
   hide: { alignSelf: 'flex-start' },
   others: { gap: s[12] },
