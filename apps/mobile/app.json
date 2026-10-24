@@ -14,6 +14,7 @@
     },
     "android": {
       "package": "com.mdneg.princess",
+      "allowBackup": false,
       "adaptiveIcon": {
         "backgroundColor": "#FFF6F1",
         "foregroundImage": "./assets/android-icon-foreground.png",

@@ -3,7 +3,8 @@
 // The API shows no poster account on a listing — two listings by the same woman are linked only
 // by what she wrote on them. So "this poster" is her listing plus every number and handle on it:
 // any listing that carries one of them is hidden too, now and in future. Nothing is sent to the
-// server; it is a file in the app's own storage, and undoing it clears the whole list.
+// server; it is a file in the app's own storage (left out of Android backups: app.json allowBackup),
+// and undoing it clears the whole list. iOS: the Documents folder goes into iCloud backups - open.
 
 import { useEffect, useState } from 'react';
 import { File, Paths } from 'expo-file-system';

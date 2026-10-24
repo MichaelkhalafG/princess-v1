@@ -1,23 +1,25 @@
 // Her sign-in: the API token (POST /login or sign-up with a listing returns it once), kept in the
-// phone's secure storage (Keychain on iOS, the Android Keystore). Screens subscribe, so signing in
-// or out anywhere updates every screen that shows her account.
+// phone's secure storage (Keychain on iOS, the Android Keystore), on this phone only: never moved to
+// a new phone from a backup (and app.json turns Android's backup off). The privacy page says so.
+// Screens subscribe, so signing in or out anywhere updates every screen that shows her account.
 
 import { useEffect, useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
 
 const KEY = 'princess.api-token';
+const ON_THIS_PHONE = { keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY };
 let token: string | null | undefined; // undefined: not read from storage yet
 const listeners = new Set<(t: string | null) => void>();
 
 export async function getToken(): Promise<string | null> {
-  if (token === undefined) token = await SecureStore.getItemAsync(KEY);
+  if (token === undefined) token = await SecureStore.getItemAsync(KEY, ON_THIS_PHONE);
   return token;
 }
 
 export async function setToken(value: string | null): Promise<void> {
   token = value;
-  if (value) await SecureStore.setItemAsync(KEY, value);
-  else await SecureStore.deleteItemAsync(KEY);
+  if (value) await SecureStore.setItemAsync(KEY, value, ON_THIS_PHONE);
+  else await SecureStore.deleteItemAsync(KEY, ON_THIS_PHONE);
   listeners.forEach((l) => l(value));
 }
 

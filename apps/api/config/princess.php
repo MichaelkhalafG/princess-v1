@@ -55,6 +55,9 @@ return [
         'password_min_chars' => 8,
         // bcrypt reads no further than 72 bytes; a longer password would be cut without a word
         'password_max_bytes' => 72,
+        // the app's sign-in (a token) ends after this many days without use, and is then deleted
+        // (princess:prune-expired); a use is any request that carries it to a signed-in route
+        'app_token_idle_days' => 90,
     ],
 
     // Line B: an account's listings wait for a moderator until one of them has been approved

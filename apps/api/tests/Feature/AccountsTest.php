@@ -222,6 +222,37 @@ class AccountsTest extends TestCase
         $this->withToken($token)->getJson('/api/v1/me')->assertUnauthorized();
     }
 
+    public function test_the_apps_sign_in_ends_after_90_days_unused_and_is_then_deleted(): void
+    {
+        $days = config('princess.accounts.app_token_idle_days');
+        $this->assertSame(90, $days, 'the privacy page says 90 days');
+        $user = $this->makeUser();
+        $token = $this->postJson('/api/v1/login', ['email' => $user->email, 'password' => 'test-password', 'device_name' => 'test phone'])->json('token');
+        $rows = fn () => DB::table('personal_access_tokens')->where('tokenable_id', $user->id)->count();
+
+        // never used since signing in: the days count from the sign-in
+        $this->travel($days - 1)->days();
+        $this->artisan('princess:prune-expired');
+        $this->assertSame(1, $rows());
+        $this->freshRequest();
+        $this->withToken($token)->getJson('/api/v1/me')->assertOk();
+
+        // that use starts the count again: 89 more days and it still works, long past 90 from the sign-in
+        $this->travel($days - 1)->days();
+        $this->artisan('princess:prune-expired');
+        $this->assertSame(1, $rows());
+        $this->freshRequest();
+        $this->withToken($token)->getJson('/api/v1/me/listings')->assertOk();
+
+        // 90 days without use: refused at once, deleted by the next prune
+        $this->travel($days * 24 * 60 + 1)->minutes();
+        $this->freshRequest();
+        $this->withToken($token)->getJson('/api/v1/me')->assertUnauthorized();
+        $this->assertSame(1, $rows(), 'a refused request does not count as a use');
+        $this->artisan('princess:prune-expired');
+        $this->assertSame(0, $rows());
+    }
+
     public function test_five_wrong_passwords_a_minute_then_she_must_wait(): void
     {
         $user = $this->makeUser();

@@ -12,6 +12,8 @@ use Illuminate\Session\DatabaseSessionHandler;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Sanctum\PersonalAccessToken;
+use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -42,6 +44,11 @@ class AppServiceProvider extends ServiceProvider
             new DatabaseSessionHandler($app['db']->connection(config('session.connection')), config('session.table'), config('session.lifetime'), $app),
             $app,
         ));
+
+        // The app's sign-in ends after princess.accounts.app_token_idle_days without use (the privacy
+        // page says so). Sanctum's own expiration counts from the sign-in, not the last use.
+        Sanctum::authenticateAccessTokensUsing(fn (PersonalAccessToken $token, bool $isValid) => $isValid
+            && ($token->last_used_at ?? $token->created_at)->gt(now()->subDays(config('princess.accounts.app_token_idle_days'))));
 
         // The numbers are in config('princess.rate_limits'). Every key that comes from her address
         // (or an email) is a keyed hash (ClientKey): the cache holds neither.

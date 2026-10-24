@@ -7,5 +7,6 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::command('princess:prune-unverified')->hourly();
 Schedule::command('princess:prune-photos')->hourly();
 Schedule::command('princess:moderation-alerts')->hourly();
-// keeps the privacy page's deletion times true (rate limits within 24 hours, sessions once ended)
+// keeps the privacy page's deletion times true (rate limits within 24 hours, sessions once ended, app sign-ins
+// once unused for 90 days)
 Schedule::command('princess:prune-expired')->everyTenMinutes();

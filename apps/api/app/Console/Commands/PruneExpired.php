@@ -13,12 +13,14 @@ use Illuminate\Support\Facades\DB;
  *   - cache entries past their expiry, among them every rate-limit key (keyed hashes of an address;
  *     the limiter always uses the database store, see config/cache.php);
  *   - sessions idle for longer than session.lifetime (only signed-in people have one).
+ *   - app sign-ins (tokens) unused for princess.accounts.app_token_idle_days, which no longer work
+ *     (AppServiceProvider) but would otherwise stay in the table.
  */
 class PruneExpired extends Command
 {
     protected $signature = 'princess:prune-expired';
 
-    protected $description = 'Delete expired cache entries (rate limits among them) and expired sessions';
+    protected $description = 'Delete expired cache entries (rate limits among them), expired sessions and app sign-ins';
 
     public function handle(): int
     {
@@ -31,7 +33,13 @@ class PruneExpired extends Command
         $sessions = DB::connection(config('session.connection'))->table(config('session.table'))
             ->where('last_activity', '<=', $now - config('session.lifetime') * 60)->delete();
 
-        $this->info("Deleted {$entries} cache entr(ies), {$locks} lock(s), {$sessions} session(s).");
+        $idle = Carbon::now()->subDays(config('princess.accounts.app_token_idle_days'));
+        $tokens = DB::table('personal_access_tokens')
+            ->where(fn ($q) => $q->where('last_used_at', '<=', $idle)
+                ->orWhere(fn ($q) => $q->whereNull('last_used_at')->where('created_at', '<=', $idle)))
+            ->delete();
+
+        $this->info("Deleted {$entries} cache entr(ies), {$locks} lock(s), {$sessions} session(s), {$tokens} app sign-in(s).");
 
         return self::SUCCESS;
     }
