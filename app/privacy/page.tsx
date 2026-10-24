@@ -22,7 +22,8 @@ import { CONTACT_EMAIL } from '@/lib/site.ts';
 // it is deleted on sign-out, a new password or the account's deletion, and refused after 90 days
 // unused (princess.accounts.app_token_idle_days), deleted within ten minutes by the prune; only
 // the form and «إعلاناتي» use it. Hidden posters are a file on the phone, never sent; Android
-// backup is off (app.json allowBackup).
+// backup is off (app.json allowBackup). NOT YET TRUE ON iOS (iCloud backup): see
+// apps/mobile/RELEASE-CHECKLIST.md before iOS ships.
 //
 // Deliberately absent, by the owner's decision (do not fill these in later): any claim
 // about the law in the three countries, and any sentence that assigns or disclaims legal
@@ -30,7 +31,7 @@ import { CONTACT_EMAIL } from '@/lib/site.ts';
 // settle them.
 //
 // ARABIC COPY: the whole page was rewritten for accounts and moderation, and is a DRAFT, not
-// yet approved.
+// yet approved — except the app section («تطبيق الهاتف»), approved 2026-10-24.
 export const metadata: Metadata = { title: 'الخصوصية — برينسيس' };
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
