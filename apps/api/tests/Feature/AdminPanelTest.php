@@ -6,9 +6,12 @@ use App\Enums\ListingStatus;
 use App\Filament\Resources\Bans\BanResource;
 use App\Filament\Resources\Bans\Pages\CreateBan;
 use App\Filament\Resources\Bans\Pages\ListBans;
+use App\Filament\Resources\LiveListings\LiveListingResource;
+use App\Filament\Resources\LiveListings\Pages\ListLiveListings;
 use App\Filament\Resources\LiveListings\Pages\ViewLiveListing;
 use App\Filament\Resources\ReviewQueue\Pages\ListReviewQueue;
 use App\Filament\Resources\ReviewQueue\Pages\ReviewListing;
+use App\Filament\Resources\ReviewQueue\ReviewQueueResource;
 use App\Models\Ban;
 use App\Models\ModerationEvent;
 use Filament\Facades\Filament;
@@ -69,6 +72,63 @@ class AdminPanelTest extends TestCase
         $this->actingAs($this->makeModerator(), 'moderator')
             ->get("/admin/queue/{$listing->id}")
             ->assertOk()->assertSee('عنوان للمراجعة')->assertSee('+201012121212')->assertSee('Number or link in the text');
+    }
+
+    public function test_her_text_is_laid_out_in_its_own_direction(): void
+    {
+        $listing = $this->makeListing(['status' => ListingStatus::Pending, 'published_at' => null, 'title' => 'حنّة للعرائس؟',
+            'description' => 'للتواصل أسرع كلميني على 0551234567 أو انستا hanan.henna']);
+
+        $html = $this->actingAs($this->makeModerator(), 'moderator')->get("/admin/queue/{$listing->id}")->assertOk()->getContent();
+
+        // the description sits in an element that takes its direction from its own first letter
+        $this->assertMatchesRegularExpression('/<div[^>]*dir="auto"[^>]*>\s*للتواصل أسرع/u', $html);
+        // the heading keeps her title whole, question mark at its end, inside isolate marks
+        $this->assertStringContainsString("\u{2068}حنّة للعرائس؟\u{2069}", $html);
+    }
+
+    public function test_statuses_read_as_words_and_pages_have_their_own_titles(): void
+    {
+        $this->actingAs($this->makeModerator(), 'moderator');
+        $listing = $this->makeListing(['status' => ListingStatus::Pending, 'published_at' => null]);
+
+        $this->get("/admin/queue/{$listing->id}")->assertSee('Waiting for review')->assertDontSee('>pending<', false);
+        $this->assertSame('Review queue', Livewire::test(ListReviewQueue::class)->instance()->getTitle());
+        $this->assertSame([], Livewire::test(ListReviewQueue::class)->instance()->getBreadcrumbs());
+    }
+
+    public function test_the_search_box_finds_a_listing_by_title_name_number_or_handle_in_its_own_list(): void
+    {
+        $this->actingAs($this->makeModerator(), 'moderator');
+        $waiting = $this->makeListing(['status' => ListingStatus::Pending, 'published_at' => null, 'name' => 'حنان', 'whatsapp' => '+201077889900', 'social' => 'hanan.henna']);
+        $live = $this->makeListing(['name' => 'ريم']);
+
+        $found = fn (string $resource, string $query) => $resource::getGlobalSearchResults($query)->map(fn ($r) => $r->url)->all();
+        foreach (['حنان', '+2010778899', 'hanan.henna'] as $query) {
+            $this->assertSame([ReviewQueueResource::getUrl('view', ['record' => $waiting])], $found(ReviewQueueResource::class, $query), $query);
+        }
+        $this->assertSame([], $found(LiveListingResource::class, 'حنان'), 'a waiting listing is not among the live ones');
+        $this->assertSame([LiveListingResource::getUrl('view', ['record' => $live])], $found(LiveListingResource::class, 'ريم'));
+    }
+
+    public function test_live_listings_show_every_contact_column(): void
+    {
+        $this->actingAs($this->makeModerator(), 'moderator');
+        $this->makeListing(['phone' => '+201022334455', 'social' => 'mona.nails']);
+
+        // rendered in the rows, not merely available behind the column toggle
+        Livewire::test(ListLiveListings::class)
+            ->assertCanRenderTableColumn('whatsapp')->assertCanRenderTableColumn('phone')->assertCanRenderTableColumn('social');
+    }
+
+    public function test_the_queue_is_searched_by_a_number_even_with_its_column_hidden(): void
+    {
+        $this->actingAs($this->makeModerator(), 'moderator');
+        $a = $this->makeListing(['status' => ListingStatus::Pending, 'published_at' => null, 'phone' => '+201066554433']);
+        $b = $this->makeListing(['status' => ListingStatus::Pending, 'published_at' => null]);
+
+        Livewire::test(ListReviewQueue::class)->searchTable('+20106655')
+            ->assertCanSeeTableRecords([$a])->assertCanNotSeeTableRecords([$b]);
     }
 
     // ── The buttons ─────────────────────────────────────────────────────────────────────

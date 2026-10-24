@@ -35,7 +35,12 @@ class AdminPanelProvider extends PanelProvider
             ->authGuard('moderator')
             ->login()
             ->multiFactorAuthentication([AppAuthentication::make()->recoverable()], isRequired: true)
-            ->colors(['primary' => Color::Rose])
+            ->colors([
+                'primary' => Color::Rose,
+                // Approve in white on a deep green, like Reject's white on red: on Filament's own
+                // green it gets dark text on a bright fill. 7.1:1, and 4.9:1 on hover.
+                'success' => self::darker(Color::Green, steps: 2),
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([Dashboard::class])
@@ -54,5 +59,23 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    /**
+     * The palette with every shade taken from that many shades darker (the darkest repeats).
+     *
+     * @param  array<int, string>  $palette
+     * @return array<int, string>
+     */
+    private static function darker(array $palette, int $steps): array
+    {
+        $shades = array_keys($palette);
+        $last = count($shades) - 1;
+        $out = [];
+        foreach ($shades as $i => $shade) {
+            $out[$shade] = $palette[$shades[min($i + $steps, $last)]];
+        }
+
+        return $out;
     }
 }

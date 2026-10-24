@@ -10,6 +10,14 @@ class ListBans extends ListRecords
 {
     protected static string $resource = BanResource::class;
 
+    protected static ?string $title = 'Bans';
+
+    /** A top-level list: the sidebar already says where you are. */
+    public function getBreadcrumbs(): array
+    {
+        return [];
+    }
+
     protected function getHeaderActions(): array
     {
         return [CreateAction::make()->label('Ban a number or handle')];

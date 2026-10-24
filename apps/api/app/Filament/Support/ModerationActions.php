@@ -25,7 +25,7 @@ final class ModerationActions
     {
         return Action::make('approve')->label('Approve')->color('success')->icon('heroicon-o-check')
             ->visible(fn (Listing $record) => $record->status === ListingStatus::Pending)
-            ->requiresConfirmation()->modalDescription('It goes on the board now, and her account becomes trusted.')
+            ->requiresConfirmation()->modalDescription('It goes on the board now, and her account becomes trusted.')->modalSubmitActionLabel('Approve')
             ->action(fn (Listing $record) => Moderation::approve($record, self::moderator()))
             ->successNotificationTitle('Approved')
             ->successRedirectUrl($then);
@@ -35,7 +35,7 @@ final class ModerationActions
     public static function dismissReports(?string $then = null): Action
     {
         return Action::make('dismissReports')->label('Dismiss the reports')->color('gray')->icon('heroicon-o-check-circle')
-            ->requiresConfirmation()->modalDescription('The listing stays on the board and its open reports are closed.')
+            ->requiresConfirmation()->modalDescription('The listing stays on the board and its open reports are closed.')->modalSubmitActionLabel('Dismiss the reports')
             ->action(fn (Listing $record) => Moderation::dismissReports($record, self::moderator()))
             ->successNotificationTitle('Reports dismissed')
             ->successRedirectUrl($then);
@@ -50,6 +50,7 @@ final class ModerationActions
                 Select::make('reason')->options(Labels::reasons())->required(),
                 Toggle::make('ban')->label('Also ban her account, numbers and handle'),
             ])
+            ->modalSubmitActionLabel('Reject')
             ->action(fn (Listing $record, array $data) => Moderation::reject($record, self::moderator(), $data['reason'], (bool) ($data['ban'] ?? false)))
             ->successNotificationTitle('Rejected')
             ->successRedirectUrl($then);
@@ -63,6 +64,7 @@ final class ModerationActions
                 Select::make('reason')->options(Labels::reasons())->required(),
                 Toggle::make('ban')->label('Also ban her account, numbers and handle'),
             ])
+            ->modalSubmitActionLabel('Remove')
             ->action(fn (Listing $record, array $data) => Moderation::remove($record, self::moderator(), $data['reason'], (bool) ($data['ban'] ?? false)))
             ->successNotificationTitle('Removed')
             ->successRedirectUrl($then);

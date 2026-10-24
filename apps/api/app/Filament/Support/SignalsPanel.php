@@ -23,10 +23,10 @@ final class SignalsPanel
         })->latest()->limit(20)->get();
 
         return $others->map(fn (Listing $o) => sprintf('%s · %s · %s · %s',
-            $o->status->value,
+            Labels::status($o->status),
             $o->user_id === $listing->user_id ? 'her account' : 'another account',
-            mb_substr($o->title, 0, 50),
             $o->created_at->toDateString(),
+            Bidi::isolate(mb_substr($o->title, 0, 50)),
         ))->all();
     }
 
@@ -42,7 +42,7 @@ final class SignalsPanel
 
         return [
             'Account created '.$user->created_at->diffForHumans().', email '.($user->hasVerifiedEmail() ? 'verified' : 'not verified').'.',
-            'Listings: '.collect(ListingStatus::cases())->map(fn ($s) => $s->value.' '.($counts[$s->value] ?? 0))->implode(', ').'.',
+            'Listings: '.collect(ListingStatus::cases())->map(fn ($s) => mb_strtolower(Labels::status($s)).' '.($counts[$s->value] ?? 0))->implode(', ').'.',
             'Reports on her listings: '.(clone $reports)->open()->count().' open, '.$reports->count().' in all.',
             'Listings in the last 24 hours: '.$user->listings()->where('created_at', '>', Carbon::now()->subDay())->count().'.',
             Ban::accountIsBanned($user) ? 'This account is banned.' : 'This account is not banned.',
@@ -61,6 +61,6 @@ final class SignalsPanel
             if ($handle !== null) {
                 $q->orWhere(fn ($q) => $q->where('kind', Ban::INSTAGRAM)->where('value', $handle));
             }
-        })->get()->map(fn (Ban $b) => "{$b->kind} {$b->value} · ".Labels::reason($b->reason).' · since '.$b->created_at->toDateString())->all();
+        })->get()->map(fn (Ban $b) => Labels::banKind($b->kind)." {$b->value} · ".Labels::reason($b->reason).' · since '.$b->created_at->toDateString())->all();
     }
 }

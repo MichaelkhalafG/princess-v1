@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Bans\Pages;
 use App\Filament\Resources\Bans\BanResource;
 use App\Models\Moderator;
 use App\Moderation\Moderation;
+use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +14,15 @@ use Illuminate\Database\Eloquent\Model;
 class CreateBan extends CreateRecord
 {
     protected static string $resource = BanResource::class;
+
+    protected static ?string $title = 'Ban a number or handle';
+
+    protected static bool $canCreateAnother = false;
+
+    protected function getCreateFormAction(): Action
+    {
+        return parent::getCreateFormAction()->label('Ban');
+    }
 
     protected function handleRecordCreation(array $data): Model
     {

@@ -47,7 +47,7 @@ class BanResource extends Resource
         return $table
             ->defaultSort('created_at', 'desc')
             ->columns([
-                TextColumn::make('kind')->badge(),
+                TextColumn::make('kind')->badge()->formatStateUsing(fn (string $state) => Labels::banKind($state)),
                 TextColumn::make('value')->searchable(),
                 TextColumn::make('reason')->formatStateUsing(fn (?string $state) => Labels::reason($state)),
                 TextColumn::make('creator.email')->label('By')->placeholder('-'),
@@ -61,7 +61,7 @@ class BanResource extends Resource
                 )->default(true),
             ])
             ->recordActions([
-                Action::make('lift')->label('Lift')->color('gray')->requiresConfirmation()
+                Action::make('lift')->label('Lift')->color('gray')->requiresConfirmation()->modalSubmitActionLabel('Lift the ban')
                     ->visible(fn (Ban $record) => $record->lifted_at === null)
                     ->action(function (Ban $record) {
                         /** @var Moderator $moderator */

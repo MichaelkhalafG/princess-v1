@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\AuditLog;
 
 use App\Filament\Resources\AuditLog\Pages\ListModerationEvents;
+use App\Filament\Support\Bidi;
 use App\Filament\Support\Labels;
 use App\Models\ModerationEvent;
 use BackedEnum;
@@ -35,14 +36,14 @@ class ModerationEventResource extends Resource
             ->columns([
                 TextColumn::make('created_at')->label('When')->dateTime()->sortable(),
                 TextColumn::make('moderator.email')->label('Who')->placeholder('Automatic'),
-                TextColumn::make('action')->badge(),
+                TextColumn::make('action')->badge()->formatStateUsing(fn (string $state) => Labels::action($state)),
                 TextColumn::make('reason')->formatStateUsing(fn (?string $state) => Labels::reason($state))->placeholder('-'),
-                TextColumn::make('listing.title')->label('Listing')->limit(40)->placeholder('-'),
+                TextColumn::make('listing.title')->label('Listing')->limit(40)->placeholder('-')->extraAttributes(Bidi::SHORT),
                 TextColumn::make('listing_id')->label('Listing id')->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('ban_id')->label('Ban')->placeholder('-')->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('action')->options(fn () => ModerationEvent::query()->distinct()->orderBy('action')->pluck('action', 'action')->all()),
+                SelectFilter::make('action')->options(fn () => ModerationEvent::query()->distinct()->orderBy('action')->pluck('action', 'action')->map(fn (string $a) => Labels::action($a))->all()),
             ]);
     }
 
