@@ -21,10 +21,21 @@ export const DRAFT = {
   // a screen whose listing was hidden, opened from a link
   hiddenListing: 'أخفيتِ إعلانات هذه السيدة على هذا الهاتف.',
 
-  // the board's hero (app only, for now), written for a woman looking for someone: what she can
-  // find here and how. The website's hero speaks to a woman posting; these do not reuse it.
-  heroTitle: 'ما تحتاجينه،\nعند سيدة في مدينتك',
-  heroLead: 'كوافير وخياطة وطبخ بيتي ودروس ورعاية أطفال وغيرها، تقدّمها سيدات من مدينتك. ابحثي أو تصفّحي الفئات، ثم تواصلي معها مباشرة، بلا وسيط.',
+  // The board when it has nothing to show her, written for a woman looking (the app only, for now):
+  // what to try first; posting is the second button, never the message. The website's versions
+  // speak to a woman posting («كوني أول من تعرض هنا…»); these do not reuse them.
+
+  // the hero's lead in a country with nothing in it yet: the search and the categories are not on
+  // screen there, so it describes the board instead of asking her to search or browse it; and no
+  // woman offers anything there yet, so it does not say one does
+  heroLeadEmpty: 'هنا تعرض السيدات خدماتهن: كوافير وخياطة وطبخ بيتي ودروس ورعاية أطفال وغيرها، وتتواصلين معهن مباشرة، بلا وسيط.',
+  // a country with nothing in it (under the web's title «اللوحة جديدة في …»)
+  emptyCountryBody: (country: string) => `لم تعرض أي سيدة في ${country} بعد. إن كنتِ تعرفين واحدة تقدّم خدمة، أخبريها عن برينسيس، وعودي بعد أيام.`,
+  // a category with nothing in it (under the web's title «لا توجد إعلانات في «…» في … بعد»); the
+  // search and the category bar are just above it
+  emptyCategoryBody: 'جرّبي فئة قريبة منها، أو ابحثي بكلمة تصف ما تحتاجينه، أو عودي بعد أيام.',
+  // nothing to show with no category and no search (every listing there hidden on this phone)
+  emptyBoardBody: 'جرّبي البحث بكلمة تصف ما تحتاجينه، أو عودي بعد أيام.',
 
   // the board could not load (the API unreachable)
   boardFailedTitle: 'تعذّر تحميل الإعلانات',

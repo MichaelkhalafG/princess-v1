@@ -18,6 +18,7 @@ import { Logo } from '@/components/Logo';
 import { SearchField } from '@/components/SearchField';
 import { StatusShade, useScrolled } from '@/components/StatusShade';
 import { Txt } from '@/components/Txt';
+import { COPY } from '@/copy';
 import { DRAFT } from '@/drafts';
 import { c, s } from '@/theme';
 
@@ -125,10 +126,11 @@ export default function BoardScreen() {
         {/* the first screen, together: the collage (what this is), the words, the country and the search */}
         {fit.page > 0 && <HeroCollage maxHeight={fit.page - insets.top - s[8] - fit.logo - fit.rest - 3 * s[11]} />}
         <View style={styles.heroRest} onLayout={measure('rest')}>
-          {/* ARABIC COPY: DRAFT (drafts.ts), written for a woman looking, not for one posting */}
+          {/* written for a woman looking, not for one posting (copy.ts); in a country with nothing in
+              it the lead describes the board instead of asking her to search it (ARABIC COPY: DRAFT) */}
           <View style={styles.heroText}>
-            <Txt f="heading800" size="text-h2" leading="leading-title" accessibilityRole="header">{DRAFT.heroTitle}</Txt>
-            <Txt size="text-body" color={c.textSecondary}>{DRAFT.heroLead}</Txt>
+            <Txt f="heading800" size="text-h2" leading="leading-title" accessibilityRole="header">{COPY.heroTitle}</Txt>
+            <Txt size="text-body" color={c.textSecondary}>{board?.launch ? DRAFT.heroLeadEmpty : COPY.heroLead}</Txt>
           </View>
           <CountrySelector value={country} onChange={(code) => pick({ country: code, category: null, q: '' })} />
           {!board?.launch && <SearchField value={query} placeholder={searchPlaceholder(country)} onChange={setQuery} onSubmit={submitSearch} />}
@@ -156,10 +158,9 @@ export default function BoardScreen() {
       return (
         <EmptyState
           title={`اللوحة جديدة في ${k.name}`}
-          body={[
-            `هنا ستجدين سيدات من ${k.name} يعرضن خدماتهن وملابسهن، وتتواصلين معهن مباشرة على واتساب أو الهاتف، بلا وسيط.`,
-            'لم يُنشر أي إعلان بعد. إن كانت لديكِ خدمة أو ملابس تعرضينها، كوني أول من تنشر: الإعلان مجاني ويستغرق دقيقتين. وإن كنتِ تبحثين عن خدمة، فأرسلي الرابط لمن تعرفين ممن تقدّم واحدة.',
-          ]}
+          // what she can do while it is empty (ARABIC COPY: DRAFT); the hero above already says what
+          // the board is, so the web's first paragraph, which says it again, is left out
+          body={DRAFT.emptyCountryBody(k.name)}
           // a woman looking comes first: where she can find listings, then posting (the web: the reverse)
           actions={[
             board.elsewhere[0] ? { label: `تصفحي إعلانات ${getCountry(board.elsewhere[0]).name}`, onPress: () => pick({ country: board.elsewhere[0], category: null, q: '' }) } : undefined,
@@ -183,7 +184,8 @@ export default function BoardScreen() {
     return (
       <EmptyState
         title={category ? `لا توجد إعلانات في «${activeLabel}» في ${k.name} بعد` : `لا توجد إعلانات في ${k.name} بعد`}
-        body="كوني أول من تعرض هنا، فالإعلان يستغرق دقيقتين."
+        // what to try, not an invitation to post (ARABIC COPY: DRAFT)
+        body={category ? DRAFT.emptyCategoryBody : DRAFT.emptyBoardBody}
         // browsing first, posting second (the web: the reverse)
         actions={[
           category ? { label: 'تصفحي كل الفئات', onPress: () => pick({ category: null }) } : undefined,

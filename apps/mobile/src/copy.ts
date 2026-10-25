@@ -7,4 +7,10 @@ export const COPY = {
   tabBoard: 'اللوحة',
   back: 'رجوع',
   close: 'إغلاق',
+
+  // the board's hero (the app only, for now), written for a woman looking for someone: what she can
+  // find here and how. The website's hero speaks to a woman posting; these do not reuse it.
+  // Approved 2026-10-25.
+  heroTitle: 'ما تحتاجينه،\nعند سيدة في مدينتك',
+  heroLead: 'كوافير وخياطة وطبخ بيتي ودروس ورعاية أطفال وغيرها، تقدّمها سيدات من مدينتك. ابحثي أو تصفّحي الفئات، ثم تواصلي معها مباشرة، بلا وسيط.',
 } as const;
