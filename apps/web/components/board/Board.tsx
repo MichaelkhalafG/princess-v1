@@ -4,6 +4,7 @@ import { useEffect, useOptimistic, useRef, useState, useTransition } from 'react
 import { useRouter } from 'next/navigation';
 import { ALL_CATEGORIES, getCategory, getCountry, type CategorySlug, type CountryCode } from '@princess/shared/constants.ts';
 import { PAGE_SIZE, boardHref, boardQuery, withBoardContext } from '@princess/shared/board-url.ts';
+import { BOARD_COPY } from '@princess/shared/board-copy.ts';
 import { listingCountLabel, searchPlaceholder } from '@princess/shared/format.ts';
 import type { Listing } from '@princess/shared/listing.ts';
 import { Button } from '../Button.tsx';
@@ -191,8 +192,9 @@ export function Board({
 
         <section className={styles.hero}>
           <div className={styles.copy}>
-            <h1 className={styles.title}>عملكِ يصل<br />إلى كل سيدة حولك</h1>
-            <p className={styles.lead}>اعرضي خدمتك أو ملابسك، وتتواصل معك من تحتاجها عبر واتساب مباشرة. بلا وسيط وبلا عمولة.</p>
+            {/* written for a woman looking, as most visitors are; the app's words (shared) */}
+            <h1 className={styles.title}>{BOARD_COPY.heroTitle.map((line) => <span key={line}>{line}</span>)}</h1>
+            <p className={styles.lead}>{launch ? BOARD_COPY.heroLeadEmpty : BOARD_COPY.heroLead}</p>
 
             <div className={styles.controls} ref={heroControls}>
               <CountrySelector size="large" value={selected.country} onChange={(c) => navigate({ country: c })} />
@@ -202,12 +204,14 @@ export function Board({
                   placeholder={searchPlaceholder(country)}
                   onChange={setQuery}
                   onSubmit={() => navigate({ q: query })}
+                  busy={pending}
                 />
               )}
             </div>
 
+            {/* posting: within reach, but quieter than finding (the search above is the hero's action) */}
             <div className={styles.ctaRow}>
-              <Button variant="cta" href={postHref}>اعرضي خدمتك</Button>
+              <Button variant="soft" href={postHref}>اعرضي خدمتك</Button>
               {/* ARABIC COPY: DRAFT */}
               <span className={styles.ctaNote}>مجاني، وبلا عمولة</span>
             </div>
@@ -239,13 +243,12 @@ export function Board({
         {launch ? (
           <EmptyState
             title={`اللوحة جديدة في ${k.name}`}
-            body={[
-              `هنا ستجدين سيدات من ${k.name} يعرضن خدماتهن وملابسهن، وتتواصلين معهن مباشرة على واتساب أو الهاتف، بلا وسيط.`,
-              'لم يُنشر أي إعلان بعد. إن كانت لديكِ خدمة أو ملابس تعرضينها، كوني أول من تنشر: الإعلان مجاني ويستغرق دقيقتين. وإن كنتِ تبحثين عن خدمة، فأرسلي الرابط لمن تعرفين ممن تقدّم واحدة.',
-            ]}
+            // what she can do while it is empty (the hero above already says what the board is);
+            // where she can find listings first, posting second
+            body={BOARD_COPY.emptyCountryBody(k.name)}
             actions={[
-              { label: 'اعرضي خدمتك الآن', href: postHref },
               elsewhere[0] ? { label: `تصفحي إعلانات ${getCountry(elsewhere[0]).name}`, onClick: () => navigate({ country: elsewhere[0], category: null, q: '' }) } : undefined,
+              { label: 'اعرضي خدمتك الآن', href: postHref },
             ]}
           />
         ) : n === 0 ? (
@@ -261,13 +264,13 @@ export function Board({
               ]}
             />
           ) : (
-            // Nothing posted here yet: invite her to be first, or let her see the rest.
+            // Nothing here yet: what to try, then the rest of the board; posting second.
             <EmptyState
               title={category ? `لا توجد إعلانات في «${activeLabel}» في ${k.name} بعد` : `لا توجد إعلانات في ${k.name} بعد`}
-              body="كوني أول من تعرض هنا، فالإعلان يستغرق دقيقتين."
+              body={category ? BOARD_COPY.emptyCategoryBody : BOARD_COPY.emptyBoardBody}
               actions={[
-                { label: 'اعرضي خدمتك الآن', href: postHref },
                 category ? { label: 'تصفحي كل الفئات', onClick: () => navigate({ category: null }) } : undefined,
+                { label: 'اعرضي خدمتك الآن', href: postHref },
               ]}
             />
           )
@@ -284,7 +287,7 @@ export function Board({
         )}
         {n > 0 && n < total && (
           <div className={styles.more}>
-            <Button variant="soft" onClick={showMore} aria-disabled={morePending}>
+            <Button variant="soft" onClick={showMore} aria-disabled={morePending} busy={morePending}>
               {morePending ? 'جارٍ التحميل…' : 'عرض المزيد'}
             </Button>
           </div>

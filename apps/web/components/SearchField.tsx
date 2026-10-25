@@ -4,17 +4,23 @@ import type { FormEvent } from 'react';
 import { Button } from './Button.tsx';
 import styles from './SearchField.module.css';
 
-/** The hero search pill. Matches name, title, description, city and district (lib/listings.ts). */
+/**
+ * The hero search pill. Matches name, title, description, city and district (lib/listings.ts).
+ * `busy`: new results are on their way (a search, a country) — its button shows the busy ring,
+ * on the first screen where she acted; the result count saying so is below the fold on a phone.
+ */
 export function SearchField({
   value,
   placeholder,
   onChange,
   onSubmit,
+  busy = false,
 }: {
   value: string;
   placeholder: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
+  busy?: boolean;
 }) {
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -32,7 +38,7 @@ export function SearchField({
         placeholder={placeholder}
         enterKeyHint="search"
       />
-      <Button type="submit" variant="accent" size="compact">ابحثي</Button>
+      <Button type="submit" variant="accent" size="compact" busy={busy}>ابحثي</Button>
     </form>
   );
 }

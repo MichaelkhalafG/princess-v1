@@ -16,7 +16,8 @@ final class AccountInput
     }
 
     /**
-     * The errors for a new account, by field (empty when it can be created).
+     * The errors for a new account, by field (empty when it can be created). Only a verified account
+     * makes an email "taken": one never verified is replaced by the new sign-up (UnverifiedAccount).
      *
      * @return array<string, string>
      */
@@ -24,7 +25,7 @@ final class AccountInput
     {
         $validator = Validator::make(
             ['email' => is_string($email) ? self::email($email) : $email],
-            ['email' => ['required', 'string', 'max:254', 'email:rfc', Rule::unique('users', 'email')]],
+            ['email' => ['required', 'string', 'max:254', 'email:rfc', Rule::unique('users', 'email')->whereNotNull('email_verified_at')]],
             self::messages(),
         );
 

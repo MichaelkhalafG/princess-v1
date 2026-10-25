@@ -7,7 +7,7 @@
 // with a reason, before she has filled everything in.
 
 import { LIMITS, getCountry, type CategorySlug, type CountryCode } from './constants.ts';
-import { charLength } from './listing.ts';
+import { EMAIL_IN_TEXT, EMAIL_IN_TEXT_MESSAGE, charLength } from './listing.ts';
 import { charsLabel, charsOverLabel, digitsLabel, toArabicDigits } from './format.ts';
 
 export type FormValues = {
@@ -115,7 +115,7 @@ export function validateForm(v: FormValues): FormErrors {
     description: 'اكتبي وصفًا يقول للعميلة ماذا تقدمين وكيف تعملين.',
   };
   for (const f of ['name', 'title', 'description'] as const) {
-    const msg = !v[f].trim() ? required[f] : tooLong(f, v[f]);
+    const msg = !v[f].trim() ? required[f] : tooLong(f, v[f]) ?? (EMAIL_IN_TEXT.test(v[f]) ? EMAIL_IN_TEXT_MESSAGE : null);
     if (msg) e[f] = msg;
   }
   const priceMsg = tooLong('price', v.price);

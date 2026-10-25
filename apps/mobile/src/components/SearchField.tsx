@@ -3,8 +3,12 @@ import { fluid } from '@princess/tokens/native.ts';
 import { c, font, r, s, shadows, sizes } from '@/theme';
 import { Button } from './Button';
 
-/** The search pill (web: SearchField): a pink ring, the field, and «ابحثي». */
-export function SearchField({ value, placeholder, onChange, onSubmit }: { value: string; placeholder: string; onChange: (v: string) => void; onSubmit: () => void }) {
+/**
+ * The search pill (web: SearchField): a pink ring, the field, and «ابحثي». `busy`: new results are
+ * on their way (a search, a country) — its button shows the spinner, on the first screen where she
+ * acted; the result count saying so is below the fold.
+ */
+export function SearchField({ value, placeholder, onChange, onSubmit, busy = false }: { value: string; placeholder: string; onChange: (v: string) => void; onSubmit: () => void; busy?: boolean }) {
   return (
     <View style={styles.field}>
       <View style={styles.glyph} />
@@ -18,7 +22,7 @@ export function SearchField({ value, placeholder, onChange, onSubmit }: { value:
         accessibilityLabel="ابحثي في الإعلانات"
         style={styles.input}
       />
-      <Button variant="accent" compact onPress={onSubmit}>ابحثي</Button>
+      <Button variant="accent" compact busy={busy} onPress={onSubmit}>ابحثي</Button>
     </View>
   );
 }

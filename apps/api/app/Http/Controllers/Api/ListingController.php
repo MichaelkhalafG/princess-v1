@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Accounts\AccountInput;
 use App\Accounts\SignIn;
+use App\Accounts\UnverifiedAccount;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ListListingsRequest;
 use App\Listings\ListingInput;
@@ -55,6 +56,10 @@ class ListingController extends Controller
         }
         if ($errors !== []) {
             return response()->json(['errors' => $errors], 422);
+        }
+        // signing up on an email never verified: that account goes first, its listing with it
+        if ($user === null) {
+            UnverifiedAccount::clearFor($request->input('email'));
         }
 
         $created = DB::transaction(function () use ($user, $request, $listing, $photo) {

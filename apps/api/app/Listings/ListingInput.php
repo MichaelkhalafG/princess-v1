@@ -19,6 +19,14 @@ final class ListingInput
 
     public const INSTAGRAM_PATTERN = '/^[A-Za-z0-9._]{1,30}$/D';
 
+    /**
+     * An email address in the name, the title or the description: refused ("has_email"), not just
+     * sent to review — a contact address in free text is a way around the contact fields and the
+     * review. Phone numbers and @handles in the text stay a review signal (Signals). The same
+     * pattern as @princess/shared listing.ts EMAIL_IN_TEXT; the shared case file holds the two together.
+     */
+    public const EMAIL_IN_TEXT = '/[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/';
+
     /** A photo id from POST /photos: a UUID in lower case, as the API writes them. */
     public const PHOTO_ID_PATTERN = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/D';
 
@@ -159,6 +167,11 @@ final class ListingInput
         }
         if ($max !== null && JsText::length($t['value']) > $max) {
             $this->errors[$key] = 'too_long';
+
+            return '';
+        }
+        if ($key !== 'city' && preg_match(self::EMAIL_IN_TEXT, $t['value']) === 1) {
+            $this->errors[$key] = 'has_email';
 
             return '';
         }

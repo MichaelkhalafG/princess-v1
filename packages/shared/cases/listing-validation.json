@@ -115,8 +115,8 @@
     {
       "name": "text is trimmed of every kind of white space JavaScript trims",
       "set": {
-        "name": "\u00a0\u3000سارة\t\n",
-        "title": " تصفيف شعر\u2003"
+        "name": " 　سارة\t\n",
+        "title": " تصفيف شعر "
       },
       "unset": [],
       "ok": true,
@@ -128,12 +128,12 @@
     {
       "name": "a zero-width space is not white space, so it stays",
       "set": {
-        "name": "\u200bسارة"
+        "name": "​سارة"
       },
       "unset": [],
       "ok": true,
       "expect": {
-        "name": "\u200bسارة"
+        "name": "​سارة"
       }
     },
     {
@@ -439,7 +439,7 @@
     {
       "name": "no-break spaces inside a number",
       "set": {
-        "whatsapp": "+20\u00a0101\u00a0234\u00a05678"
+        "whatsapp": "+20 101 234 5678"
       },
       "unset": [],
       "ok": true,
@@ -542,7 +542,7 @@
     {
       "name": "white space JavaScript trims is blank too",
       "set": {
-        "city": "\u00a0\u3000"
+        "city": " 　"
       },
       "unset": [],
       "ok": false,
@@ -935,6 +935,61 @@
         "category": "invalid",
         "price": "too_long",
         "whatsapp": "invalid"
+      }
+    },
+    {
+      "name": "an email address in the title is refused",
+      "set": {
+        "title": "maikel.test@gmail.com"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "title": "has_email"
+      }
+    },
+    {
+      "name": "an email address inside the description is refused",
+      "set": {
+        "description": "للحجز راسليني على noha_99@hotmail.com أو واتساب"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "description": "has_email"
+      }
+    },
+    {
+      "name": "an email address as the name is refused",
+      "set": {
+        "name": "sara@example.com"
+      },
+      "unset": [],
+      "ok": false,
+      "errors": {
+        "name": "has_email"
+      }
+    },
+    {
+      "name": "an @handle alone in the description is not an email (a review signal, not refused)",
+      "set": {
+        "description": "تابعيني على @noha.cakes لصور أعمالي"
+      },
+      "unset": [],
+      "ok": true,
+      "expect": {
+        "name": "سارة",
+        "title": "تصفيف شعر",
+        "category": "hairdressing",
+        "country": "EG",
+        "city": "القاهرة",
+        "district": null,
+        "description": "تابعيني على @noha.cakes لصور أعمالي",
+        "price": null,
+        "photo": null,
+        "whatsapp": "+201012345678",
+        "phone": null,
+        "social": null
       }
     }
   ]

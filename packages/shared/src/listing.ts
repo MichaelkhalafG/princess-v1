@@ -58,7 +58,19 @@ export const WRITABLE_COLUMNS = [
 ] as const satisfies readonly (keyof NewListing)[];
 
 export type ListingField = (typeof WRITABLE_COLUMNS)[number];
-export type ErrorCode = 'required' | 'too_long' | 'invalid' | 'contact_required';
+export type ErrorCode = 'required' | 'too_long' | 'invalid' | 'contact_required' | 'has_email';
+
+/**
+ * An email address written into the name, the title or the description. Refused, not just sent to
+ * review: a contact address in free text is a way around the contact fields and the review (and
+ * a phone's autofill once put a poster's own email in her title). Phone numbers and @handles in
+ * the text stay a review signal (apps/api Signals::hasContactInText): those are judgement calls.
+ * The API carries the same pattern (ListingInput::EMAIL_IN_TEXT).
+ */
+export const EMAIL_IN_TEXT = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/;
+
+/** What she reads under the field. ARABIC COPY: DRAFT */
+export const EMAIL_IN_TEXT_MESSAGE = 'لا يُكتب البريد الإلكتروني في الإعلان. تتواصل معكِ العميلة بالطرق التي تضيفينها في «كيف تتواصل معك العميلة؟».';
 export type ValidationErrors = Partial<Record<ListingField | 'contact', ErrorCode>>;
 export type ValidationResult =
   | { ok: true; value: NewListing }
@@ -75,7 +87,7 @@ export const PHOTO_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4
  */
 export const SERVER_MESSAGES: Record<keyof ValidationErrors, Record<ErrorCode, string>> = (() => {
   const base = (required: string, invalid = 'القيمة غير صالحة.', tooLong = 'النص أطول من المسموح.') =>
-    ({ required, invalid, too_long: tooLong, contact_required: required });
+    ({ required, invalid, too_long: tooLong, contact_required: required, has_email: EMAIL_IN_TEXT_MESSAGE });
   return {
     name: base('الاسم مطلوب.'),
     title: base('العنوان مطلوب.'),
@@ -136,6 +148,7 @@ export function validateListing(input: unknown): ValidationResult {
     if (t.kind === 'missing') { errors[key] = 'required'; return ''; }
     if (t.kind === 'wrong_type') { errors[key] = 'invalid'; return ''; }
     if (max !== undefined && charLength(t.value) > max) { errors[key] = 'too_long'; return ''; }
+    if (key !== 'city' && EMAIL_IN_TEXT.test(t.value)) { errors[key] = 'has_email'; return ''; }
     return t.value;
   };
 

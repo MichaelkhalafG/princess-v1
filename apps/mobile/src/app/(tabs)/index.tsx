@@ -14,11 +14,12 @@ import { CountrySelector } from '@/components/CountrySelector';
 import { EmptyState } from '@/components/EmptyState';
 import { HeroCollage } from '@/components/HeroCollage';
 import { ListingCard } from '@/components/ListingCard';
+import { Loading } from '@/components/Loading';
 import { Logo } from '@/components/Logo';
 import { SearchField } from '@/components/SearchField';
 import { StatusShade, useScrolled } from '@/components/StatusShade';
 import { Txt } from '@/components/Txt';
-import { COPY } from '@/copy';
+import { BOARD_COPY } from '@princess/shared/board-copy.ts';
 import { DRAFT } from '@/drafts';
 import { c, s } from '@/theme';
 
@@ -126,14 +127,14 @@ export default function BoardScreen() {
         {/* the first screen, together: the collage (what this is), the words, the country and the search */}
         {fit.page > 0 && <HeroCollage maxHeight={fit.page - insets.top - s[8] - fit.logo - fit.rest - 3 * s[11]} />}
         <View style={styles.heroRest} onLayout={measure('rest')}>
-          {/* written for a woman looking, not for one posting (copy.ts); in a country with nothing in
-              it the lead describes the board instead of asking her to search it (ARABIC COPY: DRAFT) */}
+          {/* written for a woman looking, not for one posting (shared with the website); in a country
+              with nothing in it the lead describes the board instead of asking her to search it */}
           <View style={styles.heroText}>
-            <Txt f="heading800" size="text-h2" leading="leading-title" accessibilityRole="header">{COPY.heroTitle}</Txt>
-            <Txt size="text-body" color={c.textSecondary}>{board?.launch ? DRAFT.heroLeadEmpty : COPY.heroLead}</Txt>
+            <Txt f="heading800" size="text-h2" leading="leading-title" accessibilityRole="header">{BOARD_COPY.heroTitle.join('\n')}</Txt>
+            <Txt size="text-body" color={c.textSecondary}>{board?.launch ? BOARD_COPY.heroLeadEmpty : BOARD_COPY.heroLead}</Txt>
           </View>
           <CountrySelector value={country} onChange={(code) => pick({ country: code, category: null, q: '' })} />
-          {!board?.launch && <SearchField value={query} placeholder={searchPlaceholder(country)} onChange={setQuery} onSubmit={submitSearch} />}
+          {!board?.launch && <SearchField value={query} placeholder={searchPlaceholder(country)} onChange={setQuery} onSubmit={submitSearch} busy={pending && !!board} />}
         </View>
       </View>
       {!board?.launch && <CategoryBar value={category} onChange={(slug) => pick({ category: slug })} />}
@@ -142,7 +143,7 @@ export default function BoardScreen() {
           <Txt f="heading800" size="text-h2-sm" leading="leading-heading" style={styles.gridTitle}>
             {q ? `نتائج «${q}»${category ? ` في «${activeLabel}»` : ''} في ${k.name}` : category ? `${activeLabel} في ${k.name}` : `آخر الإعلانات في ${k.name}`}
           </Txt>
-          <Txt size="text-body-sm" color={c.textMuted}>{pending ? LOADING_LABEL : listingCountLabel(shownTotal)}</Txt>
+          {pending ? <Loading compact label={LOADING_LABEL} /> : <Txt size="text-body-sm" color={c.textMuted}>{listingCountLabel(shownTotal)}</Txt>}
         </View>
       )}
       {someHidden && <Txt size="text-small" color={c.textMuted} style={{ paddingHorizontal: gutter, marginBottom: s[8] }}>{DRAFT.hiddenNotice}</Txt>}
@@ -153,14 +154,14 @@ export default function BoardScreen() {
     if (failed) {
       return <EmptyState title={DRAFT.boardFailedTitle} body="تعذّر الاتصال. تحققي من الاتصال ثم حاولي مرة أخرى." actions={[{ label: DRAFT.retry, onPress: load }]} />;
     }
-    if (!board) return null;
+    // the first load: the spinner, not a blank board
+    if (!board) return pending ? <Loading /> : null;
     if (board.launch) {
       return (
         <EmptyState
           title={`اللوحة جديدة في ${k.name}`}
-          // what she can do while it is empty (ARABIC COPY: DRAFT); the hero above already says what
-          // the board is, so the web's first paragraph, which says it again, is left out
-          body={DRAFT.emptyCountryBody(k.name)}
+          // what she can do while it is empty; the hero above already says what the board is
+          body={BOARD_COPY.emptyCountryBody(k.name)}
           // a woman looking comes first: where she can find listings, then posting (the web: the reverse)
           actions={[
             board.elsewhere[0] ? { label: `تصفحي إعلانات ${getCountry(board.elsewhere[0]).name}`, onPress: () => pick({ country: board.elsewhere[0], category: null, q: '' }) } : undefined,
@@ -184,8 +185,8 @@ export default function BoardScreen() {
     return (
       <EmptyState
         title={category ? `لا توجد إعلانات في «${activeLabel}» في ${k.name} بعد` : `لا توجد إعلانات في ${k.name} بعد`}
-        // what to try, not an invitation to post (ARABIC COPY: DRAFT)
-        body={category ? DRAFT.emptyCategoryBody : DRAFT.emptyBoardBody}
+        // what to try, not an invitation to post
+        body={category ? BOARD_COPY.emptyCategoryBody : BOARD_COPY.emptyBoardBody}
         // browsing first, posting second (the web: the reverse)
         actions={[
           category ? { label: 'تصفحي كل الفئات', onPress: () => pick({ category: null }) } : undefined,

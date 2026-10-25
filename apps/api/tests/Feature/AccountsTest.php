@@ -124,7 +124,7 @@ class AccountsTest extends TestCase
         $this->assertFalse($user->fresh()->hasVerifiedEmail());
     }
 
-    public function test_an_address_with_an_account_cannot_sign_up_again_and_nothing_is_created(): void
+    public function test_a_verified_address_cannot_sign_up_again_and_nothing_is_created(): void
     {
         $existing = $this->makeUser();
         $res = $this->postJson('/api/v1/listings', $this->signUpBody(['email' => strtoupper($existing->email)]));
@@ -133,6 +133,31 @@ class AccountsTest extends TestCase
         $this->assertSame(1, User::count());
         $this->assertSame(0, Listing::count());
         Notification::assertNothingSent();
+    }
+
+    public function test_signing_up_again_on_an_address_never_verified_replaces_that_account(): void
+    {
+        // the first try: an account and its listing, never verified
+        $this->postJson('/api/v1/listings', $this->signUpBody(['title' => 'المحاولة الأولى', 'password' => 'first-password']))->assertCreated();
+        $old = User::query()->sole();
+        $oldListing = Listing::query()->sole();
+
+        // she comes back with the same address: not "taken" — the old account goes, listing and all
+        $res = $this->postJson('/api/v1/listings', $this->signUpBody(['email' => 'New.Poster@example.test', 'title' => 'المحاولة الثانية', 'password' => 'second-password']));
+        $res->assertCreated();
+        $this->assertSame('unverified', $res->json('status'));
+        $this->assertNull(User::find($old->id), 'the never-verified account is gone');
+        $this->assertNull(Listing::find($oldListing->id), 'its listing does not carry over');
+        $new = User::query()->sole();
+        $this->assertNotSame($old->id, $new->id);
+        $this->assertSame(['المحاولة الثانية'], Listing::query()->where('user_id', $new->id)->pluck('title')->all());
+
+        // a fresh link for the new account; the new password is the one that works
+        Notification::assertSentToTimes($new, VerifyEmail::class, 1);
+        $this->freshRequest();
+        $this->postJson('/api/v1/login', ['email' => $new->email, 'password' => 'first-password'])->assertStatus(422);
+        $this->freshRequest();
+        $this->postJson('/api/v1/login', ['email' => $new->email, 'password' => 'second-password'])->assertOk();
     }
 
     public function test_listing_and_account_errors_come_back_together(): void
